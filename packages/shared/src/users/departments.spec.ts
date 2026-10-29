@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { type Department, DEPARTMENTS, departmentFromRoll, seriesFromRoll } from './departments.js';
+import {
+  type Department,
+  DEPARTMENTS,
+  departmentFromRoll,
+  rollPrefixes,
+  seriesFromRoll,
+} from './departments.js';
 
 const today = new Date('2026-10-30T00:00:00Z');
 
@@ -34,6 +40,16 @@ describe('departmentFromRoll', () => {
     expect(new Set(open).size).toBe(open.length);
   });
 
+  it('builds roll prefixes for directory filters', () => {
+    expect(rollPrefixes({}, DEPARTMENTS, today)).toBeNull();
+    expect(rollPrefixes({ department: 'CSE', series: 2017 }, DEPARTMENTS, today)).toEqual(['1703']);
+    expect(rollPrefixes({ series: 1999 }, DEPARTMENTS, today)).toEqual(['99']);
+    const cse = rollPrefixes({ department: 'CSE' }, DEPARTMENTS, today);
+    expect(cse).toHaveLength(100);
+    expect(cse).toContain('2103');
+    expect(rollPrefixes({ department: 'NOPE' }, DEPARTMENTS, today)).toEqual([]);
+  });
+
   it('respects series ranges when a code changes meaning', () => {
     const table: Department[] = [
       { code: '15', short: 'OLD', name: 'Old Department', untilSeries: 2019 },
@@ -41,5 +57,7 @@ describe('departmentFromRoll', () => {
     ];
     expect(departmentFromRoll('1915001', table, today)?.short).toBe('OLD');
     expect(departmentFromRoll('2015001', table, today)?.short).toBe('NEW');
+    expect(rollPrefixes({ department: 'OLD', series: 2020 }, table, today)).toEqual([]);
+    expect(rollPrefixes({ department: 'NEW', series: 2020 }, table, today)).toEqual(['2015']);
   });
 });

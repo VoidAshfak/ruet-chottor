@@ -73,6 +73,10 @@ token and a 30-day refresh token that rotates on every use. Both are random stri
 the web app builds its navigation from it, so the API is the single source of truth.
 In the API, `ConditionalModule.registerWhen` in `app.module.ts` skips disabled modules, so their routes do not exist.
 
+Modules talk to each other only through exported services. Example: `directory` imports `UsersModule` and calls
+`UsersService.listPublic()`, so the rules for *what* a member may see about another member (privacy, hiding
+suspended accounts) live in one place, `users`.
+
 ## Decisions
 
 Significant choices are recorded in [docs/decisions](decisions/).

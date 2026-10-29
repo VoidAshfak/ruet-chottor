@@ -10,6 +10,7 @@ import {
 } from '@ruet-chottor/shared';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RateLimitService } from '../../core/rate-limit/rate-limit.service.js';
+import type { Prisma } from '../../generated/prisma/client.js';
 
 const FIFTEEN_MINUTES = 15 * 60;
 
@@ -91,6 +92,30 @@ export class UsersService {
       throw new NotFoundException({ code: ERROR_CODES.NOT_FOUND, message: 'User not found.' });
     }
     return toPublicProfile(user);
+  }
+
+  /**
+   * A page of active members, privacy applied, sorted by name. For other modules (e.g. directory)
+   * that decide *who* to list; this module decides *what* is shown.
+   */
+  async listPublic(options: {
+    where: Prisma.UserWhereInput;
+    cursor?: string;
+    take: number;
+  }): Promise<{ items: PublicProfile[]; nextCursor: string | null }> {
+    const rows = await this.prisma.user.findMany({
+      where: { AND: [options.where, { status: 'active' }] },
+      select: userSelect,
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
+      take: options.take + 1,
+      ...(options.cursor ? { cursor: { id: options.cursor }, skip: 1 } : {}),
+    });
+    const hasMore = rows.length > options.take;
+    const page = hasMore ? rows.slice(0, options.take) : rows;
+    return {
+      items: page.map(toPublicProfile),
+      nextCursor: hasMore ? (page.at(-1)?.id ?? null) : null,
+    };
   }
 
   async updateMine(userId: string, input: UpdateMyProfileRequest): Promise<MyProfile> {

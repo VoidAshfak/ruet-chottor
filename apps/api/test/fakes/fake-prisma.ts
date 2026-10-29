@@ -3,16 +3,32 @@ import type { Profile, Session, User } from '../../src/generated/prisma/client.j
 
 type Where = Record<string, unknown>;
 
+type StringFilter = { startsWith?: string; contains?: string; mode?: 'insensitive' };
+
+function matchesValue(value: unknown, expected: unknown): boolean {
+  if (expected === null || typeof expected !== 'object' || expected instanceof Date) {
+    return value === expected;
+  }
+  const filter = expected as StringFilter;
+  const fold = (text: string) => (filter.mode === 'insensitive' ? text.toLowerCase() : text);
+  const text = fold(String(value));
+  if (filter.startsWith !== undefined && !text.startsWith(fold(filter.startsWith))) return false;
+  if (filter.contains !== undefined && !text.includes(fold(filter.contains))) return false;
+  return true;
+}
+
 function matches(row: Record<string, unknown>, where: Where): boolean {
   return Object.entries(where).every(([key, expected]) => {
     if (key === 'OR') return (expected as Where[]).some((clause) => matches(row, clause));
-    return row[key] === expected;
+    if (key === 'AND') return (expected as Where[]).every((clause) => matches(row, clause));
+    return matchesValue(row[key], expected);
   });
 }
 
 /**
- * In-memory stand-in for the Prisma calls the auth and users modules make. Supports simple equality
- * filters only; add what a test needs, and prefer real-database tests for complex queries.
+ * In-memory stand-in for the Prisma calls the auth, users and directory modules make. Supports
+ * equality, AND/OR and startsWith/contains filters; add what a test needs, and prefer
+ * real-database tests for complex queries.
  */
 export class FakePrisma {
   users: User[] = [];
@@ -33,6 +49,23 @@ export class FakePrisma {
         this.users.find((u) => matches(u as unknown as Where, args.where)),
         args,
       ),
+    /** Sorted by name then id, like the directory's `orderBy`. */
+    findMany: async (args: {
+      where: Where;
+      select?: Where;
+      take?: number;
+      skip?: number;
+      cursor?: { id: string };
+    }) => {
+      const sorted = this.users
+        .filter((u) => matches(u as unknown as Where, args.where))
+        .sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
+      const start = args.cursor ? sorted.findIndex((u) => u.id === args.cursor?.id) : 0;
+      return sorted
+        .slice(start + (args.skip ?? 0))
+        .slice(0, args.take)
+        .map((u) => this.withProfile(u, args));
+    },
     create: async ({ data }: { data: Partial<User> }) => {
       const now = new Date();
       const user = {

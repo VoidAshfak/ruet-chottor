@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Directory module (Phase 1): search members by name or roll, and filter by department, series and role.
+  Results show only the contact details each member shares; filters are kept in the URL.
 - Users module (Phase 1): **My profile** page and public member profiles (`/users/<id>`). Department and series
   are worked out from the roll (ADR 0006); email and phone are shown only if the member opts in (off by default).
   First-visit guides are now remembered on the server for logged-in members, with a "Show tips again" button.

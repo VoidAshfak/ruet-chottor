@@ -36,11 +36,46 @@ export const DEPARTMENTS: readonly Department[] = [
 ];
 
 /** `17` -> 2017. Two digits ahead of the current year are read as the 1900s (old alumni). */
-export function seriesFromRoll(roll: string, today = new Date()): number | null {
-  if (!/^\d{7}$/.test(roll)) return null;
-  const twoDigits = Number(roll.slice(0, 2));
+function seriesFromTwoDigits(twoDigits: number, today: Date): number {
   const currentTwoDigits = today.getUTCFullYear() % 100;
   return twoDigits <= currentTwoDigits + 1 ? 2000 + twoDigits : 1900 + twoDigits;
+}
+
+export function seriesFromRoll(roll: string, today = new Date()): number | null {
+  if (!/^\d{7}$/.test(roll)) return null;
+  return seriesFromTwoDigits(Number(roll.slice(0, 2)), today);
+}
+
+const covers = (department: Department, series: number) =>
+  (department.fromSeries === undefined || series >= department.fromSeries) &&
+  (department.untilSeries === undefined || series <= department.untilSeries);
+
+/**
+ * Roll prefixes (series digits + department code) matching a directory filter, e.g.
+ * CSE in 2017 -> ['1703']. `null` means "no filter"; an empty list means nothing can match.
+ */
+export function rollPrefixes(
+  filter: { department?: string; series?: number },
+  departments: readonly Department[] = DEPARTMENTS,
+  today = new Date(),
+): string[] | null {
+  if (filter.department === undefined && filter.series === undefined) return null;
+  const prefixes: string[] = [];
+  for (let twoDigits = 0; twoDigits < 100; twoDigits += 1) {
+    const series = seriesFromTwoDigits(twoDigits, today);
+    if (filter.series !== undefined && series !== filter.series) continue;
+    const yy = String(twoDigits).padStart(2, '0');
+    if (filter.department === undefined) {
+      prefixes.push(yy);
+      continue;
+    }
+    for (const department of departments) {
+      if (department.short === filter.department && covers(department, series)) {
+        prefixes.push(`${yy}${department.code}`);
+      }
+    }
+  }
+  return prefixes;
 }
 
 /** The department a roll belongs to, or null for an unknown code. */
@@ -53,11 +88,6 @@ export function departmentFromRoll(
   if (series === null) return null;
   const code = roll.slice(2, 4);
   return (
-    departments.find(
-      (department) =>
-        department.code === code &&
-        (department.fromSeries === undefined || series >= department.fromSeries) &&
-        (department.untilSeries === undefined || series <= department.untilSeries),
-    ) ?? null
+    departments.find((department) => department.code === code && covers(department, series)) ?? null
   );
 }

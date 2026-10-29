@@ -5,3 +5,4 @@ export * from './common/pagination.js';
 export * from './socket-events.js';
 export * from './auth/index.js';
 export * from './users/index.js';
+export * from './directory/index.js';
