@@ -1,0 +1,13 @@
+// RUET Chottor database schema.
+// Each module keeps its models under a `// ===== <module> =====` heading (CLAUDE.md §4).
+// The connection URL lives in prisma.config.ts, not here (Prisma 7).
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}

@@ -1,0 +1,10 @@
+RUET students often find it difficult to find their alumni contacts, teacher contacts, they need to create groups in facebook or whatsapp to communicate with the short semester mates. often it is difficult for the students to find each other's contacts to communicate. google classroom is used for the course management for the teacher. 
+it would be better if there is a platform for the students to solve all those problems. the platform will have club and event management section, news section, Lost & Found + Campus Marketplace, RUET Bus Tracker & Schedule all these in one place. 
+
+this will be a blessing for the students. the design of this website may not be the most beautiful one. but the functionality should be great. usability should be easy and simple as well as effective. a feature rich platform. 
+
+the initial data required for this platform can be dummy and taken from the web. The visual design should be clean and minimalistic and the color theme should use ruet logo theme. The authentication and authorization process should be handled by a simple signup and sign-in. Info required for that is name, roll, registration, email, phone, date of birth and a password. Login will be based on roll and the password. 2 factor auth with a code via phone or email. There will be no marketing so each step need to be explained with a i hover button or a short description or a first time popup. 
+
+the communication should be real time. any safe and popular library can be used for making the platform efficient. There will be an admin panel to keep the platform clean and non violent and also save from spamming, stop spreading mis-information.
+
+we will introduce sections and features one by one. not all in one go. so the codebase should be modular and easy to manage. this will be an opensource project so the documentation should be well structured.
