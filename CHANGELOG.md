@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Show/hide password button on the sign-up and login forms.
 - Auth module (Phase 1): sign-up with roll, registration number, email, phone, date of birth and password;
   two-step login (password, then a 6-digit code by email); rotating sessions in `httpOnly` cookies; logout.
   Sign-up and login pages with info tips and a first-visit guide; Log in / Log out in the header.

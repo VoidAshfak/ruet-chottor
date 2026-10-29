@@ -92,6 +92,7 @@ export function SignupForm() {
         type="password"
         label={help.fields.password}
         tip={help.tips.password}
+        passwordToggle={help.passwordToggle}
         autoComplete="new-password"
         error={errors.password?.message}
         {...form.register('password')}

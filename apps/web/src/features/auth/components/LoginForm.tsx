@@ -62,6 +62,7 @@ export function LoginForm() {
         id="password"
         type="password"
         label={help.fields.password}
+        passwordToggle={help.passwordToggle}
         autoComplete="current-password"
         error={errors.password?.message}
         {...form.register('password')}

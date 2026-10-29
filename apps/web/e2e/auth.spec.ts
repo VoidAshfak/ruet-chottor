@@ -72,7 +72,12 @@ test('sign up, log in with the emailed code, then log out', async ({ page }) => 
   await page.getByRole('button', { name: 'Create account' }).click();
   await expect(page.getByText(/too common/)).toBeVisible();
 
-  await page.getByLabel('Password', { exact: true }).fill('green-river-42');
+  const password = page.getByLabel('Password', { exact: true });
+  await password.fill('green-river-42');
+  await page.getByRole('button', { name: 'Show password' }).click();
+  await expect(password).toHaveAttribute('type', 'text');
+  await page.getByRole('button', { name: 'Hide password' }).click();
+  await expect(password).toHaveAttribute('type', 'password');
   await page.getByRole('button', { name: 'Create account' }).click();
 
   // Login page, roll pre-filled.

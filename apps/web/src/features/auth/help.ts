@@ -38,6 +38,7 @@ export const help = {
     password: 'Password',
     code: '6-digit code',
   },
+  passwordToggle: { show: 'Show password', hide: 'Hide password' },
   placeholders: {
     roll: 'e.g. 2103045',
     phone: '01XXXXXXXXX',
