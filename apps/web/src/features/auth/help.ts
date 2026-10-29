@@ -60,6 +60,7 @@ export const help = {
     login: 'Log in',
     signup: 'Sign up',
     logout: 'Log out',
+    profile: 'My profile',
     signedInAs: (name: string) => `Signed in as ${name}`,
   },
   intro: [

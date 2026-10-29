@@ -47,6 +47,7 @@ model User {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   sessions       Session[]
+  profile        Profile?
 
   @@map("users")
 }
@@ -67,4 +68,22 @@ model Session {
 
   @@index([userId])
   @@map("sessions")
+}
+
+// ===== users =====
+// Profile settings. Department and series are not stored: they come from the roll
+// (packages/shared/src/users/departments.ts), so fixing that table fixes every profile.
+
+/// Created the first time a user changes a setting; missing means "all defaults".
+model Profile {
+  userId          String   @id @db.Uuid
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Directory privacy (CLAUDE.md §6): hidden unless the user opts in.
+  showEmail       Boolean  @default(false)
+  showPhone       Boolean  @default(false)
+  /// Keys of first-visit guides the user closed, e.g. "home", "lost-found".
+  dismissedGuides String[] @default([])
+  updatedAt       DateTime @updatedAt
+
+  @@map("profiles")
 }

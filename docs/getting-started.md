@@ -80,8 +80,21 @@ Restart the API after changing flags. Sections whose flag is off show as "Coming
 
 ## Demo accounts
 
-Added by the seed script with the `users` module. Until then, sign up with made-up details
-(use an `@example.com` email: the code goes to the Ethereal inbox anyway).
+Run `pnpm --filter api db:seed` (with `FEATURE_AUTH=true` and `FEATURE_USERS=true` in `apps/api/.env`).
+Every demo account uses the password **`Password123!`** (development only). The login code is emailed to the
+Ethereal inbox; the API logs a link to read it.
+
+| Role | Roll |
+|---|---|
+| admin | `0000001` |
+| moderator | `0000002` |
+| club_manager | `0000003` |
+| teacher | `0000004` |
+| student | `1703999` |
+| alumni | `1201999` |
+
+The seed also adds a few fake members (one suspended) with mixed privacy settings. All names, emails
+(`@example.com`) and phone numbers are made up. See `apps/api/prisma/seed/users.ts`.
 
 ## Troubleshooting
 

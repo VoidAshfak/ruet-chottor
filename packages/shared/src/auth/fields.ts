@@ -3,7 +3,7 @@ import { isCommonPassword } from './common-passwords.js';
 
 /**
  * RUET roll: 7 digits = admission year (2) + department code (2) + serial (3), e.g. 1703103.
- * Department codes are not checked here; the directory module maps them to names.
+ * Department codes are not checked here; `users/departments.ts` maps them to names.
  */
 export const rollSchema = z
   .string()

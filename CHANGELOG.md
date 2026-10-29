@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Users module (Phase 1): **My profile** page and public member profiles (`/users/<id>`). Department and series
+  are worked out from the roll (ADR 0006); email and phone are shown only if the member opts in (off by default).
+  First-visit guides are now remembered on the server for logged-in members, with a "Show tips again" button.
+  Profile link in the header. Demo accounts and fake members in the seed (`docs/getting-started.md`).
 - Show/hide password button on the sign-up and login forms.
 - Auth module (Phase 1): sign-up with roll, registration number, email, phone, date of birth and password;
   two-step login (password, then a 6-digit code by email); rotating sessions in `httpOnly` cookies; logout.

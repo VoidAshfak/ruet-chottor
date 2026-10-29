@@ -38,7 +38,7 @@ packages/shared  Zod schemas, types and constants used by both
 | `src/core/prisma` | `PrismaService`: the only way to reach the database |
 | `src/core/redis` | `RedisService`: shared Redis connection |
 | `src/core/meta` | `GET /health` and `GET /features` |
-| `src/modules/<module>` | Feature modules, e.g. `auth` |
+| `src/modules/<module>` | Feature modules, e.g. `auth`, `users` |
 | `prisma/` | Schema, migrations, seed scripts |
 
 The API is an ES module project (`"type": "module"`), so relative imports end in `.js`.
@@ -51,7 +51,7 @@ Prisma 7 generates its client into `src/generated/prisma` (git-ignored); it is r
 | `src/app/` | Routes only. Pages stay thin and render feature components |
 | `src/features/<module>/` | Components, hooks, API calls and `help.ts` (guidance text) per module |
 | `src/components/ui/` | shadcn/ui primitives (Radix based) |
-| `src/components/guide/` | `PageHeader`, `InfoTip`, `FirstVisitGuide` — the self-explaining UI (CLAUDE.md §8) |
+| `src/components/guide/` | `PageHeader`, `InfoTip`, `FirstVisitGuide` — the self-explaining UI (CLAUDE.md §8). Closed guides are cached in localStorage; `GuideSyncContext` lets the `users` feature also store them on the server for logged-in members |
 | `src/components/layout/` | Header and footer |
 | `src/components/form/` | `FormField` (label + info tip + error) and `FormError` |
 | `src/lib/` | API client, feature flags hook, utilities |

@@ -5,7 +5,7 @@ One file per feature module, written from the template in `.claude/skills/write-
 | Module | Doc | Phase |
 |---|---|---|
 | auth | [auth.md](auth.md) | 1 |
-| users | _not started_ | 1 |
+| users | [users.md](users.md) | 1 |
 | directory | _not started_ | 1 |
 | admin | _not started_ | 1 |
 | moderation | _not started_ | 1 |
