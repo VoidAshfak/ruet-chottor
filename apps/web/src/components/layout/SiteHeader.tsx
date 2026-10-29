@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { AccountMenu } from '@/features/auth';
 import { enabledNavModules } from '@/lib/modules';
 import { useFeatures } from '@/lib/use-features';
 
@@ -9,6 +10,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const { data } = useFeatures();
   const modules = enabledNavModules(data?.modules ?? []);
+  const authEnabled = data?.modules.includes('auth') ?? false;
 
   return (
     // The orange top bar echoes the gear in the RUET logo.
@@ -33,6 +35,11 @@ export function SiteHeader() {
               );
             })}
           </nav>
+        ) : null}
+        {authEnabled ? (
+          <div className="ml-auto">
+            <AccountMenu />
+          </div>
         ) : null}
       </div>
     </header>

@@ -11,3 +11,60 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ===== auth =====
+// Identity and login. Profile fields and directory privacy settings belong to the `users` module.
+
+enum Role {
+  student
+  alumni
+  teacher
+  club_manager
+  moderator
+  admin
+}
+
+enum AccountStatus {
+  active
+  suspended
+  banned
+}
+
+model User {
+  id             String        @id @default(uuid(7)) @db.Uuid
+  name           String
+  roll           String        @unique
+  registrationNo String        @unique
+  /// Stored lowercase.
+  email          String        @unique
+  /// Normalised to +8801XXXXXXXXX.
+  phone          String        @unique
+  dateOfBirth    DateTime      @db.Date
+  /// argon2id; never returned by the API.
+  passwordHash   String
+  role           Role          @default(student)
+  status         AccountStatus @default(active)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  sessions       Session[]
+
+  @@map("users")
+}
+
+/// One per logged-in device. The refresh token rotates on every use; only hashes are stored.
+model Session {
+  id                       String    @id @default(uuid(7)) @db.Uuid
+  userId                   String    @db.Uuid
+  user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokenHash         String    @unique
+  /// The token this one replaced. Seeing it again means it was stolen: the session is revoked.
+  previousRefreshTokenHash String?   @unique
+  userAgent                String?
+  expiresAt                DateTime
+  revokedAt                DateTime?
+  createdAt                DateTime  @default(now())
+  lastUsedAt               DateTime  @default(now())
+
+  @@index([userId])
+  @@map("sessions")
+}

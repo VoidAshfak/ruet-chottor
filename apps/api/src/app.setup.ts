@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import type { Env } from './core/config/env.js';
 import { HttpExceptionFilter } from './core/http/http-exception.filter.js';
+import { originCheck } from './core/http/origin-check.js';
 
 /** Shared by main.ts and the e2e tests so both run the exact same HTTP setup. */
 export function configureApp<T extends INestApplication>(app: T): T {
@@ -13,7 +14,9 @@ export function configureApp<T extends INestApplication>(app: T): T {
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' }); // -> /api/v1/...
   app.use(helmet());
   app.use(cookieParser());
-  app.enableCors({ origin: config.get('WEB_ORIGIN', { infer: true }), credentials: true });
+  const webOrigin = config.get('WEB_ORIGIN', { infer: true });
+  app.enableCors({ origin: webOrigin, credentials: true });
+  app.use(originCheck(webOrigin));
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableShutdownHooks();
 

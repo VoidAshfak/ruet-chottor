@@ -1,10 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { FeaturesResponse, HealthResponse } from '@ruet-chottor/shared';
+import { Public } from '../auth/decorators.js';
 import type { Env } from '../config/env.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { RedisService } from '../redis/redis.service.js';
 
+@Public()
 @Controller()
 export class MetaController {
   constructor(

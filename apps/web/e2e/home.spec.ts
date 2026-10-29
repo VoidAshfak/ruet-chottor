@@ -11,6 +11,8 @@ test('home page renders without console errors (e.g. hydration mismatches)', asy
   });
 
   await page.goto('/');
+  // The first-visit intro is modal; close it so the page behind is in the accessibility tree.
+  await page.getByRole('dialog').getByRole('button', { name: 'Skip' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.getByRole('status')).toBeVisible(); // loading or offline message
   expect(errors).toEqual([]);

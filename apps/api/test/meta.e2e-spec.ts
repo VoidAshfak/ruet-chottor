@@ -50,6 +50,10 @@ describe('Meta endpoints (e2e)', () => {
     expect(res.body).toEqual({ error: { code: 'NOT_FOUND', message: expect.any(String) } });
   });
 
+  it('does not register modules whose flag is off', async () => {
+    await request(app.getHttpServer()).post('/api/v1/auth/login').send({}).expect(404);
+  });
+
   it('sets security headers', async () => {
     const res = await request(app.getHttpServer()).get('/api/v1/health');
     expect(res.headers['x-content-type-options']).toBe('nosniff');

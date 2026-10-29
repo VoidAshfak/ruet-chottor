@@ -33,7 +33,7 @@ Update this table whenever a phase changes state. Work only on the current phase
 | Phase | Module(s) | Status |
 |---|---|---|
 | 0 | Repo scaffold, tooling, CI, base layout, theme, docs skeleton | ✅ Done |
-| 1 | Auth (sign-up, login, 2FA), user profiles, contact directory, admin panel base | ⬜ Not started |
+| 1 | Auth (sign-up, login, 2FA), user profiles, contact directory, admin panel base | 🟨 In progress (auth done) |
 | 2 | Real-time messaging (1:1 and group chat) | ⬜ Not started |
 | 3 | News; clubs & events | ⬜ Not started |
 | 4 | Lost & found; campus marketplace | ⬜ Not started |

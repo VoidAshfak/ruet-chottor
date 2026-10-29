@@ -28,14 +28,17 @@ packages/shared  Zod schemas, types and constants used by both
 | Path | Purpose |
 |---|---|
 | `src/main.ts` | Starts the server |
-| `src/app.setup.ts` | HTTP setup shared with tests: `/api/v1` prefix, helmet, cookies, CORS, error filter |
+| `src/app.setup.ts` | HTTP setup shared with tests: `/api/v1` prefix, helmet, cookies, CORS, origin check, error filter |
 | `src/app.module.ts` | Registers the core and each enabled feature module |
 | `src/core/config` | Validates environment variables at startup (Zod) |
-| `src/core/http` | Turns every error into `{ error: { code, message } }` |
+| `src/core/http` | Error filter (`{ error: { code, message } }`), `ZodValidationPipe`, CSRF origin check |
+| `src/core/auth` | Global `AuthGuard` (every route private unless `@Public()`), `@Roles`, `@CurrentUser`, session cookies, access-token store |
+| `src/core/rate-limit` | `RateLimitService`: fixed-window counters in Redis |
+| `src/core/mail` | `MailService`: SMTP, or an Ethereal test inbox in development (ADR 0004) |
 | `src/core/prisma` | `PrismaService`: the only way to reach the database |
 | `src/core/redis` | `RedisService`: shared Redis connection |
 | `src/core/meta` | `GET /health` and `GET /features` |
-| `src/modules/<module>` | Feature modules (from Phase 1) |
+| `src/modules/<module>` | Feature modules, e.g. `auth` |
 | `prisma/` | Schema, migrations, seed scripts |
 
 The API is an ES module project (`"type": "module"`), so relative imports end in `.js`.
@@ -50,16 +53,25 @@ Prisma 7 generates its client into `src/generated/prisma` (git-ignored); it is r
 | `src/components/ui/` | shadcn/ui primitives (Radix based) |
 | `src/components/guide/` | `PageHeader`, `InfoTip`, `FirstVisitGuide` — the self-explaining UI (CLAUDE.md §8) |
 | `src/components/layout/` | Header and footer |
+| `src/components/form/` | `FormField` (label + info tip + error) and `FormError` |
 | `src/lib/` | API client, feature flags hook, utilities |
 | `src/styles/theme.css` | The only place colors are defined |
 
 Client data is fetched with TanStack Query through `apiRequest()`, which always sends cookies and validates
 responses with the shared schemas.
 
+## Sessions
+
+Login is two steps (password, then an emailed code). The API then sets two `httpOnly` cookies: a 15-minute access
+token and a 30-day refresh token that rotates on every use. Both are random strings looked up server-side, not JWTs
+(ADR 0005). `apiRequest()` in the web app refreshes the session once and retries when the API answers
+`SESSION_EXPIRED`. See [modules/auth.md](modules/auth.md).
+
 ## Feature flags
 
 `FEATURE_<MODULE>=true` in `apps/api/.env` switches a module on. The API exposes the list at `GET /api/v1/features`;
 the web app builds its navigation from it, so the API is the single source of truth.
+In the API, `ConditionalModule.registerWhen` in `app.module.ts` skips disabled modules, so their routes do not exist.
 
 ## Decisions
 

@@ -39,6 +39,14 @@ That is enough for working on the UI. Features that store data (from Phase 1 on)
 1. Create a free account at [upstash.com](https://upstash.com) and create a Redis database (region: Singapore).
 2. Copy the **TCP** URL, which starts with `rediss://`, into `REDIS_URL`. Do not use the REST URL.
 
+Use `sslmode=verify-full` in both Neon URLs (the `pg` driver warns about `sslmode=require`).
+
+### Email (login codes)
+
+Nothing to set up for development. Without `SMTP_URL`, the API sends email to a throwaway
+[Ethereal](https://ethereal.email) inbox and prints a preview link in its log:
+`Dev email preview: https://ethereal.email/message/...`. Open it to read your login code (ADR 0004).
+
 Never commit `.env` files. They are already in `.gitignore`.
 
 ## 4. Run the app
@@ -53,6 +61,7 @@ pnpm dev
 ## 5. Turn sections on
 
 Each section is behind a feature flag in `apps/api/.env`, for example `FEATURE_CHAT=true`.
+Start with `FEATURE_AUTH=true` to get sign-up and login (then run `pnpm --filter api prisma migrate dev` once).
 Restart the API after changing flags. Sections whose flag is off show as "Coming soon".
 
 ## Everyday commands
@@ -71,7 +80,8 @@ Restart the API after changing flags. Sections whose flag is off show as "Coming
 
 ## Demo accounts
 
-Added in Phase 1 by the seed script. They will be listed here.
+Added by the seed script with the `users` module. Until then, sign up with made-up details
+(use an `@example.com` email: the code goes to the Ethereal inbox anyway).
 
 ## Troubleshooting
 
