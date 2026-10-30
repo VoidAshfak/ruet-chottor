@@ -322,6 +322,15 @@ export class ClubsService {
     return membership?.role === 'manager' && membership.state === 'active';
   }
 
+  /** Which of these clubs the user manages: one query for a whole list. */
+  async managedAmong(userId: string, clubIds: string[]): Promise<Set<string>> {
+    if (clubIds.length === 0) return new Set();
+    const rows = await this.prisma.clubMembership.findMany({
+      where: { userId, clubId: { in: [...new Set(clubIds)] }, role: 'manager', state: 'active' },
+    });
+    return new Set(rows.map((m) => m.clubId));
+  }
+
   /** Name and link of each club, for showing "posted by <club>". */
   async refs(clubIds: string[]): Promise<Map<string, ClubRef>> {
     if (clubIds.length === 0) return new Map();
@@ -408,13 +417,14 @@ export class ClubsService {
     const [logos, mine, counts] = await Promise.all([
       this.media.forContent('clubs.logo', ids),
       this.prisma.clubMembership.findMany({ where: { userId: viewerId, clubId: { in: ids } } }),
-      Promise.all(
-        ids.map((clubId) =>
-          this.prisma.clubMembership.count({ where: { clubId, state: 'active' } }),
-        ),
-      ),
+      this.prisma.clubMembership.groupBy({
+        by: ['clubId'],
+        where: { clubId: { in: ids }, state: 'active' },
+        _count: { _all: true },
+      }),
     ]);
-    return rows.map((row, index) => {
+    const memberCounts = new Map(counts.map((c) => [c.clubId, c._count._all]));
+    return rows.map((row) => {
       const membership = mine.find((m) => m.clubId === row.id);
       return {
         id: row.id,
@@ -423,7 +433,7 @@ export class ClubsService {
         tagline: row.tagline,
         category: row.category,
         logo: logos.get(row.id)?.[0] ?? null,
-        memberCount: counts[index] ?? 0,
+        memberCount: memberCounts.get(row.id) ?? 0,
         myMembership: membership ? { role: membership.role, state: membership.state } : null,
         moderated: row.status !== 'visible',
       };

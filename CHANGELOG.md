@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Performance
+
+- Lists no longer run a query per item: the chat list gets every conversation's unread count in one grouped query
+  and its last message in one query (by `lastMessageAt`), and club member counts, event "Going" counts and event
+  edit rights are each one query for the whole list. A page now costs a fixed number of queries.
+
 ### Security
 
 - Ending a session (logout, suspension, ban, a reused refresh token) now also deletes its access token, so access

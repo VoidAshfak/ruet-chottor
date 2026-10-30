@@ -38,7 +38,7 @@ Update this table whenever a phase changes state. Work only on the current phase
 | 3 | News; clubs & events | ✅ Done |
 | 4 | Lost & found; campus marketplace | ✅ Done |
 | 5 | Bus schedule (live tracker later, once a location source exists) | ✅ Done (timetable; live tracker not started) |
-| 6 | Hardening, testing, documentation pass | 🟨 In progress (security hardening) |
+| 6 | Hardening, testing, documentation pass | 🟨 In progress (security ✅, performance ✅, docs next) |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done.
 The admin panel grows with every phase: each new module adds its own moderation views.

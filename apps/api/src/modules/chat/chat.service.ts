@@ -492,55 +492,98 @@ export class ChatService {
     return presented!;
   }
 
+  /**
+   * A fixed number of queries per page, however many conversations it holds: members, one grouped
+   * unread count, and the latest messages (looked up by `lastMessageAt`, which is stamped with the
+   * same time as the message).
+   */
   private async present(rows: ConversationRow[], viewerId: string): Promise<Conversation[]> {
     if (rows.length === 0) return [];
     const members = await this.prisma.conversationMember.findMany({
       where: { conversationId: { in: rows.map((c) => c.id) }, leftAt: null },
     });
-    const people = await this.users(members.map((m) => m.userId));
-
-    return Promise.all(
-      rows.map(async (conversation) => {
-        const mine = members.filter((m) => m.conversationId === conversation.id);
-        const me = mine.find((m) => m.userId === viewerId);
-        const visible = {
-          conversationId: conversation.id,
-          status: 'visible' as const,
-          ...(me ? { createdAt: { gte: me.joinedAt } } : {}),
-        };
-        const [last, unreadCount] = await Promise.all([
-          this.prisma.message.findFirst({
-            where: visible,
-            orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-          }),
-          me
-            ? this.prisma.message.count({
-                where: {
-                  conversationId: conversation.id,
-                  status: 'visible',
-                  deletedAt: null,
-                  senderId: { not: viewerId },
-                  createdAt: { gt: me.lastReadAt },
-                },
-              })
-            : 0,
-        ]);
-        return {
-          id: conversation.id,
-          type: conversation.type,
-          name: conversation.name,
-          members: mine.flatMap((m) => {
-            const person = people.get(m.userId);
-            return person
-              ? [{ id: person.id, name: person.name, role: person.role, conversationRole: m.role }]
-              : [];
-          }),
-          myRole: me?.role ?? 'member',
-          lastMessage: last ? ((await this.presentMessages([last]))[0] ?? null) : null,
-          lastMessageAt: conversation.lastMessageAt.toISOString(),
-          unreadCount,
-        };
-      }),
+    const myMembership = new Map(
+      members.filter((m) => m.userId === viewerId).map((m) => [m.conversationId, m]),
     );
+    // A member who joined a group later sees only what was sent after they joined.
+    const since = (conversationId: string) => {
+      const me = myMembership.get(conversationId);
+      return me ? { gte: me.joinedAt } : undefined;
+    };
+
+    const [people, unread, latest] = await Promise.all([
+      this.users(members.map((m) => m.userId)),
+      myMembership.size === 0
+        ? []
+        : this.prisma.message.groupBy({
+            by: ['conversationId'],
+            where: {
+              status: 'visible',
+              deletedAt: null,
+              senderId: { not: viewerId },
+              OR: [...myMembership.values()].map((me) => ({
+                conversationId: me.conversationId,
+                createdAt: { gt: me.lastReadAt },
+              })),
+            },
+            _count: { _all: true },
+          }),
+      this.prisma.message.findMany({
+        where: {
+          status: 'visible',
+          OR: rows.map((c) => ({ conversationId: c.id, createdAt: c.lastMessageAt })),
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      }),
+    ]);
+    const unreadCounts = new Map(unread.map((u) => [u.conversationId, u._count._all]));
+
+    const lastByConversation = new Map<string, MessageRow>();
+    for (const message of latest) {
+      const from = myMembership.get(message.conversationId)?.joinedAt;
+      if (from && message.createdAt < from) continue;
+      if (!lastByConversation.has(message.conversationId)) {
+        lastByConversation.set(message.conversationId, message);
+      }
+    }
+    // The latest message was hidden by a moderator (or there is none): look further back.
+    const missing = rows.filter((c) => !lastByConversation.has(c.id));
+    const fallbacks = await Promise.all(
+      missing.map((c) =>
+        this.prisma.message.findFirst({
+          where: { conversationId: c.id, status: 'visible', createdAt: since(c.id) },
+          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        }),
+      ),
+    );
+    for (const message of fallbacks) {
+      if (message) lastByConversation.set(message.conversationId, message);
+    }
+    const presented = new Map(
+      (await this.presentMessages([...lastByConversation.values()])).map((m) => [
+        m.conversationId,
+        m,
+      ]),
+    );
+
+    return rows.map((conversation) => {
+      const mine = members.filter((m) => m.conversationId === conversation.id);
+      const me = myMembership.get(conversation.id);
+      return {
+        id: conversation.id,
+        type: conversation.type,
+        name: conversation.name,
+        members: mine.flatMap((m) => {
+          const person = people.get(m.userId);
+          return person
+            ? [{ id: person.id, name: person.name, role: person.role, conversationRole: m.role }]
+            : [];
+        }),
+        myRole: me?.role ?? 'member',
+        lastMessage: presented.get(conversation.id) ?? null,
+        lastMessageAt: conversation.lastMessageAt.toISOString(),
+        unreadCount: unreadCounts.get(conversation.id) ?? 0,
+      };
+    });
   }
 }

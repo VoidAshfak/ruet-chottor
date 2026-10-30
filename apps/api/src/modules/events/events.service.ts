@@ -270,46 +270,49 @@ export class EventsService {
   private async present(rows: EventRow[], viewerId: string): Promise<CampusEvent[]> {
     if (rows.length === 0) return [];
     const ids = rows.map((r) => r.id);
-    const [organisers, posters, mine, counts, clubs, viewer] = await Promise.all([
+    const clubIds = rows.flatMap((r) => (r.clubId ? [r.clubId] : []));
+    const [organisers, posters, mine, counts, clubs, managed, viewer] = await Promise.all([
       this.prisma.user.findMany({
         where: { id: { in: [...new Set(rows.map((r) => r.createdById))] } },
         select: { id: true, name: true, role: true },
       }),
       this.media.forContent('events.poster', ids),
       this.prisma.eventRsvp.findMany({ where: { userId: viewerId, eventId: { in: ids } } }),
-      Promise.all(ids.map((eventId) => this.prisma.eventRsvp.count({ where: { eventId } }))),
-      this.clubs ? this.clubs.refs(rows.flatMap((r) => (r.clubId ? [r.clubId] : []))) : new Map(),
+      this.prisma.eventRsvp.groupBy({
+        by: ['eventId'],
+        where: { eventId: { in: ids } },
+        _count: { _all: true },
+      }),
+      this.clubs ? this.clubs.refs(clubIds) : new Map(),
+      this.clubs ? this.clubs.managedAmong(viewerId, clubIds) : new Set<string>(),
       this.prisma.user.findUnique({ where: { id: viewerId } }),
     ]);
     const staff = this.isStaffUser(viewer);
     const byId = new Map(organisers.map((u) => [u.id, u]));
-    return Promise.all(
-      rows.map(async (row, index) => {
-        const going = counts[index] ?? 0;
-        const canEdit =
-          staff ||
-          row.createdById === viewerId ||
-          (!!row.clubId && !!this.clubs && (await this.clubs.isManager(viewerId, row.clubId)));
-        return {
-          id: row.id,
-          title: row.title,
-          category: row.category,
-          description: row.description,
-          venue: row.venue,
-          startsAt: row.startsAt.toISOString(),
-          endsAt: row.endsAt.toISOString(),
-          club: (row.clubId && clubs.get(row.clubId)) || null,
-          organiser: byId.get(row.createdById) ?? null,
-          poster: posters.get(row.id)?.[0] ?? null,
-          capacity: row.capacity,
-          goingCount: going,
-          isGoing: mine.some((r) => r.eventId === row.id),
-          isFull: row.capacity !== null && going >= row.capacity,
-          cancelled: row.cancelledAt !== null,
-          moderated: row.status !== 'visible',
-          canEdit: canEdit && row.status !== 'removed',
-        };
-      }),
-    );
+    const goingCounts = new Map(counts.map((c) => [c.eventId, c._count._all]));
+    return rows.map((row) => {
+      const going = goingCounts.get(row.id) ?? 0;
+      const canEdit =
+        staff || row.createdById === viewerId || (!!row.clubId && managed.has(row.clubId));
+      return {
+        id: row.id,
+        title: row.title,
+        category: row.category,
+        description: row.description,
+        venue: row.venue,
+        startsAt: row.startsAt.toISOString(),
+        endsAt: row.endsAt.toISOString(),
+        club: (row.clubId && clubs.get(row.clubId)) || null,
+        organiser: byId.get(row.createdById) ?? null,
+        poster: posters.get(row.id)?.[0] ?? null,
+        capacity: row.capacity,
+        goingCount: going,
+        isGoing: mine.some((r) => r.eventId === row.id),
+        isFull: row.capacity !== null && going >= row.capacity,
+        cancelled: row.cancelledAt !== null,
+        moderated: row.status !== 'visible',
+        canEdit: canEdit && row.status !== 'removed',
+      };
+    });
   }
 }

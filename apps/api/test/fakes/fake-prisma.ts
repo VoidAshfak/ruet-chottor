@@ -42,7 +42,11 @@ const isFilter = (value: object) => Object.keys(value).some((key) => FILTER_KEYS
 const num = (value: unknown) => (value instanceof Date ? value.getTime() : Number(value));
 
 function matchesValue(value: unknown, expected: unknown): boolean {
-  if (expected === null || typeof expected !== 'object' || expected instanceof Date) {
+  // Like Prisma: an undefined filter is ignored, and dates compare by value.
+  if (expected === undefined) return true;
+  if (expected instanceof Date)
+    return value instanceof Date && value.getTime() === expected.getTime();
+  if (expected === null || typeof expected !== 'object') {
     return value === expected;
   }
   const filter = expected as Filter;
@@ -127,6 +131,15 @@ function table<T extends object>(rows: () => T[], defaults: () => Partial<T>) {
       return sorted.slice(start + (args.skip ?? 0)).slice(0, args.take);
     },
     count: async ({ where }: { where?: Where }) => find(where).length,
+    // Only the shape the services use: grouped by one field, counting rows.
+    groupBy: async ({ by, where }: { by: [keyof T & string]; where?: Where }) => {
+      const counts = new Map<unknown, number>();
+      for (const row of find(where)) {
+        const value = (row as Record<string, unknown>)[by[0]];
+        counts.set(value, (counts.get(value) ?? 0) + 1);
+      }
+      return [...counts].map(([value, count]) => ({ [by[0]]: value, _count: { _all: count } }));
+    },
     create: async ({ data }: { data: Partial<T> }) => insert(data),
     createMany: async ({ data }: { data: Partial<T>[] }) => {
       for (const item of data) insert(item);
