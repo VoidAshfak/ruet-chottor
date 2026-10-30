@@ -1,0 +1,118 @@
+import { NEWS_LIMITS, type NewsCategory, type NewsReviewState } from '@ruet-chottor/shared';
+
+// All guidance text for campus news (CLAUDE.md §8). Keep it short and plain.
+export const help = {
+  page: {
+    title: 'News',
+    description: 'Campus news and announcements from RUET members, clubs and staff.',
+  },
+  article: {
+    title: 'News post',
+    description: 'One news post.',
+  },
+  editor: {
+    newTitle: 'Write a news post',
+    newDescription: 'Share campus news. It appears in the feed once it is published.',
+    editTitle: 'Edit your post',
+    editDescription: 'Changes are saved over your current post.',
+    title: 'Title',
+    titlePlaceholder: 'e.g. Central library open until 10 PM during exams',
+    category: 'Category',
+    categoryPlaceholder: 'Pick a category',
+    body: 'Post',
+    bodyPlaceholder: 'What happened, when and where. Plain text; line breaks are kept.',
+    counter: (used: number) => `${used}/${NEWS_LIMITS.bodyMax}`,
+    media: 'Photos and videos (optional)',
+    publish: 'Publish',
+    submitForReview: 'Send for review',
+    save: 'Save changes',
+    saving: 'Saving…',
+    waitUploads: 'Wait for the uploads to finish',
+    cancel: 'Cancel',
+    verifiedNote: 'Your role is verified, so your post is published straight away.',
+    reviewNote:
+      'A moderator checks posts from members before they appear in the feed. This usually takes a few hours.',
+    reviewTipLabel: 'About review',
+  },
+  categories: {
+    announcement: 'Announcement',
+    academic: 'Academic',
+    event: 'Event',
+    club: 'Club',
+    general: 'General',
+  } satisfies Record<NewsCategory, string>,
+  feed: {
+    all: 'All',
+    filterLabel: 'Category',
+    write: 'Write a post',
+    mine: 'My posts',
+    loading: 'Loading news…',
+    empty: 'No news here yet.',
+    emptyCategory: 'No posts in this category yet.',
+    error: 'Could not load the news.',
+    retry: 'Try again',
+    loadMore: 'Show more',
+    readMore: 'Read more',
+    by: (name: string) => `by ${name}`,
+    unknownAuthor: 'a deleted account',
+    verified: 'Verified',
+    verifiedTip:
+      'Posted by a moderator, admin or club manager, whose posts are published without review.',
+    verifiedTipLabel: 'About verified authors',
+  },
+  mine: {
+    title: 'My posts',
+    description: 'Everything you posted, with its review status.',
+    empty: 'You have not posted any news yet.',
+  },
+  review: {
+    pending: 'Waiting for review',
+    approved: 'Published',
+    rejected: 'Not published',
+  } satisfies Record<NewsReviewState, string>,
+  reviewHint: {
+    pending: 'A moderator will check it soon. It is not in the feed yet.',
+    rejected: 'A moderator did not publish this post. Edit it to send it for review again.',
+    moderated: 'A moderator hid this post after it was reported. Only you and staff can see it.',
+  },
+  moderatorNote: 'Moderator’s note',
+  actions: {
+    edit: 'Edit',
+    delete: 'Delete',
+    confirmDelete: {
+      title: 'Delete this post?',
+      body: 'It will be removed from the feed, together with its photos and videos. This cannot be undone.',
+      confirm: 'Delete',
+      cancel: 'Keep it',
+    },
+  },
+  staff: {
+    approve: 'Approve',
+    reject: 'Reject',
+    rejectTitle: 'Reject this post?',
+    rejectBody: 'It stays unpublished. The author sees your reason and can edit and resend it.',
+    reason: 'Reason (shown to the author)',
+    reasonPlaceholder: 'e.g. Please add the date and venue.',
+    cancel: 'Cancel',
+    queueEmpty: 'No posts are waiting for review.',
+    approved: 'Approved and published.',
+  },
+  back: 'All news',
+  notFound: 'This post does not exist, or it is not published.',
+  loginNeeded: 'Log in to read and post campus news.',
+  login: 'Log in',
+  intro: [
+    {
+      title: 'Campus news in one place',
+      body: 'Announcements, academic updates, events and club news from RUET members.',
+    },
+    {
+      title: 'Anyone can post',
+      body: 'Moderators, admins and club managers publish at once. Other posts are checked by a moderator first.',
+    },
+    {
+      title: 'Keep it true',
+      body: 'Report misleading posts. False information is removed and repeated cases lead to suspension.',
+    },
+  ],
+} as const;

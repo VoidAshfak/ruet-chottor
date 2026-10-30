@@ -140,7 +140,7 @@ describe('Moderation (e2e)', () => {
       await report('nusrat', bad.id, 'boring').expect(400);
       await as('nusrat')
         .post('/moderation/reports', {
-          contentType: 'news.post',
+          contentType: 'events.event',
           contentId: bad.id,
           reason: 'spam',
         })

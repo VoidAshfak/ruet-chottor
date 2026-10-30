@@ -34,7 +34,7 @@ export function ReportAction({ contentType, contentId, reported }: ReportActionP
       <Button
         variant="ghost"
         size="xs"
-        aria-label={help.report.buttonLabel}
+        aria-label={help.report.buttonLabel(contentType)}
         onClick={() => setOpen(true)}
       >
         {help.report.button}

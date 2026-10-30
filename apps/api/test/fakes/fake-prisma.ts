@@ -5,6 +5,7 @@ import {
   type MediaAsset,
   type Message,
   type ModerationLog,
+  type NewsPost,
   Prisma,
   type Profile,
   type Report,
@@ -156,6 +157,7 @@ export class FakePrisma {
   messages: Message[] = [];
   reports: Report[] = [];
   mediaAssets: MediaAsset[] = [];
+  newsPosts: NewsPost[] = [];
 
   private withProfile(user: User | undefined, args: { select?: Where; include?: Where }) {
     if (!user) return null;
@@ -353,6 +355,25 @@ export class FakePrisma {
       return {
         id: randomUUID(),
         status: 'visible',
+        deletedAt: null,
+        createdAt: now,
+        updatedAt: now,
+      };
+    },
+  );
+
+  newsPost = table<NewsPost>(
+    () => this.newsPosts,
+    () => {
+      const now = new Date();
+      return {
+        id: randomUUID(),
+        review: 'pending',
+        reviewNote: null,
+        reviewedById: null,
+        reviewedAt: null,
+        status: 'visible',
+        publishedAt: null,
         deletedAt: null,
         createdAt: now,
         updatedAt: now,

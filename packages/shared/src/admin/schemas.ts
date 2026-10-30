@@ -16,6 +16,9 @@ export const MODERATION_ACTIONS = [
   'remove_content',
   'restore_content',
   'dismiss_reports',
+  // News review (news module).
+  'approve_content',
+  'reject_content',
 ] as const;
 export type ModerationAction = (typeof MODERATION_ACTIONS)[number];
 

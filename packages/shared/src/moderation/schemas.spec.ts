@@ -16,9 +16,9 @@ describe('moderation schemas', () => {
 
   it('rejects unknown content types, reasons and extra fields', () => {
     const base = { contentType: 'chat.message', contentId: uuid(1), reason: 'spam' };
-    expect(createReportRequestSchema.safeParse({ ...base, contentType: 'news.post' }).success).toBe(
-      false,
-    );
+    expect(
+      createReportRequestSchema.safeParse({ ...base, contentType: 'events.event' }).success,
+    ).toBe(false);
     expect(createReportRequestSchema.safeParse({ ...base, reason: 'boring' }).success).toBe(false);
     expect(createReportRequestSchema.safeParse({ ...base, reporterId: uuid(2) }).success).toBe(
       false,

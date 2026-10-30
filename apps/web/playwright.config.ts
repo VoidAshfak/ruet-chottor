@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 3000;
+// E2E_PORT runs the tests on a fresh server while `pnpm dev` keeps port 3000.
+const PORT = Number(process.env.E2E_PORT ?? 3000);
 
 export default defineConfig({
   testDir: './e2e',
@@ -18,7 +19,7 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
   ],
   webServer: {
-    command: 'pnpm dev',
+    command: `pnpm dev --port ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

@@ -89,7 +89,8 @@ Run `pnpm --filter api db:seed`, and switch the Phase 1 modules on in `apps/api/
 `FEATURE_AUTH=true`, `FEATURE_USERS=true`, `FEATURE_DIRECTORY=true`, `FEATURE_ADMIN=true`.
 Log in as the moderator or admin to see the **Admin** link. Add `FEATURE_CHAT=true` (Phase 2) for **Messages**:
 the Demo Student has a 1:1 chat with an unread message and a group chat. With `FEATURE_MODERATION=true`, staff find
-a reported demo spam message under **Admin → Reports**.
+a reported demo spam message under **Admin → Reports**. With `FEATURE_NEWS=true` (Phase 3), **News** has sample posts,
+and staff find a post waiting under **Admin → News review**.
 Every demo account uses the password **`Password123!`** (development only). The login code is emailed to the
 Ethereal inbox; the API logs a link to read it.
 
