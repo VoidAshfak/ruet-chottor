@@ -64,7 +64,7 @@ Decided defaults. Do not add, replace or remove a core dependency without asking
 | Password hashing | argon2 |
 | Email | Nodemailer (SMTP); provider configurable via env |
 | SMS | Pluggable `SmsProvider` interface; disabled by default (costs money) |
-| File uploads | Local disk in dev, S3-compatible storage in prod, behind a `StorageService` |
+| File uploads | Cloudinary (free tier), signed direct uploads from the browser via `core/media` `MediaService` (ADR 0010, `docs/media.md`) |
 | Maps | Leaflet + OpenStreetMap |
 | Testing | Vitest (unit), Supertest (API e2e), Playwright (web e2e) |
 | Lint / format | ESLint + Prettier |

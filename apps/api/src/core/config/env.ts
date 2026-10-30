@@ -14,6 +14,20 @@ const envSchema = z
     OTP_SECRET: z.string().min(32).optional(),
     SMTP_URL: z.url().optional(),
     MAIL_FROM: z.string().min(3).default('"RUET Chottor" <no-reply@example.com>'),
+    // Cloudinary for images, videos and documents (ADR 0010): cloudinary://<api_key>:<api_secret>@<cloud_name>.
+    // Optional: without it, uploads answer 503 and the rest of the app works.
+    CLOUDINARY_URL: z
+      .string()
+      .regex(
+        /^cloudinary:\/\/[^:]+:[^@]+@[\w-]+$/,
+        'Expected cloudinary://<api_key>:<api_secret>@<cloud_name>',
+      )
+      .optional(),
+    // Keeps environments apart inside one Cloudinary account.
+    MEDIA_FOLDER: z
+      .string()
+      .regex(/^[\w-]+(\/[\w-]+)*$/)
+      .default('ruet-chottor/dev'),
     // Spam protection for chat (CLAUDE.md §7): messages one member may send per minute.
     CHAT_SEND_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(30),
     // An item is hidden automatically once this many different members reported it.

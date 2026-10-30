@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Media uploads (shared infrastructure, ADR 0010): images, videos and documents stored in Cloudinary. The browser
+  uploads directly with a signed, single-use ticket; the API checks the stored file's type and size before it can
+  be attached to content, deletes rejected or abandoned files, and serves CDN-optimised URLs. `MediaUploader` and
+  `MediaGallery` components for the web app. New env vars `CLOUDINARY_URL` and `MEDIA_FOLDER`.
 - Moderation module (Phase 2): members report messages (reason + optional note, one report each, anonymous to the
   author); items are hidden automatically after `MODERATION_AUTO_HIDE_REPORTS` reports (default 5). Staff review the
   queue under **Admin → Reports**, see only the reported item, and hide, remove, restore or dismiss with a reason,

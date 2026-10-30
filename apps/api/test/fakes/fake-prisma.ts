@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   type Conversation,
   type ConversationMember,
+  type MediaAsset,
   type Message,
   type ModerationLog,
   Prisma,
@@ -127,6 +128,16 @@ function table<T extends object>(rows: () => T[], defaults: () => Partial<T>) {
       for (const row of matched) Object.assign(row, data);
       return { count: matched.length };
     },
+    delete: async ({ where }: { where: Where }) => {
+      const row = one(where);
+      rows().splice(rows().indexOf(row), 1);
+      return row;
+    },
+    deleteMany: async ({ where }: { where: Where }) => {
+      const matched = find(where);
+      for (const row of matched) rows().splice(rows().indexOf(row), 1);
+      return { count: matched.length };
+    },
   };
 }
 
@@ -144,6 +155,7 @@ export class FakePrisma {
   conversationMembers: ConversationMember[] = [];
   messages: Message[] = [];
   reports: Report[] = [];
+  mediaAssets: MediaAsset[] = [];
 
   private withProfile(user: User | undefined, args: { select?: Where; include?: Where }) {
     if (!user) return null;
@@ -346,6 +358,21 @@ export class FakePrisma {
         updatedAt: now,
       };
     },
+  );
+
+  mediaAsset = table<MediaAsset>(
+    () => this.mediaAssets,
+    () => ({
+      status: 'pending',
+      format: null,
+      bytes: null,
+      width: null,
+      height: null,
+      contentId: null,
+      position: 0,
+      createdAt: new Date(),
+      attachedAt: null,
+    }),
   );
 
   private readonly reportTable = table<Report>(

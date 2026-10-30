@@ -12,6 +12,46 @@ datasource db {
   provider = "postgresql"
 }
 
+// ===== media (core) =====
+// Files stored in Cloudinary (ADR 0010). Shared infrastructure in core/media, used by content modules.
+// The browser uploads directly; a row starts `pending` and becomes `ready` once the API checked the file.
+
+enum MediaKind {
+  image
+  video
+  document
+}
+
+enum MediaStatus {
+  pending
+  ready
+}
+
+model MediaAsset {
+  id         String      @id @default(uuid(7)) @db.Uuid
+  ownerId    String      @db.Uuid
+  kind       MediaKind
+  /// Where it will be attached, e.g. "news.post" (MEDIA_PURPOSES in packages/shared).
+  purpose    String
+  /// Cloudinary public id, e.g. "ruet-chottor/dev/news-post/<id>".
+  publicId   String      @unique
+  status     MediaStatus @default(pending)
+  format     String?
+  bytes      Int?
+  width      Int?
+  height     Int?
+  /// The content item it belongs to; null until attached.
+  contentId  String?     @db.Uuid
+  /// Order within the content item.
+  position   Int         @default(0)
+  createdAt  DateTime    @default(now())
+  attachedAt DateTime?
+
+  @@index([ownerId, status])
+  @@index([purpose, contentId])
+  @@map("media_assets")
+}
+
 // ===== auth =====
 // Identity and login. Profile fields and directory privacy settings belong to the `users` module.
 

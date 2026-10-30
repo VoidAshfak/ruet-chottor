@@ -3,6 +3,7 @@ export * from './meta.js';
 export * from './common/api-error.js';
 export * from './common/pagination.js';
 export * from './common/dates.js';
+export * from './media/index.js';
 export * from './socket-events.js';
 export * from './auth/index.js';
 export * from './users/index.js';

@@ -47,6 +47,11 @@ Nothing to set up for development. Without `SMTP_URL`, the API sends email to a 
 [Ethereal](https://ethereal.email) inbox and prints a preview link in its log:
 `Dev email preview: https://ethereal.email/message/...`. Open it to read your login code (ADR 0004).
 
+### Images and videos (Cloudinary)
+
+Optional. Create a free [Cloudinary](https://cloudinary.com) account and copy the **API environment variable**
+(`cloudinary://...`) into `CLOUDINARY_URL`. Without it, uploads are switched off. See [media.md](media.md).
+
 Never commit `.env` files. They are already in `.gitignore`.
 
 ## 4. Run the app

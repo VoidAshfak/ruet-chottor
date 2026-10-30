@@ -10,6 +10,7 @@ packages/shared  Zod schemas, types and constants used by both
 
 ```
  Browser ──HTTP (cookies)──▶ apps/api ──▶ PostgreSQL (Neon, via Prisma)
+    │  └── files (signed, direct) ──▶ Cloudinary ◀── apps/api checks and deletes
     │                          │
     └────── Socket.IO ─────────┘──────▶ Redis (Upstash): cache, rate limits, OTPs, socket adapter
 ```
@@ -38,6 +39,7 @@ packages/shared  Zod schemas, types and constants used by both
 | `src/core/prisma` | `PrismaService`: the only way to reach the database |
 | `src/core/redis` | `RedisService`: shared Redis connection |
 | `src/core/meta` | `GET /health` and `GET /features` |
+| `src/core/media` | `MediaService` + `CloudinaryClient`: signed direct uploads, file checks, attaching files to content (ADR 0010, [media.md](media.md)) |
 | `src/core/moderation` | `ModeratableContentRegistry`: content modules register their content type for reports (ADR 0009) |
 | `src/core/realtime` | Socket.IO adapter (origin check) and cookie login for sockets (ADR 0008) |
 | `src/modules/<module>` | Feature modules, e.g. `auth`, `users`; real-time ones add a `*.gateway.ts` |
@@ -55,6 +57,7 @@ Prisma 7 generates its client into `src/generated/prisma` (git-ignored); it is r
 | `src/components/ui/` | shadcn/ui primitives (Radix based) |
 | `src/components/guide/` | `PageHeader`, `InfoTip`, `FirstVisitGuide` — the self-explaining UI (CLAUDE.md §8). Closed guides are cached in localStorage; `GuideSyncContext` lets the `users` feature also store them on the server for logged-in members |
 | `src/components/layout/` | Header and footer |
+| `src/components/media/` | `MediaUploader` and `MediaGallery` for photos and videos (files go straight to Cloudinary via `lib/media-upload.ts`) |
 | `src/components/form/` | `FormField` (label + info tip + error) and `FormError` |
 | `src/lib/` | API client, Socket.IO client (`socket.ts`), feature flags hook, utilities |
 | `src/styles/theme.css` | The only place colors are defined |
