@@ -66,6 +66,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Tests: Vitest unit tests, API e2e tests (Supertest), web e2e tests (Playwright, desktop and mobile).
 - GitHub Actions CI, ESLint, Prettier, and project documentation.
 
+### Changed
+
+- Header: sections sit inline on wide screens and behind a **Menu** button on narrower ones, so the bar never
+  scrolls; members get a round initials button whose menu holds their full name, My profile and Log out (long
+  names no longer stretch the header).
+- Home page: a hero with an original cartoon of RUET campus life (red-brick block, rickshaw, mango tree, students
+  planning an adda by the Padma), a greeting for members, the latest news, and only the sections that are still
+  coming, so it no longer repeats the menu. Illustration colors are `--art-*` tokens in `theme.css`.
+
 ### Fixed
 
 - The global auth guard no longer runs on WebSocket events (gateways authenticate sockets themselves).

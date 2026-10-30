@@ -1,18 +1,21 @@
 'use client';
 
-import { NavLink } from '@/components/layout/NavLink';
+import { NAV_LINK_CLASS, NavLink } from '@/components/layout/NavLink';
 import { help } from '../help';
 import { useStaff } from '../hooks/use-admin';
 
 /** Header link, shown only to moderators and admins. */
-export function AdminNavLink() {
+export function AdminNavLink({
+  className,
+  onNavigate,
+}: {
+  className?: string;
+  onNavigate?: () => void;
+}) {
   const { isStaff } = useStaff();
   if (!isStaff) return null;
   return (
-    <NavLink
-      href="/admin"
-      className="rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-muted-foreground hover:bg-accent hover:text-accent-foreground aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground"
-    >
+    <NavLink href="/admin" className={className ?? NAV_LINK_CLASS} onClick={onNavigate}>
       {help.nav}
     </NavLink>
   );

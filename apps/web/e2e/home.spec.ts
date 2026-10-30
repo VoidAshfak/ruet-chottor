@@ -1,4 +1,26 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
+
+const json = (body: unknown) => ({
+  status: 200,
+  contentType: 'application/json',
+  body: JSON.stringify(body),
+});
+
+/** Visitors (no session) with only auth and the directory switched on. */
+async function mockVisitorApi(page: Page) {
+  await page.route('**/api/v1/**', (route) => {
+    const path = new URL(route.request().url()).pathname.replace('/api/v1', '');
+    if (path === '/features') return route.fulfill(json({ modules: ['auth', 'directory'] }));
+    if (path === '/auth/session') {
+      return route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: { code: 'UNAUTHORIZED', message: 'Please log in.' } }),
+      });
+    }
+    return route.fulfill({ status: 404, body: '{}' });
+  });
+}
 
 test('home page renders without console errors (e.g. hydration mismatches)', async ({ page }) => {
   const errors: string[] = [];
@@ -21,6 +43,7 @@ test('home page renders without console errors (e.g. hydration mismatches)', asy
 });
 
 test('first visit shows the intro guide, then the home page', async ({ page }) => {
+  await mockVisitorApi(page);
   await page.goto('/');
 
   const guide = page.getByRole('dialog');
@@ -33,8 +56,11 @@ test('first visit shows the intro guide, then the home page', async ({ page }) =
   await expect(
     page.getByRole('heading', { level: 1, name: 'Welcome to RUET Chottor' }),
   ).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Sections' })).toBeVisible();
+  await expect(page.getByRole('img', { name: /Cartoon of RUET campus life/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Join with your RUET roll' })).toBeVisible();
+  // Only sections that are not on yet are listed, so the page never repeats the menu.
   await expect(page.getByText('Lost & Found', { exact: true })).toBeVisible();
+  await expect(page.getByRole('main').getByText('Directory', { exact: true })).toHaveCount(0);
 
   // The guide stays dismissed after a reload.
   await page.reload();
@@ -43,9 +69,59 @@ test('first visit shows the intro guide, then the home page', async ({ page }) =
 });
 
 test('info tips explain things on tap or click', async ({ page }) => {
+  await mockVisitorApi(page);
   await page.goto('/');
   await page.getByRole('dialog').getByRole('button', { name: 'Skip' }).click();
 
-  await page.getByRole('button', { name: 'More info' }).click();
+  await page.getByRole('button', { name: 'About upcoming sections' }).click();
   await expect(page.getByText(/Sections are added one at a time/)).toBeVisible();
+});
+
+test('a long name never stretches the header, and the menu opens on phones', async ({ page }) => {
+  const name = 'Muhammad Abdullah Al Mamun Chowdhury Rafiqul Islam Bhuiyan';
+  await page.route('**/api/v1/**', (route) => {
+    const path = new URL(route.request().url()).pathname.replace('/api/v1', '');
+    if (path === '/features') {
+      return route.fulfill(
+        json({ modules: ['auth', 'users', 'directory', 'chat', 'news', 'clubs', 'events'] }),
+      );
+    }
+    if (path === '/auth/session') {
+      return route.fulfill(json({ user: { id: 'u1', name, roll: '1703999', role: 'student' } }));
+    }
+    if (path === '/users/me') {
+      return route.fulfill(
+        json({
+          id: 'u1',
+          name,
+          roll: '1703999',
+          role: 'student',
+          department: null,
+          series: 2017,
+          email: 'me@example.com',
+          phone: '+8801700000001',
+          showEmail: false,
+          showPhone: false,
+          dismissedGuides: ['home', 'chat'],
+        }),
+      );
+    }
+    return route.fulfill(json({ items: [], nextCursor: null }));
+  });
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto('/');
+
+  await expect(page.getByRole('heading', { level: 1, name: /Muhammad$/ })).toBeVisible();
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+  );
+  expect(overflow).toBe(false);
+
+  await page.getByRole('button', { name: 'Open the list of sections' }).click();
+  await page.getByRole('link', { name: 'Messages' }).click();
+  await expect(page).toHaveURL(/\/chat$/);
+
+  await page.getByRole('button', { name: `Account menu for ${name}` }).click();
+  await expect(page.getByText(name)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
 });

@@ -69,6 +69,10 @@ export const help = {
       'Posted by a moderator, admin or club manager, whose posts are published without review.',
     verifiedTipLabel: 'About verified authors',
   },
+  latest: {
+    title: 'Latest on campus',
+    all: 'All news',
+  },
   mine: {
     title: 'My posts',
     description: 'Everything you posted, with its review status.',
