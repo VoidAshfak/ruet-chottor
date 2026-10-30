@@ -5,6 +5,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../../src/generated/prisma/client.js';
 import { seedAdmin } from './admin.js';
 import { seedChat } from './chat.js';
+import { seedClubs } from './clubs.js';
 import { seedModeration } from './moderation.js';
 import { seedNews } from './news.js';
 import { seedUsers } from './users.js';
@@ -19,6 +20,7 @@ async function main() {
   await seedChat(prisma);
   await seedModeration(prisma);
   await seedNews(prisma);
+  await seedClubs(prisma);
 }
 
 main()

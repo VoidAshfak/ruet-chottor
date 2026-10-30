@@ -28,6 +28,8 @@ export const MEDIA_MAX_BYTES = {
  */
 export const MEDIA_PURPOSES = {
   'news.post': { kinds: ['image', 'video'], maxPerItem: 4 },
+  'clubs.logo': { kinds: ['image'], maxPerItem: 1 },
+  'clubs.cover': { kinds: ['image'], maxPerItem: 1 },
 } as const satisfies Record<string, { kinds: readonly MediaKind[]; maxPerItem: number }>;
 export type MediaPurpose = keyof typeof MEDIA_PURPOSES;
 const PURPOSE_KEYS = Object.keys(MEDIA_PURPOSES) as [MediaPurpose, ...MediaPurpose[]];

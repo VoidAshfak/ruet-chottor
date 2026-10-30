@@ -72,7 +72,11 @@ test('a moderator suspends a member with a reason', async ({ page }) => {
 
   await page.goto('/admin');
   await page.getByRole('dialog').getByRole('button', { name: 'Skip' }).click();
+  // On phones the sections (Admin included) are behind the Menu button.
+  const menu = page.getByRole('button', { name: 'Open the list of sections' });
+  if (await menu.isVisible()) await menu.click();
   await expect(page.getByRole('link', { name: 'Admin', exact: true })).toBeVisible();
+  if (await menu.isVisible()) await page.keyboard.press('Escape');
   await page.getByRole('link', { name: target.name }).click();
 
   await expect(page.getByRole('heading', { level: 2, name: target.name })).toBeVisible();

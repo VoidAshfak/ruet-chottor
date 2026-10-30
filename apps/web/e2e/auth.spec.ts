@@ -102,9 +102,9 @@ test('sign up, log in with the emailed code, then log out', async ({ page }) => 
   await expect(page).toHaveURL('/');
   await page.getByRole('dialog').getByRole('button', { name: 'Skip' }).click(); // home intro
   const header = page.getByRole('banner').first();
-  await expect(header.getByRole('button', { name: 'Log out' })).toBeVisible();
-
-  await header.getByRole('button', { name: 'Log out' }).click();
+  // Log out lives in the account menu (the round initials button).
+  await header.getByRole('button', { name: /^Account menu for / }).click();
+  await page.getByRole('button', { name: 'Log out' }).click();
   await expect(header.getByRole('link', { name: 'Log in' })).toBeVisible();
 });
 

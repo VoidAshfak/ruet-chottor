@@ -1,4 +1,10 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  Optional,
+} from '@nestjs/common';
 import {
   type CursorPageQuery,
   ERROR_CODES,
@@ -15,6 +21,7 @@ import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RateLimitService } from '../../core/rate-limit/rate-limit.service.js';
 import type { NewsPost as NewsRow, Prisma, User } from '../../generated/prisma/client.js';
 import { ModerationLogService } from '../admin/moderation-log.service.js';
+import { ClubsService } from '../clubs/clubs.service.js';
 
 export const NEWS_RATE_LIMITS = {
   // Spam protection (CLAUDE.md §7): a handful of posts an hour is plenty for real news.
@@ -47,12 +54,18 @@ export class NewsService {
     private readonly media: MediaService,
     private readonly log: ModerationLogService,
     private readonly rateLimit: RateLimitService,
+    /** Present only when the clubs module is switched on. */
+    @Optional() private readonly clubs?: ClubsService,
   ) {}
 
   async feed(viewerId: string, query: NewsFeedQuery): Promise<NewsPage> {
     return this.page(
       viewerId,
-      { ...PUBLISHED, ...(query.category ? { category: query.category } : {}) },
+      {
+        ...PUBLISHED,
+        ...(query.category ? { category: query.category } : {}),
+        ...(query.clubId ? { clubId: query.clubId } : {}),
+      },
       [{ publishedAt: 'desc' }, { id: 'desc' }],
       query,
     );
@@ -93,6 +106,7 @@ export class NewsService {
   async create(userId: string, input: NewsPostInput): Promise<NewsPost> {
     const author = await this.requireActive(userId);
     await this.rateLimit.consume(NEWS_RATE_LIMITS.create, userId);
+    await this.requireClubManager(userId, input.clubId);
     const direct = publishesDirectly(author.role);
     const now = new Date();
     const post = await this.prisma.newsPost.create({
@@ -101,6 +115,7 @@ export class NewsService {
         category: input.category,
         body: input.body,
         createdById: userId,
+        clubId: input.clubId,
         review: direct ? 'approved' : 'pending',
         publishedAt: direct ? now : null,
       },
@@ -120,6 +135,7 @@ export class NewsService {
     if (post.createdById !== userId) throw forbidden('You can only edit your own posts.');
     if (post.status === 'removed') throw forbidden('A moderator removed this post.');
     await this.rateLimit.consume(NEWS_RATE_LIMITS.edit, userId);
+    await this.requireClubManager(userId, input.clubId);
 
     await this.media.attach(userId, 'news.post', post.id, input.mediaIds);
     const direct = publishesDirectly(author.role);
@@ -129,6 +145,7 @@ export class NewsService {
         title: input.title,
         category: input.category,
         body: input.body,
+        clubId: input.clubId,
         ...(direct
           ? { review: 'approved', publishedAt: post.publishedAt ?? new Date() }
           : { review: 'pending', reviewNote: null }),
@@ -189,6 +206,17 @@ export class NewsService {
     return this.presentOne(updated, staffId);
   }
 
+  /** Only a club's managers may post for it. */
+  private async requireClubManager(userId: string, clubId: string | null) {
+    if (!clubId) return;
+    if (!this.clubs || !(await this.clubs.isManager(userId, clubId))) {
+      throw new BadRequestException({
+        code: ERROR_CODES.BAD_REQUEST,
+        message: 'You can only post for clubs you manage.',
+      });
+    }
+  }
+
   /** Suspended and banned members cannot post (CLAUDE.md §7). */
   private async requireActive(userId: string): Promise<User> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -243,7 +271,8 @@ export class NewsService {
   private async present(rows: NewsRow[], viewerId: string): Promise<NewsPost[]> {
     if (rows.length === 0) return [];
     const authorIds = [...new Set(rows.map((r) => r.createdById))];
-    const [authors, media, staff] = await Promise.all([
+    const clubIds = rows.flatMap((r) => (r.clubId ? [r.clubId] : []));
+    const [authors, media, staff, clubs] = await Promise.all([
       this.prisma.user.findMany({
         where: { id: { in: authorIds } },
         select: { id: true, name: true, role: true },
@@ -253,6 +282,7 @@ export class NewsService {
         rows.map((r) => r.id),
       ),
       this.isStaff(viewerId),
+      this.clubs ? this.clubs.refs(clubIds) : new Map(),
     ]);
     const byId = new Map(authors.map((a) => [a.id, { id: a.id, name: a.name, role: a.role }]));
     return rows.map((row) => {
@@ -264,6 +294,7 @@ export class NewsService {
         body: row.body,
         media: media.get(row.id) ?? [],
         author: byId.get(row.createdById) ?? null,
+        club: (row.clubId && clubs.get(row.clubId)) || null,
         review: row.review,
         reviewNote: insider ? row.reviewNote : null,
         moderated: row.status !== 'visible',

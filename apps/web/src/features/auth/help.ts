@@ -62,6 +62,8 @@ export const help = {
     logout: 'Log out',
     profile: 'My profile',
     signedInAs: (name: string) => `Signed in as ${name}`,
+    menuLabel: (name: string) => `Account menu for ${name}`,
+    signedInLabel: 'Signed in as',
   },
   intro: [
     {

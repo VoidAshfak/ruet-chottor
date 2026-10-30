@@ -139,12 +139,13 @@ export class MediaService {
       : [];
     for (const id of assetIds) {
       const row = rows.find((r) => r.id === id);
+      // Files already on this item stay usable by whoever edits it (e.g. another club manager);
+      // new files must be the editor's own uploads.
       const usable =
         row &&
-        row.ownerId === ownerId &&
         row.status === 'ready' &&
         row.purpose === purpose &&
-        (row.contentId === null || row.contentId === contentId);
+        (row.contentId === contentId || (row.contentId === null && row.ownerId === ownerId));
       if (!usable) throw badRequest('One of the files cannot be used. Remove it and upload again.');
     }
 

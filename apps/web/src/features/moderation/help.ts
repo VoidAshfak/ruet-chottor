@@ -9,6 +9,7 @@ import type {
 const nouns: Record<ModeratableContentType, string> = {
   'chat.message': 'message',
   'news.post': 'post',
+  'clubs.club': 'club page',
 };
 
 // All guidance text for reporting and the moderation queue (CLAUDE.md §8). Keep it short and plain.
@@ -109,6 +110,8 @@ export const help = {
         'Reports are anonymous to the author. Moderators see only this message, not the rest of the chat.',
       'news.post':
         'Reports are anonymous to the author. A moderator reviews the post and acts if needed.',
+      'clubs.club':
+        'Reports are anonymous. A moderator reviews the club page and can hide it if it breaks the rules.',
     } satisfies Record<ModeratableContentType, string>,
     autoHide:
       'Items reported by several different members are hidden automatically until a moderator decides.',

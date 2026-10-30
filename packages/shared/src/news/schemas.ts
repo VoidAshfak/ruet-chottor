@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ROLES, type Role } from '../auth/schemas.js';
+import { clubRefSchema } from '../clubs/schemas.js';
 import { cursorPageQuerySchema, cursorPageSchema } from '../common/pagination.js';
 import { MEDIA_PURPOSES, mediaAssetSchema, mediaIdsSchema } from '../media/schemas.js';
 
@@ -38,6 +39,10 @@ export const newsPostInputSchema = z
       .min(NEWS_LIMITS.bodyMin, `Write at least ${NEWS_LIMITS.bodyMin} characters`)
       .max(NEWS_LIMITS.bodyMax, `Posts are at most ${NEWS_LIMITS.bodyMax} characters`),
     mediaIds: mediaIdsSchema(NEWS_LIMITS.media).default([]),
+    /** Post as this club; only its managers may. */
+    clubId: z
+      .preprocess((value) => (value === '' ? null : value), z.uuid().nullable())
+      .default(null),
   })
   .strict();
 export type NewsPostInput = z.infer<typeof newsPostInputSchema>;
@@ -57,6 +62,8 @@ export const newsPostSchema = z.object({
   media: z.array(mediaAssetSchema),
   /** null if the author's account no longer exists. */
   author: newsAuthorSchema.nullable(),
+  /** The club it was posted for, if any (and if clubs are switched on). */
+  club: clubRefSchema.nullable(),
   review: z.enum(NEWS_REVIEW_STATES),
   /** The moderator's reason; only sent to the author and staff. */
   reviewNote: z.string().nullable(),
@@ -73,6 +80,7 @@ export type NewsPage = z.infer<typeof newsPageSchema>;
 
 export const newsFeedQuerySchema = cursorPageQuerySchema.extend({
   category: z.preprocess(emptyToUndefined, z.enum(NEWS_CATEGORIES).optional()),
+  clubId: z.preprocess(emptyToUndefined, z.uuid().optional()),
 });
 export type NewsFeedQuery = z.infer<typeof newsFeedQuerySchema>;
 export type NewsFeedQueryInput = z.input<typeof newsFeedQuerySchema>;

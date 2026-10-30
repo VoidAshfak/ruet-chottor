@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Clubs module (Phase 3): club pages with logo, cover, about, contact and links; members ask to join and a manager
+  approves; managers edit their page and manage members; admins create clubs and appoint managers (who become
+  `club_manager`, logged). Club managers can post news as their club (`NewsPost.clubId`, `/news?club=`). Club pages
+  are reportable. Shared `ConfirmDialog` in `components/dialog`. Sample clubs in the seed.
 - News module (Phase 3): campus news with categories, up to 4 photos or videos per post, and moderator review:
   moderators, admins and club managers publish at once; other posts wait under **Admin → News review**, where
   staff approve or reject with a reason (logged). Authors edit or delete their own posts (unverified edits go back
@@ -61,6 +65,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
   `PageHeader`, `InfoTip` and `FirstVisitGuide`.
 - Tests: Vitest unit tests, API e2e tests (Supertest), web e2e tests (Playwright, desktop and mobile).
 - GitHub Actions CI, ESLint, Prettier, and project documentation.
+
+### Changed
+
+- Header: sections sit inline on wide screens and behind a **Menu** button on narrower ones, so the bar never
+  scrolls; members get a round initials button whose menu holds their full name, My profile and Log out (long
+  names no longer stretch the header).
+- Home page: a hero with an original cartoon of RUET campus life (red-brick block, rickshaw, mango tree, students
+  planning an adda by the Padma), a greeting for members, the latest news, and only the sections that are still
+  coming, so it no longer repeats the menu. Illustration colors are `--art-*` tokens in `theme.css`.
 
 ### Fixed
 

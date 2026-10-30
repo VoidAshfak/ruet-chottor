@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import {
+  type Club,
+  type ClubMembership,
   type Conversation,
   type ConversationMember,
   type MediaAsset,
@@ -158,6 +160,8 @@ export class FakePrisma {
   reports: Report[] = [];
   mediaAssets: MediaAsset[] = [];
   newsPosts: NewsPost[] = [];
+  clubs: Club[] = [];
+  clubMemberships: ClubMembership[] = [];
 
   private withProfile(user: User | undefined, args: { select?: Where; include?: Where }) {
     if (!user) return null;
@@ -362,6 +366,68 @@ export class FakePrisma {
     },
   );
 
+  clubMembership = (() => {
+    const base = table<ClubMembership>(
+      () => this.clubMemberships,
+      () => ({ role: 'member', state: 'pending', requestedAt: new Date(), joinedAt: null }),
+    );
+    return {
+      ...base,
+      create: async ({ data }: { data: Partial<ClubMembership> }) => {
+        const taken = this.clubMemberships.some(
+          (m) => m.clubId === data.clubId && m.userId === data.userId,
+        );
+        if (taken) throw uniqueViolation();
+        return base.insert(data);
+      },
+    };
+  })();
+
+  private readonly clubTable = table<Club>(
+    () => this.clubs,
+    () => {
+      const now = new Date();
+      return {
+        id: randomUUID(),
+        about: '',
+        contactEmail: null,
+        links: [],
+        status: 'visible',
+        createdAt: now,
+        updatedAt: now,
+      };
+    },
+  );
+
+  club = {
+    ...this.clubTable,
+    /** Unique name and slug, and nested `memberships: { create: [...] }`. */
+    create: async ({
+      data,
+    }: {
+      data: Partial<Club> & { memberships?: { create: Partial<ClubMembership>[] } };
+    }) => {
+      const { memberships, ...fields } = data;
+      if (this.clubs.some((c) => c.name === fields.name || c.slug === fields.slug)) {
+        throw uniqueViolation();
+      }
+      const club = this.clubTable.insert(fields);
+      for (const m of memberships?.create ?? [])
+        this.clubMembership.insert({ ...m, clubId: club.id });
+      return club;
+    },
+    update: async ({ where, data }: { where: Where; data: Partial<Club> }) => {
+      const club = (await this.clubTable.findUnique({ where }))!;
+      const clash = this.clubs.some(
+        (c) =>
+          c !== club &&
+          ((data.name && c.name === data.name) || (data.slug && c.slug === data.slug)),
+      );
+      if (clash) throw uniqueViolation();
+      return this.clubTable.update({ where, data });
+    },
+  };
+
   newsPost = table<NewsPost>(
     () => this.newsPosts,
     () => {
@@ -374,6 +440,7 @@ export class FakePrisma {
         reviewedAt: null,
         status: 'visible',
         publishedAt: null,
+        clubId: null,
         deletedAt: null,
         createdAt: now,
         updatedAt: now,

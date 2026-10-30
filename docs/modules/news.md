@@ -21,6 +21,8 @@ moderation log). Photos need `CLOUDINARY_URL`; reporting needs `FEATURE_MODERATI
   **Rejects** with a reason the author sees.
 - Authors edit and delete their own posts. An edit by an unverified author goes back to review, so an approved post
   cannot be swapped for something else. Deleting also deletes its photos and videos.
+- A club manager can **Post as** one of their clubs ([clubs](clubs.md)); the post shows "for <club>", links to the
+  club, and appears under the club's "See news from this club" (`/news?club=<id>`).
 - Anyone can **Report** a published post; moderators hide or remove it from the Reports queue. The author then sees
   "A moderator hid this post".
 
@@ -52,10 +54,10 @@ All paths start with `/api/v1/news` and need a login. Errors use `{ error: { cod
 
 | Method | Path | Auth/role | Description |
 |---|---|---|---|
-| GET | `/?category=&cursor=&limit=` | member | Published posts, newest first |
+| GET | `/?category=&clubId=&cursor=&limit=` | member | Published posts, newest first |
 | GET | `/mine?cursor=` | member | Your posts in every state |
 | GET | `/:id` | member | A published post; the author and staff also get unpublished ones (others `404`) |
-| POST | `/` | member | `{ title, category, body, mediaIds? }` → the post (5 per hour) |
+| POST | `/` | member | `{ title, category, body, mediaIds?, clubId? }` → the post (5 per hour; `clubId` only for its managers) |
 | PATCH | `/:id` | author | Same body; replaces the post and its files |
 | DELETE | `/:id` | author | `204`; deletes its files from Cloudinary |
 | GET | `/review?cursor=` | moderator, admin | Waiting posts, oldest first |

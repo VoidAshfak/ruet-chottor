@@ -4,9 +4,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type ReactNode, Suspense } from 'react';
 
+/** The header's link style: muted text, tinted background when it is the current section. */
+export const NAV_LINK_CLASS =
+  'rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-muted-foreground hover:bg-accent hover:text-accent-foreground aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground';
+
 type NavLinkProps = {
   href: string;
   className: string;
+  /** e.g. close the mobile menu after choosing a section. */
+  onClick?: () => void;
   children: ReactNode;
   /** Defaults to "the path starts with href". */
   isActive?: (pathname: string) => boolean;
@@ -31,9 +37,20 @@ function ActiveNavLink(props: NavLinkProps) {
   return <PlainNavLink {...props} active={active} />;
 }
 
-function PlainNavLink({ href, className, children, active }: NavLinkProps & { active: boolean }) {
+function PlainNavLink({
+  href,
+  className,
+  children,
+  active,
+  onClick,
+}: NavLinkProps & { active: boolean }) {
   return (
-    <Link href={href} aria-current={active ? 'page' : undefined} className={className}>
+    <Link
+      href={href}
+      aria-current={active ? 'page' : undefined}
+      className={className}
+      onClick={onClick}
+    >
       {children}
     </Link>
   );

@@ -81,6 +81,22 @@
   --ring: #0f7dbc;
   --brand-orange: #eb8a1b;
   --brand-green: #007749;
+  /* Homepage illustration (decoration only, never text): sky, grass, river, brick, skin, tree, mango. */
+  --art-sky: #eaf5fd;
+  --art-cloud: #ffffff;
+  --art-grass: #cfe8c4;
+  --art-grass-dark: #9ccb8a;
+  --art-river: #a9d8f2;
+  --art-brick: #c8664a;
+  --art-brick-dark: #a24f37;
+  --art-window: #fdf3e1;
+  --art-skin: #c98f63;
+  --art-hair: #2b2b2b;
+  --art-tree: #3f8f4a;
+  --art-tree-dark: #2f7139;
+  --art-trunk: #7a5134;
+  --art-mango: #f2b51f;
+  --art-ink: #3a3a3a;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
