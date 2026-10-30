@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import {
   type BusNotice,
+  type Notification,
   type BusRoute,
   type BusStop,
   type BusTrip,
@@ -145,6 +146,7 @@ function table<T extends object>(rows: () => T[], defaults: () => Partial<T>) {
       for (const item of data) insert(item);
       return { count: data.length };
     },
+    createManyAndReturn: async ({ data }: { data: Partial<T>[] }) => data.map(insert),
     update: async ({ where, data }: { where: Where; data: Partial<T> }) =>
       Object.assign(one(where), data),
     updateMany: async ({ where, data }: { where: Where; data: Partial<T> }) => {
@@ -203,6 +205,7 @@ export class FakePrisma {
   busStops: BusStop[] = [];
   busTrips: BusTrip[] = [];
   busNotices: BusNotice[] = [];
+  notifications: Notification[] = [];
 
   private withProfile(user: User | undefined, args: { select?: Where; include?: Where }) {
     if (!user) return null;
@@ -453,6 +456,11 @@ export class FakePrisma {
   busNotice = table<BusNotice>(
     () => this.busNotices,
     () => ({ id: randomUUID(), routeId: null, createdAt: new Date() }),
+  );
+
+  notification = table<Notification>(
+    () => this.notifications,
+    () => ({ id: randomUUID(), body: null, link: null, readAt: null, createdAt: new Date() }),
   );
 
   listing = table<Listing>(

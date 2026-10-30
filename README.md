@@ -4,7 +4,7 @@
 Rajshahi University of Engineering & Technology. It brings the things students currently scatter across
 Facebook and WhatsApp groups into one place: finding people, talking in real time, and using campus services.
 
-> Status: every planned section is built and hardened (Phases 0–6). Next: live bus tracking and notifications.
+> Status: every planned section is built and hardened (Phases 0–7). Next: live bus tracking.
 > This is a student project, not an official RUET service.
 
 ## What's inside
@@ -20,6 +20,7 @@ Facebook and WhatsApp groups into one place: finding people, talking in real tim
 | **Lost & Found** | Post a lost or found item; found items can carry a check question, and photos stay blurred until tapped |
 | **Marketplace** | Buy and sell within RUET, paying in person. Listings mentioning prohibited items wait for a moderator |
 | **Bus** | Routes, stops and the full timetable, the next buses from your stop, and notices about changes |
+| **Notifications** | A bell with an unread count: moderator decisions on your posts, club join requests, and changes to events you are going to |
 | **Admin** | Staff review reports, hide or remove content, warn, suspend or ban members, and read the moderation log |
 
 Every page explains itself: a one-line description, **(i)** tips next to anything unclear, and a short guide the

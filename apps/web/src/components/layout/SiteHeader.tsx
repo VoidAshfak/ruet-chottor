@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { AdminNavLink } from '@/features/admin';
 import { AccountMenu } from '@/features/auth';
+import { NotificationBell } from '@/features/notifications';
 import { enabledNavModules } from '@/lib/modules';
 import { useFeatures } from '@/lib/use-features';
 import { help } from './help';
@@ -21,6 +22,7 @@ export function SiteHeader() {
   const modules = enabledNavModules(data?.modules ?? []);
   const authEnabled = data?.modules.includes('auth') ?? false;
   const adminEnabled = authEnabled && (data?.modules.includes('admin') ?? false);
+  const notificationsEnabled = authEnabled && (data?.modules.includes('notifications') ?? false);
   const [menuOpen, setMenuOpen] = useState(false);
   const close = () => setMenuOpen(false);
 
@@ -75,6 +77,7 @@ export function SiteHeader() {
               </PopoverContent>
             </Popover>
           ) : null}
+          {notificationsEnabled ? <NotificationBell /> : null}
           {authEnabled ? <AccountMenu /> : null}
         </div>
       </div>

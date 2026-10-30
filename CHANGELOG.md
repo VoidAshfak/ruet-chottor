@@ -35,6 +35,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Notifications module (Phase 7): an in-app inbox with a bell in the header showing the unread count, updated live
+  over a `/notifications` Socket.IO namespace. Members hear when a moderator approves or rejects their news post,
+  hides, removes or restores their content (with the reason, never the reporter), when someone asks to join a club
+  they manage, when their join request is approved or they are made a manager, and when an event they are going to
+  changes time or venue or is cancelled. Tap to open and mark read, or mark all read; kept for 90 days. Other modules
+  send through `NotificationsService.notify()` only when `FEATURE_NOTIFICATIONS` is on. Sample notifications in the
+  seed.
 - Bus module (Phase 5): routes with ordered stops (minutes from campus) and trips (direction, time, weekdays),
   shown as a stop line and full timetable; **Next buses** from any stop with a live countdown in Dhaka time; notices
   for temporary changes. Admins edit everything in **Admin → Bus**. Route colours are `--route-*` theme tokens.

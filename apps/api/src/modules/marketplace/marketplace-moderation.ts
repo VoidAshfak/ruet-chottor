@@ -36,6 +36,7 @@ export class MarketplaceModeration implements ModeratableContent, OnModuleInit {
       preview: `${listing.title} (${price})\n\n${listing.description}`,
       status: listing.status,
       context: 'Marketplace',
+      link: `/marketplace/${listing.id}`,
     };
   }
 

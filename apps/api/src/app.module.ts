@@ -13,6 +13,10 @@ import { LostFoundModule } from './modules/lost-found/lost-found.module.js';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module.js';
 import { ModerationModule } from './modules/moderation/moderation.module.js';
 import { NewsModule } from './modules/news/news.module.js';
+import {
+  NotificationsModule,
+  notificationsOn,
+} from './modules/notifications/notifications.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 
 const enabled = (key: ModuleKey) => (env: NodeJS.ProcessEnv) => env[featureEnvVar(key)] === 'true';
@@ -41,6 +45,7 @@ const enabled = (key: ModuleKey) => (env: NodeJS.ProcessEnv) => env[featureEnvVa
     ConditionalModule.registerWhen(LostFoundModule, enabled('lost-found')),
     ConditionalModule.registerWhen(MarketplaceModule, enabled('marketplace')),
     ConditionalModule.registerWhen(BusModule, enabled('bus')),
+    ConditionalModule.registerWhen(NotificationsModule, () => notificationsOn()),
     // News reviews are written to admin's moderation log, so it needs both flags too.
     ConditionalModule.registerWhen(
       NewsModule,

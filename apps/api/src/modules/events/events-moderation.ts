@@ -35,6 +35,7 @@ export class EventsModeration implements ModeratableContent, OnModuleInit {
       preview: `${event.title}\n${event.venue}\n\n${event.description}`,
       status: event.status,
       context: `Event · ${formatDateTime(event.startsAt)}`,
+      link: `/events/${event.id}`,
     };
   }
 

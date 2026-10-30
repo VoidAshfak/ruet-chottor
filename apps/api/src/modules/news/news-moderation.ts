@@ -44,6 +44,7 @@ export class NewsModeration implements ModeratableContent, OnModuleInit {
       preview: `${post.title}\n\n${post.body}`,
       status: post.status,
       context: `News · ${CATEGORY_LABEL[post.category] ?? post.category}`,
+      link: `/news/${post.id}`,
     };
   }
 

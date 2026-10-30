@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AdminModule } from '../admin/admin.module.js';
+import { NotificationsModule, notificationsOn } from '../notifications/notifications.module.js';
 import { ModerationController } from './moderation.controller.js';
 import { ModerationService } from './moderation.service.js';
 
@@ -9,7 +10,7 @@ import { ModerationService } from './moderation.service.js';
  * See docs/modules/moderation.md.
  */
 @Module({
-  imports: [AdminModule],
+  imports: [AdminModule, ...(notificationsOn() ? [NotificationsModule] : [])],
   controllers: [ModerationController],
   providers: [ModerationService],
   // For content modules that hold items for review (marketplace).
