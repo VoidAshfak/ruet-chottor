@@ -13,6 +13,7 @@ describe('Meta endpoints (e2e)', () => {
 
   beforeAll(async () => {
     process.env.FEATURE_CHAT = 'true';
+    process.env.TRUST_PROXY = '1';
     // Imported after setting the flag: ConfigModule reads the environment when the module loads.
     const { AppModule } = await import('../src/app.module.js');
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
@@ -30,6 +31,12 @@ describe('Meta endpoints (e2e)', () => {
   afterAll(async () => {
     await app.close();
     delete process.env.FEATURE_CHAT;
+    delete process.env.TRUST_PROXY;
+  });
+
+  it('trusts the configured number of proxies for the client address', () => {
+    const express = app.getHttpAdapter().getInstance() as { get(setting: string): unknown };
+    expect(express.get('trust proxy')).toBe(1);
   });
 
   it('GET /api/v1/health reports each dependency', async () => {

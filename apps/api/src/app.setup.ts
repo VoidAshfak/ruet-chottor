@@ -11,6 +11,10 @@ import { SocketIoAdapter } from './core/realtime/socket-io.adapter.js';
 export function configureApp<T extends INestApplication>(app: T): T {
   const config = app.get<ConfigService<Env, true>>(ConfigService);
 
+  const proxies = config.get('TRUST_PROXY', { infer: true });
+  // Express then takes `req.ip` from X-Forwarded-For, counting back this many hops.
+  if (proxies > 0) app.getHttpAdapter().getInstance().set('trust proxy', proxies);
+
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' }); // -> /api/v1/...
   app.use(helmet());
