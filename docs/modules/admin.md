@@ -87,9 +87,6 @@ module and show here as the **Reports** tab (`/admin/moderation`).
 
 ## Known limitations / future work
 
-- **Up to 15 minutes of access after a suspension or ban**: sessions end at once, but an already-issued access
-  token stays valid until it expires (ADR 0005). Content creation should also check account status once content
-  modules exist.
 - An expired suspension is lifted only when the member logs in; until then they stay hidden in the directory.
 - Emails to members are best effort: if sending fails, the action still stands and is logged.
 - No bulk actions, and no way to correct a log entry other than adding a new one.

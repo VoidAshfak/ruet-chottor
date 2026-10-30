@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Security
+
+- Ending a session (logout, suspension, ban, a reused refresh token) now also deletes its access token, so access
+  stops at once instead of up to 15 minutes later.
+- The web app sends security headers: a Content Security Policy (only this site, the API and Cloudinary), no
+  framing, `nosniff`, a strict referrer policy and a permissions policy; `X-Powered-By` is removed.
+- Events: the last place can no longer go to two people tapping at the same moment (the event row is locked while
+  the RSVP is checked and saved).
+- CI runs `pnpm audit --prod`; `shadcn` (a build-time tool) moved to dev dependencies.
+- The seed refuses to run when `NODE_ENV=production`, so demo accounts never reach a live database.
+
 ### Added
 
 - Bus module (Phase 5): routes with ordered stops (minutes from campus) and trips (direction, time, weekdays),

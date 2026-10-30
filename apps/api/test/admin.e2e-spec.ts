@@ -166,6 +166,24 @@ describe('Admin (e2e)', () => {
   });
 
   describe('POST /admin/users/:id/suspend', () => {
+    it('cuts off the member at once, not when their access token expires', async () => {
+      const session = await prisma.session.create({
+        data: { userId: people.target.id, refreshTokenHash: 'live-session' },
+      });
+      const token = await app
+        .get(AccessTokenStore)
+        .issue({ userId: people.target.id, sessionId: session.id, role: 'student' });
+      const asTarget = () =>
+        request(app.getHttpServer()).get('/api/v1/admin/users').set('Cookie', `rc_access=${token}`);
+      await asTarget().expect(403); // logged in, just not staff
+
+      await as('moderator')
+        .post(`/users/${people.target.id}/suspend`, { reason: REASON, days: 3 })
+        .expect(200);
+      const res = await asTarget().expect(401);
+      expect(res.body.error.code).toBe('SESSION_EXPIRED');
+    });
+
     it('suspends for N days, ends all sessions and logs it', async () => {
       await prisma.session.create({ data: { userId: people.target.id, refreshTokenHash: 'h1' } });
       const res = await as('moderator')

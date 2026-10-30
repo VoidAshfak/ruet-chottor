@@ -19,6 +19,10 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
+  // Seeds create demo accounts with a published password: never on a live database.
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Refusing to seed: NODE_ENV is production. Seed development and staging only.');
+  }
   await seedUsers(prisma);
   await seedAdmin(prisma);
   await seedChat(prisma);

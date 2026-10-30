@@ -89,21 +89,25 @@ export class SessionsService {
       where: { id: sessionId, revokedAt: null },
       data: { revokedAt: new Date() },
     });
+    await this.accessTokens.revokeSessions([sessionId]);
   }
 
-  /** Logs a user out everywhere, e.g. when a moderator suspends them. */
+  /** Logs a user out everywhere at once, e.g. when a moderator suspends them. */
   async revokeAllForUser(userId: string): Promise<void> {
+    const open = await this.prisma.session.findMany({ where: { userId, revokedAt: null } });
     await this.prisma.session.updateMany({
       where: { userId, revokedAt: null },
       data: { revokedAt: new Date() },
     });
+    await this.accessTokens.revokeSessions(open.map((s) => s.id));
   }
 
   async revokeByRefreshToken(refreshToken: string): Promise<void> {
-    await this.prisma.session.updateMany({
-      where: { refreshTokenHash: hashToken(refreshToken), revokedAt: null },
-      data: { revokedAt: new Date() },
+    const session = await this.prisma.session.findUnique({
+      where: { refreshTokenHash: hashToken(refreshToken) },
     });
+    if (!session || session.revokedAt) return;
+    await this.revoke(session.id);
   }
 
   private async handleUnknownToken(presentedHash: string) {
@@ -114,10 +118,7 @@ export class SessionsService {
     const rotatedRecently = Date.now() - rotatedFrom.lastUsedAt.getTime() < ROTATION_GRACE_MS;
     if (rotatedRecently) return;
     // An old token came back long after rotation: someone else has a copy. End the session.
-    await this.prisma.session.update({
-      where: { id: rotatedFrom.id },
-      data: { revokedAt: new Date() },
-    });
+    await this.revoke(rotatedFrom.id);
   }
 }
 
