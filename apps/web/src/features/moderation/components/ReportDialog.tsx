@@ -47,10 +47,10 @@ export function ReportDialog({ contentType, contentId, onDone, onClose }: Report
   return (
     <Dialog open onOpenChange={(open) => !open && !report.isPending && onClose()}>
       <DialogContent>
-        <DialogTitle>{text.title}</DialogTitle>
+        <DialogTitle>{text.title(contentType)}</DialogTitle>
         <DialogDescription className="flex items-center gap-1">
           {text.description}
-          <InfoTip text={help.tips.report} label={text.tipLabel} />
+          <InfoTip text={help.tips.report[contentType]} label={text.tipLabel} />
         </DialogDescription>
         <form
           noValidate

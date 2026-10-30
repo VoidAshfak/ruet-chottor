@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { ChatModule } from './modules/chat/chat.module.js';
 import { DirectoryModule } from './modules/directory/directory.module.js';
 import { ModerationModule } from './modules/moderation/moderation.module.js';
+import { NewsModule } from './modules/news/news.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 
 const enabled = (key: ModuleKey) => (env: NodeJS.ProcessEnv) => env[featureEnvVar(key)] === 'true';
@@ -25,6 +26,11 @@ const enabled = (key: ModuleKey) => (env: NodeJS.ProcessEnv) => env[featureEnvVa
     ConditionalModule.registerWhen(
       ModerationModule,
       (env) => enabled('moderation')(env) && enabled('admin')(env),
+    ),
+    // News reviews are written to admin's moderation log, so it needs both flags too.
+    ConditionalModule.registerWhen(
+      NewsModule,
+      (env) => enabled('news')(env) && enabled('admin')(env),
     ),
   ],
 })

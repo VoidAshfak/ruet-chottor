@@ -146,6 +146,8 @@ enum ModerationAction {
   remove_content
   restore_content
   dismiss_reports
+  approve_content
+  reject_content
 }
 
 /// Append-only: a database trigger rejects UPDATE and DELETE (see the add_admin migration).
@@ -282,4 +284,48 @@ model Report {
   @@unique([contentType, contentId, reporterId])
   @@index([status, contentType])
   @@map("reports")
+}
+
+// ===== news =====
+// Campus news. Posts by verified roles (moderator, admin, club_manager) publish at once; others wait
+// for a moderator (CLAUDE.md §7). Photos and videos are MediaAssets with purpose "news.post".
+
+enum NewsCategory {
+  announcement
+  academic
+  event
+  club
+  general
+}
+
+enum NewsReview {
+  pending
+  approved
+  rejected
+}
+
+model NewsPost {
+  id           String        @id @default(uuid(7)) @db.Uuid
+  title        String
+  category     NewsCategory
+  body         String
+  /// Plain id (no relation) so posts survive account deletion.
+  createdById  String        @db.Uuid
+  review       NewsReview    @default(pending)
+  /// Reason given by the moderator (shown to the author on rejection).
+  reviewNote   String?
+  reviewedById String?       @db.Uuid
+  reviewedAt   DateTime?
+  /// Moderation after reports (moderation module): hidden/removed posts leave the feed.
+  status       ContentStatus @default(visible)
+  /// Set on first approval; sorts the feed.
+  publishedAt  DateTime?
+  /// Deleted by its author.
+  deletedAt    DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([review, status, publishedAt])
+  @@index([createdById, createdAt])
+  @@map("news_posts")
 }

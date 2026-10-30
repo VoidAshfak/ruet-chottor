@@ -1,17 +1,23 @@
 import type {
   ContentAction,
+  ModeratableContentType,
   ContentStatus,
   ReportReason,
   ReportStatus,
 } from '@ruet-chottor/shared';
 
+const nouns: Record<ModeratableContentType, string> = {
+  'chat.message': 'message',
+  'news.post': 'post',
+};
+
 // All guidance text for reporting and the moderation queue (CLAUDE.md §8). Keep it short and plain.
 export const help = {
   report: {
     button: 'Report',
-    buttonLabel: 'Report this message',
+    buttonLabel: (type: ModeratableContentType) => `Report this ${nouns[type]}`,
     reported: 'You reported this',
-    title: 'Report this message',
+    title: (type: ModeratableContentType) => `Report this ${nouns[type]}`,
     description: 'Tell the moderators what is wrong. They will review it and act if needed.',
     reason: 'Reason',
     needReason: 'Pick a reason',
@@ -98,8 +104,12 @@ export const help = {
   confirm: 'Confirm',
   cancel: 'Cancel',
   tips: {
-    report:
-      'Reports are anonymous to the author. Moderators see only this message, not the rest of the chat.',
+    report: {
+      'chat.message':
+        'Reports are anonymous to the author. Moderators see only this message, not the rest of the chat.',
+      'news.post':
+        'Reports are anonymous to the author. A moderator reviews the post and acts if needed.',
+    } satisfies Record<ModeratableContentType, string>,
     autoHide:
       'Items reported by several different members are hidden automatically until a moderator decides.',
     reason:

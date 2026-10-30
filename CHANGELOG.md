@@ -8,6 +8,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- News module (Phase 3): campus news with categories, up to 4 photos or videos per post, and moderator review:
+  moderators, admins and club managers publish at once; other posts wait under **Admin → News review**, where
+  staff approve or reject with a reason (logged). Authors edit or delete their own posts (unverified edits go back
+  to review) and see their posts' state under **My posts**. Published posts can be reported. Sample posts in the seed.
+- Playwright can run on another port with `E2E_PORT` (e.g. against `next start` while `pnpm dev` keeps 3000).
 - Media uploads (shared infrastructure, ADR 0010): images, videos and documents stored in Cloudinary. The browser
   uploads directly with a signed, single-use ticket; the API checks the stored file's type and size before it can
   be attached to content, deletes rejected or abandoned files, and serves CDN-optimised URLs. `MediaUploader` and

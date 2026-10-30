@@ -20,6 +20,7 @@ const TABS: Tab[] = [
     isActive: (pathname: string) => pathname === '/admin' || pathname.startsWith('/admin/users'),
   },
   { href: '/admin/moderation', label: help.tabs.reports, needs: 'moderation' },
+  { href: '/admin/news', label: help.tabs.news, needs: 'news' },
   { href: '/admin/log', label: help.tabs.log },
 ];
 
