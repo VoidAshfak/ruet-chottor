@@ -124,7 +124,5 @@ Suspended members cannot send.
 - Text only: attachments need the file-storage service first. No editing, reactions or per-person read receipts.
 - One API instance only: running several needs the Socket.IO Redis adapter.
 - No blocking yet: any active member can message any other. Rate limits slow down spam meanwhile.
-- The conversation list makes a few queries per conversation (last message, unread count); fine for 20 per page,
-  worth a single SQL query if it gets slow.
 - A message sent over the socket whose acknowledgement times out is retried over HTTP and could, rarely, be saved
   twice.

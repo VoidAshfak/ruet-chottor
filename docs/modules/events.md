@@ -89,4 +89,3 @@ the calendar and are served only to their organisers and staff (marked `moderate
 
 - No reminders or change notices to people going (needs `notifications`).
 - No recurring events and no "add to calendar" (.ics) export yet.
-- Going counts are counted per event on each request; fine for a month view, worth caching for big fests.

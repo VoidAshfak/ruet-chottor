@@ -293,6 +293,28 @@ describe('Chat (e2e)', () => {
       expect(read.items[0]?.unreadCount).toBe(0);
     });
 
+    it('gives each chat in the list its own last message and unread count', async () => {
+      const chat = await startDirect('rafiq', 'nusrat');
+      const group = await createGroup('tanvir', ['nusrat']);
+      await send('rafiq', chat.id, 'One').expect(201);
+      await send('tanvir', group.id, 'Meeting at 5').expect(201);
+      await send('tanvir', group.id, 'Spam').expect(201);
+      await send('tanvir', group.id, 'More spam').expect(201);
+      // The latest message is hidden by a moderator, so the one before it is shown instead.
+      prisma.messages.find((m) => m.body === 'Spam')!.status = 'hidden';
+      prisma.messages.find((m) => m.body === 'More spam')!.status = 'hidden';
+
+      const list = conversationPageSchema.parse(
+        (await as('nusrat').get('/conversations').expect(200)).body,
+      );
+      const byId = new Map(list.items.map((c) => [c.id, c]));
+      expect(byId.get(chat.id)).toMatchObject({ unreadCount: 1, lastMessage: { body: 'One' } });
+      expect(byId.get(group.id)).toMatchObject({
+        unreadCount: 1,
+        lastMessage: { body: 'Meeting at 5' },
+      });
+    });
+
     it('rejects empty and over-long messages', async () => {
       const chat = await startDirect('rafiq', 'nusrat');
       await send('rafiq', chat.id, '   ').expect(400);

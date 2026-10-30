@@ -83,7 +83,8 @@ page is served only to their managers and admins (marked `moderated`).
 
 ## Code map
 
-- Backend: `apps/api/src/modules/clubs/` (`ClubsService` — exported for news — `ClubsController`, `ClubsModeration`)
+- Backend: `apps/api/src/modules/clubs/` (`ClubsService` — exported for news and events: `isManager()`,
+  `managedAmong()`, `refs()` — `ClubsController`, `ClubsModeration`)
 - Frontend: `apps/web/src/features/clubs/` (`ClubsDirectory`, `ClubPage`, `ClubEditor`, `ClubMembers`, `AdminClubs`)
 - Pages: `apps/web/src/app/(app)/clubs`, `clubs/[slug]`, `clubs/[slug]/edit`, `clubs/[slug]/members`, `admin/clubs`
 - Schemas: `packages/shared/src/clubs/`
@@ -94,5 +95,4 @@ page is served only to their managers and admins (marked `moderated`).
 
 - Removing someone as manager does not take away their `club_manager` role; an admin changes it in Admin → Members.
 - No notifications for join requests or approvals (needs `notifications`).
-- Member counts are counted per club on each list request; fine for a campus, worth caching if clubs grow to hundreds.
 - No club archive/delete; admins hide a club through moderation.
