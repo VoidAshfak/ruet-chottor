@@ -15,8 +15,8 @@ const query = (params: Record<string, string | undefined>) => {
 };
 
 export const newsApi = {
-  feed: (category: NewsCategory | undefined, cursor?: string) =>
-    apiRequest(`/news${query({ category, cursor })}`, newsPageSchema),
+  feed: (category: NewsCategory | undefined, clubId: string | undefined, cursor?: string) =>
+    apiRequest(`/news${query({ category, clubId, cursor })}`, newsPageSchema),
   mine: (cursor?: string) => apiRequest(`/news/mine${query({ cursor })}`, newsPageSchema),
   reviewQueue: (cursor?: string) => apiRequest(`/news/review${query({ cursor })}`, newsPageSchema),
   post: (id: string) => apiRequest(`/news/${id}`, newsPostSchema),

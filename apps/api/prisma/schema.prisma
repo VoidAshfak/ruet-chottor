@@ -91,6 +91,7 @@ model User {
   sessions       Session[]
   profile        Profile?
   conversations  ConversationMember[]
+  clubs          ClubMembership[]
 
   @@map("users")
 }
@@ -320,6 +321,8 @@ model NewsPost {
   status       ContentStatus @default(visible)
   /// Set on first approval; sorts the feed.
   publishedAt  DateTime?
+  /// Posted for this club (clubs module); only its managers may. Plain id, no relation.
+  clubId       String?       @db.Uuid
   /// Deleted by its author.
   deletedAt    DateTime?
   createdAt    DateTime      @default(now())
@@ -327,5 +330,68 @@ model NewsPost {
 
   @@index([review, status, publishedAt])
   @@index([createdById, createdAt])
+  @@index([clubId, publishedAt])
   @@map("news_posts")
+}
+
+// ===== clubs =====
+// Campus clubs. Admins create clubs and appoint managers; members ask to join and a manager approves.
+// Logos and covers are MediaAssets with purposes "clubs.logo" and "clubs.cover".
+
+enum ClubCategory {
+  technical
+  cultural
+  sports
+  social_service
+  academic
+  other
+}
+
+enum ClubRole {
+  manager
+  member
+}
+
+enum MembershipState {
+  pending
+  active
+}
+
+model Club {
+  id           String           @id @default(uuid(7)) @db.Uuid
+  name         String           @unique
+  /// From the name; the club page is /clubs/<slug>.
+  slug         String           @unique
+  tagline      String
+  category     ClubCategory
+  about        String           @default("")
+  /// The club's public contact, not a member's personal address.
+  contactEmail String?
+  /// [{ label, url }], at most 3.
+  links        Json             @default("[]")
+  createdById  String           @db.Uuid
+  /// Moderation after reports: hidden/removed clubs leave the list.
+  status       ContentStatus    @default(visible)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  memberships  ClubMembership[]
+
+  @@index([status, name])
+  @@map("clubs")
+}
+
+model ClubMembership {
+  clubId      String          @db.Uuid
+  club        Club            @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  userId      String          @db.Uuid
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        ClubRole        @default(member)
+  state       MembershipState @default(pending)
+  requestedAt DateTime        @default(now())
+  joinedAt    DateTime?
+
+  @@id([clubId, userId])
+  @@index([userId])
+  @@index([clubId, state])
+  @@map("club_memberships")
 }

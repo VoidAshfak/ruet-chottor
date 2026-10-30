@@ -23,6 +23,11 @@ export const help = {
     bodyPlaceholder: 'What happened, when and where. Plain text; line breaks are kept.',
     counter: (used: number) => `${used}/${NEWS_LIMITS.bodyMax}`,
     media: 'Photos and videos (optional)',
+    postAs: 'Post as',
+    postAsMe: 'Myself',
+    postAsTip:
+      'You manage these clubs, so you can post news in the club’s name. It also appears on the club page.',
+    postAsTipLabel: 'About posting as a club',
     publish: 'Publish',
     submitForReview: 'Send for review',
     save: 'Save changes',
@@ -54,6 +59,10 @@ export const help = {
     loadMore: 'Show more',
     readMore: 'Read more',
     by: (name: string) => `by ${name}`,
+    forClub: 'for',
+    clubFilter: (name: string) => `Posts from ${name}`,
+    clubFilterUnknown: 'Posts from one club',
+    clearClub: 'Show all news',
     unknownAuthor: 'a deleted account',
     verified: 'Verified',
     verifiedTip:

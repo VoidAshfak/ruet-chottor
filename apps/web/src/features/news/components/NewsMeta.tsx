@@ -4,6 +4,7 @@ import {
   type NewsPost,
   type Role,
 } from '@ruet-chottor/shared';
+import Link from 'next/link';
 import { InfoTip } from '@/components/guide/InfoTip';
 import { help } from '../help';
 
@@ -18,6 +19,14 @@ export function NewsMeta({ post }: { post: NewsPost }) {
         {help.categories[post.category]}
       </span>
       <span>{help.feed.by(post.author?.name ?? help.feed.unknownAuthor)}</span>
+      {post.club ? (
+        <span>
+          {help.feed.forClub}{' '}
+          <Link href={`/clubs/${post.club.slug}`} className="text-primary hover:underline">
+            {post.club.name}
+          </Link>
+        </span>
+      ) : null}
       {verified ? (
         <span className="inline-flex items-center gap-0.5 text-xs font-medium text-primary">
           {help.feed.verified}

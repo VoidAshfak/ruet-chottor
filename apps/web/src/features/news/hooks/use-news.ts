@@ -6,7 +6,8 @@ import { newsApi } from '../api';
 
 export const newsKeys = {
   all: ['news'] as const,
-  feed: (category?: NewsCategory) => ['news', 'feed', category ?? 'all'] as const,
+  feed: (category?: NewsCategory, clubId?: string) =>
+    ['news', 'feed', category ?? 'all', clubId ?? 'all'] as const,
   mine: ['news', 'mine'] as const,
   review: ['news', 'review'] as const,
   post: (id: string) => ['news', 'post', id] as const,
@@ -14,10 +15,14 @@ export const newsKeys = {
 
 const pages = { initialPageParam: undefined as string | undefined };
 
-export function useNewsFeed(category: NewsCategory | undefined, { enabled }: { enabled: boolean }) {
+export function useNewsFeed(
+  category: NewsCategory | undefined,
+  clubId: string | undefined,
+  { enabled }: { enabled: boolean },
+) {
   return useInfiniteQuery({
-    queryKey: newsKeys.feed(category),
-    queryFn: ({ pageParam }) => newsApi.feed(category, pageParam),
+    queryKey: newsKeys.feed(category, clubId),
+    queryFn: ({ pageParam }) => newsApi.feed(category, clubId, pageParam),
     ...pages,
     getNextPageParam: (page) => page.nextCursor ?? undefined,
     enabled,

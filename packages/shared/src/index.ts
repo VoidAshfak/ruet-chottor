@@ -12,3 +12,4 @@ export * from './admin/index.js';
 export * from './chat/index.js';
 export * from './moderation/index.js';
 export * from './news/index.js';
+export * from './clubs/index.js';

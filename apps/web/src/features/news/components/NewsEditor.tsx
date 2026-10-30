@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useSession } from '@/features/auth';
+import { useManagedClubs } from '@/features/clubs';
 import { help } from '../help';
 import { useNewsPost, useSaveNews } from '../hooks/use-news';
 import { LoginGate } from './LoginGate';
@@ -39,6 +40,8 @@ function Form({ existing }: { existing?: NewsPost }) {
   const [body, setBody] = useState(existing?.body ?? '');
   const [media, setMedia] = useState<MediaAsset[]>(existing?.media ?? []);
   const [uploading, setUploading] = useState(false);
+  const managedClubs = useManagedClubs({ enabled: !!session.user });
+  const [clubId, setClubId] = useState(existing?.club?.id ?? '');
   const [errors, setErrors] = useState<Errors>({});
   const text = help.editor;
   const verified = (NEWS_VERIFIED_ROLES as readonly Role[]).includes(
@@ -51,6 +54,7 @@ function Form({ existing }: { existing?: NewsPost }) {
       category: category || undefined,
       body,
       mediaIds: media.map((m) => m.id),
+      clubId: clubId || null,
     });
     if (!parsed.success) {
       const next: Errors = {};
@@ -82,6 +86,28 @@ function Form({ existing }: { existing?: NewsPost }) {
           {verified ? text.verifiedNote : text.reviewNote}
           {verified ? null : <InfoTip text={text.reviewNote} label={text.reviewTipLabel} />}
         </p>
+
+        {managedClubs.length > 0 ? (
+          <div className="grid gap-1.5">
+            <div className="flex items-center gap-1">
+              <Label htmlFor="news-club">{text.postAs}</Label>
+              <InfoTip text={text.postAsTip} label={text.postAsTipLabel} />
+            </div>
+            <select
+              id="news-club"
+              className={`${fieldClass} h-10 py-0`}
+              value={clubId}
+              onChange={(event) => setClubId(event.target.value)}
+            >
+              <option value="">{text.postAsMe}</option>
+              {managedClubs.map((club) => (
+                <option key={club.id} value={club.id}>
+                  {club.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
 
         <div className="grid gap-1.5">
           <Label htmlFor="news-title">{text.title}</Label>

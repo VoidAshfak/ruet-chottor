@@ -12,7 +12,7 @@ One file per feature module, written from the template in `.claude/skills/write-
 | chat | [chat.md](chat.md) | 2 |
 | notifications | _not started_ | 2 |
 | news | [news.md](news.md) | 3 |
-| clubs | _not started_ | 3 |
+| clubs | [clubs.md](clubs.md) | 3 |
 | events | _not started_ | 3 |
 | lost-found | _not started_ | 4 |
 | marketplace | _not started_ | 4 |

@@ -93,6 +93,8 @@ suspended member out, and exports `ModerationLogService` so every module records
 append-only log ([ADR 0007](decisions/0007-moderation-log-and-account-sanctions.md)). Content modules (chat so far)
 register an adapter in `core`'s `ModeratableContentRegistry`, which `moderation` uses to load, hide and restore
 reported items without importing them ([ADR 0009](decisions/0009-moderatable-content-registry.md)).
+`news` imports `ClubsModule` only when clubs is switched on and injects `ClubsService` as `@Optional()`, so posting
+"as a club" disappears cleanly when clubs is off.
 
 ## Decisions
 

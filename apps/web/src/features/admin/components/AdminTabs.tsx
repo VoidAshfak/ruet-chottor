@@ -21,6 +21,7 @@ const TABS: Tab[] = [
   },
   { href: '/admin/moderation', label: help.tabs.reports, needs: 'moderation' },
   { href: '/admin/news', label: help.tabs.news, needs: 'news' },
+  { href: '/admin/clubs', label: help.tabs.clubs, needs: 'clubs' },
   { href: '/admin/log', label: help.tabs.log },
 ];
 

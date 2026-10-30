@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Clubs module (Phase 3): club pages with logo, cover, about, contact and links; members ask to join and a manager
+  approves; managers edit their page and manage members; admins create clubs and appoint managers (who become
+  `club_manager`, logged). Club managers can post news as their club (`NewsPost.clubId`, `/news?club=`). Club pages
+  are reportable. Shared `ConfirmDialog` in `components/dialog`. Sample clubs in the seed.
 - News module (Phase 3): campus news with categories, up to 4 photos or videos per post, and moderator review:
   moderators, admins and club managers publish at once; other posts wait under **Admin → News review**, where
   staff approve or reject with a reason (logged). Authors edit or delete their own posts (unverified edits go back
