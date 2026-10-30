@@ -8,3 +8,4 @@ export * from './auth/index.js';
 export * from './users/index.js';
 export * from './directory/index.js';
 export * from './admin/index.js';
+export * from './chat/index.js';

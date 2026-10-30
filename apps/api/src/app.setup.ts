@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import type { Env } from './core/config/env.js';
 import { HttpExceptionFilter } from './core/http/http-exception.filter.js';
 import { originCheck } from './core/http/origin-check.js';
+import { SocketIoAdapter } from './core/realtime/socket-io.adapter.js';
 
 /** Shared by main.ts and the e2e tests so both run the exact same HTTP setup. */
 export function configureApp<T extends INestApplication>(app: T): T {
@@ -18,6 +19,7 @@ export function configureApp<T extends INestApplication>(app: T): T {
   app.enableCors({ origin: webOrigin, credentials: true });
   app.use(originCheck(webOrigin));
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useWebSocketAdapter(new SocketIoAdapter(app, webOrigin));
   app.enableShutdownHooks();
 
   return app;

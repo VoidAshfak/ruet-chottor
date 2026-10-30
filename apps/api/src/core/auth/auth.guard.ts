@@ -13,7 +13,7 @@ import { type AuthedRequest, IS_PUBLIC, ROLES_KEY } from './decorators.js';
 
 /**
  * Global guard: every route needs a valid access cookie unless marked @Public(),
- * and @Roles(...) narrows it further.
+ * and @Roles(...) narrows it further. HTTP only: sockets are checked by their gateway.
  */
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -23,6 +23,8 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // Socket gateways authenticate the handshake themselves (core/realtime/socket-auth.ts).
+    if (context.getType() !== 'http') return true;
     const targets = [context.getHandler(), context.getClass()];
     if (this.reflector.getAllAndOverride<boolean>(IS_PUBLIC, targets)) return true;
 

@@ -1,5 +1,6 @@
 import type { PublicProfile } from '@ruet-chottor/shared';
 import Link from 'next/link';
+import { StartChatButton } from '@/features/chat';
 import { help } from '../help';
 
 /** One search result. The whole name links to the member's profile. */
@@ -32,6 +33,9 @@ export function MemberCard({ member }: { member: PublicProfile }) {
       ) : (
         <p className="mt-2 text-sm text-muted-foreground">{help.results.contactHidden}</p>
       )}
+      <div className="mt-3 flex">
+        <StartChatButton userId={member.id} name={member.name} />
+      </div>
     </li>
   );
 }

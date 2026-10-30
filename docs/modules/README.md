@@ -9,7 +9,7 @@ One file per feature module, written from the template in `.claude/skills/write-
 | directory | [directory.md](directory.md) | 1 |
 | admin | [admin.md](admin.md) | 1 |
 | moderation | _not started_ | 1 |
-| chat | _not started_ | 2 |
+| chat | [chat.md](chat.md) | 2 |
 | notifications | _not started_ | 2 |
 | news | _not started_ | 3 |
 | clubs | _not started_ | 3 |

@@ -67,8 +67,11 @@ async function send<T extends z.ZodType>(
 
 let refreshing: Promise<boolean> | undefined;
 
-/** Single-flight: parallel requests that all hit an expired token share one refresh call. */
-function refreshSession(): Promise<boolean> {
+/**
+ * Single-flight: parallel requests that all hit an expired token share one refresh call.
+ * Also used by lib/socket.ts before reconnecting a socket whose session expired.
+ */
+export function refreshSession(): Promise<boolean> {
   refreshing ??= fetch(`${API_URL}/auth/refresh`, { method: 'POST', credentials: 'include' })
     .then((response) => response.ok)
     .catch(() => false)

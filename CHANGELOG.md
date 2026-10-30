@@ -8,6 +8,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Chat module (Phase 2): one-to-one and group chats (up to 50 members) with live delivery over Socket.IO,
+  typing hints, unread counts and "Reconnecting…" with catch-up after a dropped connection. Group owners rename
+  and manage members; anyone can leave. Senders can delete their own messages. Suspended members cannot send;
+  sending is rate-limited (`CHAT_SEND_LIMIT_PER_MINUTE`). **Message** button on profiles and directory cards.
+  Sample conversations in the seed. Message reporting comes with the moderation module.
+- Real-time foundation: Socket.IO adapter limited to the web origin, cookie login for sockets, and a shared
+  browser socket client (ADR 0008).
 - Admin module (Phase 1, panel base): moderators and admins search all members, warn, suspend (1–90 days),
   ban and reinstate them; admins change roles. Every action needs a reason, is emailed to the member and is
   recorded in an append-only moderation log (enforced by a database trigger). Admin link for staff only.
@@ -32,11 +39,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Phase 0 project foundation: pnpm monorepo with `apps/web` (Next.js 16), `apps/api` (NestJS 12) and
   `packages/shared` (Zod schemas and constants).
-
-### Fixed
-
-- Header and admin tab links no longer block prerendering on pages with a member id (`/users/<id>`,
-  `/admin/users/<id>`); the active-link highlight is added on the client (shared `NavLink`).
 - API: environment validation, `/api/v1` routing, standard `{ error: { code, message } }` responses,
   security headers, CORS, Prisma 7 (PostgreSQL) and Redis connections.
 - API endpoints `GET /api/v1/health` and `GET /api/v1/features`.
@@ -45,3 +47,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
   `PageHeader`, `InfoTip` and `FirstVisitGuide`.
 - Tests: Vitest unit tests, API e2e tests (Supertest), web e2e tests (Playwright, desktop and mobile).
 - GitHub Actions CI, ESLint, Prettier, and project documentation.
+
+### Fixed
+
+- The global auth guard no longer runs on WebSocket events (gateways authenticate sockets themselves).
+- Header and admin tab links no longer block prerendering on pages with a member id (`/users/<id>`,
+  `/admin/users/<id>`); the active-link highlight is added on the client (shared `NavLink`).

@@ -1,6 +1,7 @@
 'use client';
 
 import { useSession } from '@/features/auth';
+import { StartChatButton } from '@/features/chat';
 import { ApiError } from '@/lib/api-client';
 import { help } from '../help';
 import { useProfile } from '../hooks/use-profile';
@@ -25,5 +26,12 @@ export function UserProfile({ userId }: { userId: string }) {
     return <LoadError message={profile.error.message} onRetry={() => void profile.refetch()} />;
   }
 
-  return <ProfileDetails profile={profile.data} />;
+  return (
+    <>
+      <ProfileDetails profile={profile.data} />
+      <div className="mt-4 flex">
+        <StartChatButton userId={profile.data.id} name={profile.data.name} />
+      </div>
+    </>
+  );
 }

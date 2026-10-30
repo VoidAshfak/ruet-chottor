@@ -18,11 +18,17 @@ class Handlers {
 const student: Principal = { userId: 'u1', sessionId: 's1', role: 'student' };
 const moderator: Principal = { userId: 'u2', sessionId: 's2', role: 'moderator' };
 
-function run(handler: keyof Handlers, cookies: Record<string, string>, principal?: Principal) {
+function run(
+  handler: keyof Handlers,
+  cookies: Record<string, string>,
+  principal?: Principal,
+  type: 'http' | 'ws' = 'http',
+) {
   const tokens = { resolve: async () => principal ?? null } as unknown as AccessTokenStore;
   const guard = new AuthGuard(new Reflector(), tokens);
   const req: { cookies: Record<string, string>; user?: Principal } = { cookies };
   const context = {
+    getType: () => type,
     getHandler: () => Handlers.prototype[handler],
     getClass: () => Handlers,
     switchToHttp: () => ({ getRequest: () => req }),
@@ -57,5 +63,9 @@ describe('AuthGuard', () => {
     expect(await run('moderatorsOnly', { rc_access: 't' }, moderator)).toMatchObject({
       allowed: true,
     });
+  });
+
+  it('leaves socket events to their gateway', async () => {
+    expect(await run('closed', {}, undefined, 'ws')).toMatchObject({ allowed: true });
   });
 });

@@ -31,25 +31,26 @@ enum AccountStatus {
 }
 
 model User {
-  id             String        @id @default(uuid(7)) @db.Uuid
+  id             String               @id @default(uuid(7)) @db.Uuid
   name           String
-  roll           String        @unique
-  registrationNo String        @unique
+  roll           String               @unique
+  registrationNo String               @unique
   /// Stored lowercase.
-  email          String        @unique
+  email          String               @unique
   /// Normalised to +8801XXXXXXXXX.
-  phone          String        @unique
-  dateOfBirth    DateTime      @db.Date
+  phone          String               @unique
+  dateOfBirth    DateTime             @db.Date
   /// argon2id; never returned by the API.
   passwordHash   String
-  role           Role          @default(student)
-  status         AccountStatus @default(active)
+  role           Role                 @default(student)
+  status         AccountStatus        @default(active)
   /// End of a temporary suspension; lifted at the next login after this time.
   suspendedUntil DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
   sessions       Session[]
   profile        Profile?
+  conversations  ConversationMember[]
 
   @@map("users")
 }
@@ -121,4 +122,79 @@ model ModerationLog {
   @@index([targetUserId, createdAt])
   @@index([createdAt])
   @@map("moderation_logs")
+}
+
+// ===== chat =====
+// 1:1 and group conversations. Messages are saved here first, then pushed over Socket.IO
+// (CLAUDE.md §10): the socket is a delivery channel, Postgres is the source of truth.
+
+/// Visibility of user-generated content (CLAUDE.md §7). Other content modules reuse it.
+enum ContentStatus {
+  visible
+  hidden
+  removed
+}
+
+enum ConversationType {
+  direct
+  group
+}
+
+enum ConversationRole {
+  owner
+  member
+}
+
+model Conversation {
+  id            String               @id @default(uuid(7)) @db.Uuid
+  type          ConversationType
+  /// Group name; null for 1:1 chats.
+  name          String?
+  createdById   String               @db.Uuid
+  /// "<smaller user id>:<larger user id>" for 1:1 chats, so two people share one chat.
+  directKey     String?              @unique
+  /// Bumped on every message; sorts the conversation list.
+  lastMessageAt DateTime             @default(now())
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  members       ConversationMember[]
+  messages      Message[]
+
+  @@index([lastMessageAt])
+  @@map("conversations")
+}
+
+model ConversationMember {
+  conversationId String           @db.Uuid
+  conversation   Conversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String           @db.Uuid
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           ConversationRole @default(member)
+  /// Messages after this are unread for the member.
+  lastReadAt     DateTime         @default(now())
+  joinedAt       DateTime         @default(now())
+  /// Set when the member left or was removed; they keep no access.
+  leftAt         DateTime?
+
+  @@id([conversationId, userId])
+  @@index([userId, leftAt])
+  @@map("conversation_members")
+}
+
+model Message {
+  id             String        @id @default(uuid(7)) @db.Uuid
+  conversationId String        @db.Uuid
+  conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  /// Plain id (no relation) so messages survive account deletion, like the moderation log.
+  senderId       String        @db.Uuid
+  /// Kept after deletion so moderators can still review reports; never served once deleted.
+  body           String
+  status         ContentStatus @default(visible)
+  /// Set when the sender deleted the message.
+  deletedAt      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
 }

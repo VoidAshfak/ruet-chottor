@@ -38,7 +38,8 @@ packages/shared  Zod schemas, types and constants used by both
 | `src/core/prisma` | `PrismaService`: the only way to reach the database |
 | `src/core/redis` | `RedisService`: shared Redis connection |
 | `src/core/meta` | `GET /health` and `GET /features` |
-| `src/modules/<module>` | Feature modules, e.g. `auth`, `users` |
+| `src/core/realtime` | Socket.IO adapter (origin check) and cookie login for sockets (ADR 0008) |
+| `src/modules/<module>` | Feature modules, e.g. `auth`, `users`; real-time ones add a `*.gateway.ts` |
 | `prisma/` | Schema, migrations, seed scripts |
 
 The API is an ES module project (`"type": "module"`), so relative imports end in `.js`.
@@ -54,7 +55,7 @@ Prisma 7 generates its client into `src/generated/prisma` (git-ignored); it is r
 | `src/components/guide/` | `PageHeader`, `InfoTip`, `FirstVisitGuide` — the self-explaining UI (CLAUDE.md §8). Closed guides are cached in localStorage; `GuideSyncContext` lets the `users` feature also store them on the server for logged-in members |
 | `src/components/layout/` | Header and footer |
 | `src/components/form/` | `FormField` (label + info tip + error) and `FormError` |
-| `src/lib/` | API client, feature flags hook, utilities |
+| `src/lib/` | API client, Socket.IO client (`socket.ts`), feature flags hook, utilities |
 | `src/styles/theme.css` | The only place colors are defined |
 
 Client data is fetched with TanStack Query through `apiRequest()`, which always sends cookies and validates
@@ -66,6 +67,14 @@ Login is two steps (password, then an emailed code). The API then sets two `http
 token and a 30-day refresh token that rotates on every use. Both are random strings looked up server-side, not JWTs
 (ADR 0005). `apiRequest()` in the web app refreshes the session once and retries when the API answers
 `SESSION_EXPIRED`. See [modules/auth.md](modules/auth.md).
+
+## Real time
+
+Socket.IO runs on the API's HTTP server, one namespace per module (`/chat` so far). A socket logs in with the same
+session cookie as HTTP and joins only its own `user:<id>` room. Services save to Postgres first and then push the
+event to each recipient's room, so the socket is a delivery channel and HTTP stays the source of truth: after a
+reconnect the browser fetches what it missed. See [ADR 0008](decisions/0008-realtime-socket-io.md) and
+[modules/chat.md](modules/chat.md).
 
 ## Feature flags
 
