@@ -5,6 +5,9 @@ import { AccessTokenStore } from './auth/access-token.store.js';
 import { AuthGuard } from './auth/auth.guard.js';
 import { validateEnv } from './config/env.js';
 import { MailService } from './mail/mail.service.js';
+import { CloudinaryClient } from './media/cloudinary.client.js';
+import { MediaController } from './media/media.controller.js';
+import { MediaService } from './media/media.service.js';
 import { MetaController } from './meta/meta.controller.js';
 import { ModeratableContentRegistry } from './moderation/moderatable-content.registry.js';
 import { PrismaService } from './prisma/prisma.service.js';
@@ -13,7 +16,7 @@ import { RedisService } from './redis/redis.service.js';
 
 /**
  * Infrastructure every module can inject: config, database, Redis, mail, rate limits, the
- * access-token check, and the registry where content modules plug into moderation. The AuthGuard is global, so every route is private unless @Public().
+ * access-token check, the registry where content modules plug into moderation, and media uploads. The AuthGuard is global, so every route is private unless @Public().
  */
 @Global()
 @Module({
@@ -26,7 +29,7 @@ import { RedisService } from './redis/redis.service.js';
       ignoreEnvFile: process.env.NODE_ENV === 'test',
     }),
   ],
-  controllers: [MetaController],
+  controllers: [MetaController, MediaController],
   providers: [
     PrismaService,
     RedisService,
@@ -34,6 +37,8 @@ import { RedisService } from './redis/redis.service.js';
     RateLimitService,
     AccessTokenStore,
     ModeratableContentRegistry,
+    CloudinaryClient,
+    MediaService,
     { provide: APP_GUARD, useClass: AuthGuard },
   ],
   exports: [
@@ -43,6 +48,7 @@ import { RedisService } from './redis/redis.service.js';
     RateLimitService,
     AccessTokenStore,
     ModeratableContentRegistry,
+    MediaService,
   ],
 })
 export class CoreModule {}
