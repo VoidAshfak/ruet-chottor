@@ -6,7 +6,12 @@ import { cursorPageQuerySchema, cursorPageSchema } from '../common/pagination.js
  * Content types that can be reported. A content module adds its key here and registers a
  * ModeratableContent provider in the API (see the add-moderation skill).
  */
-export const MODERATABLE_CONTENT_TYPES = ['chat.message', 'news.post', 'clubs.club'] as const;
+export const MODERATABLE_CONTENT_TYPES = [
+  'chat.message',
+  'news.post',
+  'clubs.club',
+  'events.event',
+] as const;
 export type ModeratableContentType = (typeof MODERATABLE_CONTENT_TYPES)[number];
 
 /** Visibility of user-generated content (CLAUDE.md §7). */

@@ -94,6 +94,7 @@ export const help = {
       'chat.message': 'chat message',
       'news.post': 'news post',
       'clubs.club': 'club page',
+      'events.event': 'event',
     } as Record<string, string>,
     contentBy: (name: string) => `from ${name}`,
     days: (days: number) => `for ${days} day${days === 1 ? '' : 's'}`,

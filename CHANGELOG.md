@@ -8,6 +8,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Events module (Phase 3): a month calendar in Dhaka time (Saturday-first weeks; titles on wide screens, dots on
+  phones, the chosen day's events below). Club managers create events for their clubs and staff also campus-wide
+  ones, with venue, poster and optional places; members tap **I'm going** ("Full" at capacity); organisers edit,
+  cancel (kept on the calendar, marked) and see who is going. Events are reportable. Club pages link to their
+  events. Shared Dhaka date helpers (`dhakaDateKey`, `dhakaMonthRange`, `fromDhakaLocal`). Sample events in the seed.
 - Clubs module (Phase 3): club pages with logo, cover, about, contact and links; members ask to join and a manager
   approves; managers edit their page and manage members; admins create clubs and appoint managers (who become
   `club_manager`, logged). Club managers can post news as their club (`NewsPost.clubId`, `/news?club=`). Club pages

@@ -13,7 +13,7 @@ role, which is written to admin's moderation log). Logos and covers need `CLOUDI
 - A member opens **Clubs**: their own clubs on top, then every club, searchable by name and filtered by category
   (Technical, Cultural, Sports, Social service, Academic, Other).
 - A club page shows the cover, logo, tagline, about text, managers, contact email, links and member count, plus
-  **See news from this club** (`/news?club=<id>`).
+  **See news from this club** (`/news?club=<id>`) and **See this club's events** (`/events?club=<id>`).
 - **Ask to join** sends a request; it shows "Request sent" (with **Cancel request**) until a manager approves, then
   "Member" (with **Leave club**, confirmed).
 - A club's managers **Edit page** (tagline, category, about, contact email, up to 3 links, logo, cover) and open

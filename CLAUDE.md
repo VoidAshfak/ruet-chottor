@@ -35,7 +35,7 @@ Update this table whenever a phase changes state. Work only on the current phase
 | 0 | Repo scaffold, tooling, CI, base layout, theme, docs skeleton | ✅ Done |
 | 1 | Auth (sign-up, login, 2FA), user profiles, contact directory, admin panel base | ✅ Done |
 | 2 | Real-time messaging (1:1 and group chat), with message reports (`moderation`) | ✅ Done |
-| 3 | News; clubs & events | 🟨 In progress (news done; clubs & events next) |
+| 3 | News; clubs & events | ✅ Done |
 | 4 | Lost & found; campus marketplace | ⬜ Not started |
 | 5 | Bus schedule (live tracker later, once a location source exists) | ⬜ Not started |
 | 6 | Hardening, testing, documentation pass | ⬜ Not started |

@@ -73,7 +73,9 @@ function MembershipButton({ club }: { club: ClubDetail }) {
 
 function Club({ slug }: { slug: string }) {
   const club = useClub(slug);
-  const newsOn = useFeatures().data?.modules.includes('news') ?? false;
+  const modules = useFeatures().data?.modules ?? [];
+  const newsOn = modules.includes('news');
+  const eventsOn = modules.includes('events');
   const reported = useReportedIds(
     'clubs.club',
     club.data && !club.data.canEdit ? [club.data.id] : [],
@@ -180,6 +182,16 @@ function Club({ slug }: { slug: string }) {
                   </li>
                 ))}
               </ul>
+            </dd>
+          </>
+        ) : null}
+        {eventsOn ? (
+          <>
+            <dt className="text-muted-foreground">{text.events}</dt>
+            <dd>
+              <Link href={`/events?club=${data.id}`} className="text-primary hover:underline">
+                {text.eventsLink}
+              </Link>
             </dd>
           </>
         ) : null}
