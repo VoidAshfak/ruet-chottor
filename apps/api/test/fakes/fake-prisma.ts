@@ -1,5 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import {
+  type BusNotice,
+  type BusRoute,
+  type BusStop,
+  type BusTrip,
   type Club,
   type ClubMembership,
   type Conversation,
@@ -182,6 +186,10 @@ export class FakePrisma {
   eventRsvps: EventRsvp[] = [];
   lostFoundItems: LostFoundItem[] = [];
   listings: Listing[] = [];
+  busRoutes: BusRoute[] = [];
+  busStops: BusStop[] = [];
+  busTrips: BusTrip[] = [];
+  busNotices: BusNotice[] = [];
 
   private withProfile(user: User | undefined, args: { select?: Where; include?: Where }) {
     if (!user) return null;
@@ -384,6 +392,52 @@ export class FakePrisma {
         updatedAt: now,
       };
     },
+  );
+
+  private readonly busRouteTable = table<BusRoute>(
+    () => this.busRoutes,
+    () => {
+      const now = new Date();
+      return { id: randomUUID(), description: '', active: true, createdAt: now, updatedAt: now };
+    },
+  );
+
+  busRoute = {
+    ...this.busRouteTable,
+    /** Unique names; deleting a route deletes its stops, trips and notices (cascade). */
+    create: async ({ data }: { data: Partial<BusRoute> }) => {
+      if (this.busRoutes.some((r) => r.name === data.name)) throw uniqueViolation();
+      return this.busRouteTable.insert(data);
+    },
+    update: async ({ where, data }: { where: Where; data: Partial<BusRoute> }) => {
+      const route = (await this.busRouteTable.findUnique({ where }))!;
+      if (data.name && this.busRoutes.some((r) => r !== route && r.name === data.name)) {
+        throw uniqueViolation();
+      }
+      return this.busRouteTable.update({ where, data });
+    },
+    delete: async ({ where }: { where: Where }) => {
+      const route = await this.busRouteTable.delete({ where });
+      this.busStops = this.busStops.filter((s) => s.routeId !== route.id);
+      this.busTrips = this.busTrips.filter((t) => t.routeId !== route.id);
+      this.busNotices = this.busNotices.filter((n) => n.routeId !== route.id);
+      return route;
+    },
+  };
+
+  busStop = table<BusStop>(
+    () => this.busStops,
+    () => ({ id: randomUUID() }),
+  );
+
+  busTrip = table<BusTrip>(
+    () => this.busTrips,
+    () => ({ id: randomUUID(), note: null }),
+  );
+
+  busNotice = table<BusNotice>(
+    () => this.busNotices,
+    () => ({ id: randomUUID(), routeId: null, createdAt: new Date() }),
   );
 
   listing = table<Listing>(

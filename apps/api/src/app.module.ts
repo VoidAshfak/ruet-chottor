@@ -4,6 +4,7 @@ import { featureEnvVar, type ModuleKey } from '@ruet-chottor/shared';
 import { CoreModule } from './core/core.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
+import { BusModule } from './modules/bus/bus.module.js';
 import { ChatModule } from './modules/chat/chat.module.js';
 import { ClubsModule } from './modules/clubs/clubs.module.js';
 import { DirectoryModule } from './modules/directory/directory.module.js';
@@ -39,6 +40,7 @@ const enabled = (key: ModuleKey) => (env: NodeJS.ProcessEnv) => env[featureEnvVa
     ConditionalModule.registerWhen(EventsModule, enabled('events')),
     ConditionalModule.registerWhen(LostFoundModule, enabled('lost-found')),
     ConditionalModule.registerWhen(MarketplaceModule, enabled('marketplace')),
+    ConditionalModule.registerWhen(BusModule, enabled('bus')),
     // News reviews are written to admin's moderation log, so it needs both flags too.
     ConditionalModule.registerWhen(
       NewsModule,

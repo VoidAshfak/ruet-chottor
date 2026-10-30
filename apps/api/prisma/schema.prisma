@@ -566,3 +566,79 @@ model Listing {
   @@index([createdById, createdAt])
   @@map("listings")
 }
+
+// ===== bus =====
+// The campus bus timetable, edited by admins. Each stop records its travel time from campus, so a
+// trip's time at any stop is its departure plus that offset (live tracking comes later).
+
+enum BusDirection {
+  from_campus
+  to_campus
+}
+
+enum BusColor {
+  blue
+  orange
+  green
+  red
+  purple
+  teal
+}
+
+model BusRoute {
+  id          String      @id @default(uuid(7)) @db.Uuid
+  name        String      @unique
+  description String      @default("")
+  color       BusColor
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  stops       BusStop[]
+  trips       BusTrip[]
+  notices     BusNotice[]
+
+  @@map("bus_routes")
+}
+
+model BusStop {
+  id                String   @id @default(uuid(7)) @db.Uuid
+  routeId           String   @db.Uuid
+  route             BusRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  name              String
+  /// Order along the route, campus first.
+  position          Int
+  minutesFromCampus Int
+
+  @@index([routeId, position])
+  @@map("bus_stops")
+}
+
+model BusTrip {
+  id            String       @id @default(uuid(7)) @db.Uuid
+  routeId       String       @db.Uuid
+  route         BusRoute     @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  direction     BusDirection
+  /// Minutes after midnight (Dhaka) when it leaves its first stop.
+  departMinutes Int
+  /// JavaScript weekdays: 0 = Sunday ... 6 = Saturday.
+  days          Int[]
+  note          String?
+
+  @@index([routeId])
+  @@map("bus_trips")
+}
+
+model BusNotice {
+  id          String    @id @default(uuid(7)) @db.Uuid
+  /// null for all routes.
+  routeId     String?   @db.Uuid
+  route       BusRoute? @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  message     String
+  startsOn    DateTime  @db.Date
+  endsOn      DateTime  @db.Date
+  createdById String    @db.Uuid
+  createdAt   DateTime  @default(now())
+
+  @@index([endsOn])
+  @@map("bus_notices")
+}

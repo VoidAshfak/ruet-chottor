@@ -94,6 +94,8 @@ and staff find a post waiting under **Admin → News review**. With `FEATURE_CLU
 managed by the Demo Club Manager (`0000003`); the Demo Student is a member of one and waiting to join another. With `FEATURE_EVENTS=true`, **Events** shows four
 sample events around today (the Demo Student is going to one). With `FEATURE_LOST_FOUND=true`, **Lost & Found** has
 three demo posts, and with `FEATURE_MARKETPLACE=true` the **Marketplace** has four demo listings.
+With `FEATURE_BUS=true`, **Bus** shows two **placeholder** routes (made-up times; enter the real timetable in
+**Admin → Bus**).
 Every demo account uses the password **`Password123!`** (development only). The login code is emailed to the
 Ethereal inbox; the API logs a link to read it.
 

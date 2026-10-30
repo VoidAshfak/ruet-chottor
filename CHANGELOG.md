@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Bus module (Phase 5): routes with ordered stops (minutes from campus) and trips (direction, time, weekdays),
+  shown as a stop line and full timetable; **Next buses** from any stop with a live countdown in Dhaka time; notices
+  for temporary changes. Admins edit everything in **Admin → Bus**. Route colours are `--route-*` theme tokens.
+  Placeholder routes in the seed (not the real timetable). Live tracking comes later.
 - Marketplace module (Phase 4): buy and sell between members, paying in person. Listings with category,
   condition, price in taka (or free), meeting place and up to five photos; browse with category, price range, free
   only, search and price sorting; contact through chat with a safety note. Listings that mention prohibited items are

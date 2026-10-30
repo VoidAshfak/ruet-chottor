@@ -16,4 +16,4 @@ One file per feature module, written from the template in `.claude/skills/write-
 | events | [events.md](events.md) | 3 |
 | lost-found | [lost-found.md](lost-found.md) | 4 |
 | marketplace | [marketplace.md](marketplace.md) | 4 |
-| bus | _not started_ | 5 |
+| bus | [bus.md](bus.md) | 5 |

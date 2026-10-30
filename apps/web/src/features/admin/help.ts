@@ -13,6 +13,7 @@ export const help = {
     reports: 'Reports',
     news: 'News review',
     clubs: 'Clubs',
+    bus: 'Bus',
     log: 'Moderation log',
   },
   newsReview: {

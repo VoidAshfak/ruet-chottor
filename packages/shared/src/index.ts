@@ -17,3 +17,4 @@ export * from './clubs/index.js';
 export * from './events/index.js';
 export * from './lost-found/index.js';
 export * from './marketplace/index.js';
+export * from './bus/index.js';

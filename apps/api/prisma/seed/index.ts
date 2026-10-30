@@ -4,6 +4,7 @@ import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../../src/generated/prisma/client.js';
 import { seedAdmin } from './admin.js';
+import { seedBus } from './bus.js';
 import { seedChat } from './chat.js';
 import { seedClubs } from './clubs.js';
 import { seedEvents } from './events.js';
@@ -27,6 +28,7 @@ async function main() {
   await seedEvents(prisma);
   await seedLostFound(prisma);
   await seedMarketplace(prisma);
+  await seedBus(prisma);
 }
 
 main()
