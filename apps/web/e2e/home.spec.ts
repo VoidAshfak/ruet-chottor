@@ -4,12 +4,14 @@ test('home page renders without console errors (e.g. hydration mismatches)', asy
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => {
-    // The API is not running during e2e, so the failed /features fetch is expected.
+    // The API calls are blocked below, so the failed /features fetch is expected.
     if (message.type() === 'error' && !message.text().includes('Failed to load resource')) {
       errors.push(message.text());
     }
   });
 
+  // Simulate an unreachable API even when a developer's API is running (`pnpm dev`).
+  await page.route('**/api/v1/**', (route) => route.abort());
   await page.goto('/');
   // The first-visit intro is modal; close it so the page behind is in the accessibility tree.
   await page.getByRole('dialog').getByRole('button', { name: 'Skip' }).click();

@@ -1,15 +1,21 @@
 import { randomUUID } from 'node:crypto';
-import type { Profile, Session, User } from '../../src/generated/prisma/client.js';
+import type { ModerationLog, Profile, Session, User } from '../../src/generated/prisma/client.js';
 
 type Where = Record<string, unknown>;
 
-type StringFilter = { startsWith?: string; contains?: string; mode?: 'insensitive' };
+type StringFilter = {
+  startsWith?: string;
+  contains?: string;
+  mode?: 'insensitive';
+  in?: unknown[];
+};
 
 function matchesValue(value: unknown, expected: unknown): boolean {
   if (expected === null || typeof expected !== 'object' || expected instanceof Date) {
     return value === expected;
   }
   const filter = expected as StringFilter;
+  if (filter.in !== undefined) return filter.in.includes(value);
   const fold = (text: string) => (filter.mode === 'insensitive' ? text.toLowerCase() : text);
   const text = fold(String(value));
   if (filter.startsWith !== undefined && !text.startsWith(fold(filter.startsWith))) return false;
@@ -34,6 +40,7 @@ export class FakePrisma {
   users: User[] = [];
   sessions: Session[] = [];
   profiles: Profile[] = [];
+  moderationLogs: ModerationLog[] = [];
 
   private withProfile(user: User | undefined, args: { select?: Where; include?: Where }) {
     if (!user) return null;
@@ -145,6 +152,44 @@ export class FakePrisma {
       return profile;
     },
   };
+
+  /** Append-only, like the real table (a trigger refuses UPDATE and DELETE). */
+  moderationLog = {
+    create: async ({ data }: { data: Partial<ModerationLog> }) => {
+      const row = {
+        id: randomUUID(),
+        targetUserId: null,
+        contentType: null,
+        contentId: null,
+        details: null,
+        createdAt: new Date(),
+        ...data,
+      } as ModerationLog;
+      this.moderationLogs.push(row);
+      return row;
+    },
+    /** Newest first, like the log's `orderBy`. */
+    findMany: async (args: {
+      where?: Where;
+      take?: number;
+      skip?: number;
+      cursor?: { id: string };
+    }) => {
+      const sorted = this.moderationLogs
+        .filter((row) => matches(row as unknown as Where, args.where ?? {}))
+        .map((row, index) => ({ row, index }))
+        // Insertion order breaks ties between rows created in the same millisecond.
+        .sort((a, b) => b.row.createdAt.getTime() - a.row.createdAt.getTime() || b.index - a.index)
+        .map(({ row }) => row);
+      const start = args.cursor ? sorted.findIndex((row) => row.id === args.cursor?.id) : 0;
+      return sorted.slice(start + (args.skip ?? 0)).slice(0, args.take);
+    },
+  };
+
+  /** Operations already ran when their promises were created; just wait for them. */
+  async $transaction<T>(operations: Promise<T>[]) {
+    return Promise.all(operations);
+  }
 
   async health() {
     return 'up' as const;

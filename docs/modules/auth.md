@@ -34,7 +34,7 @@ See the `// ===== auth =====` section of [`schema.prisma`](../../apps/api/prisma
 
 - **User:** `name`, `roll` (unique, 7 digits), `registrationNo` (unique), `email` (unique, lowercase),
   `phone` (unique, `+8801XXXXXXXXX`), `dateOfBirth` (never shown publicly), `passwordHash` (argon2id),
-  `role`, `status` (`active | suspended | banned`).
+  `role`, `status` (`active | suspended | banned`), `suspendedUntil` (end of a temporary suspension).
 - **Session:** one row per logged-in device. Stores only the SHA-256 hash of the current refresh token and of the
   one before it (to detect reuse), `expiresAt` (30 days, extended on every refresh), `revokedAt`.
 
@@ -76,8 +76,10 @@ State-changing requests from another origin are refused (`403`), in addition to 
 
 ## Moderation
 
-Nothing user-generated is stored here except the user's name. Name moderation, suspensions and bans come with the
-`users`, `moderation` and `admin` modules. A suspended or banned user cannot log in or refresh a session.
+Nothing user-generated is stored here except the user's name. Suspensions and bans are set by staff in the
+[admin](admin.md) module. A suspended or banned user cannot log in or refresh a session; the login error says
+until when a suspension lasts. A suspension whose `suspendedUntil` has passed is lifted at the next login.
+`SessionsService.revokeAllForUser()` (exported) logs a member out everywhere when they are suspended or banned.
 
 ## Configuration
 

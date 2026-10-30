@@ -91,6 +91,14 @@ export class SessionsService {
     });
   }
 
+  /** Logs a user out everywhere, e.g. when a moderator suspends them. */
+  async revokeAllForUser(userId: string): Promise<void> {
+    await this.prisma.session.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+  }
+
   async revokeByRefreshToken(refreshToken: string): Promise<void> {
     await this.prisma.session.updateMany({
       where: { refreshTokenHash: hashToken(refreshToken), revokedAt: null },

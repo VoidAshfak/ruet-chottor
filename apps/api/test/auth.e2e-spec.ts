@@ -186,6 +186,29 @@ describe('Auth (e2e)', () => {
       expect(res.body.error.code).toBe('ACCOUNT_SUSPENDED');
     });
 
+    it('says when a temporary suspension ends', async () => {
+      await signup().expect(201);
+      Object.assign(prisma.users[0]!, {
+        status: 'suspended',
+        suspendedUntil: new Date('2099-10-26T09:45:00Z'),
+      });
+      const res = await http()
+        .post('/api/v1/auth/login')
+        .send({ roll: student.roll, password: student.password })
+        .expect(403);
+      expect(res.body.error.message).toBe('This account is suspended until 26 Oct 2099, 3:45 PM.');
+    });
+
+    it('lifts a suspension that has run out', async () => {
+      await signup().expect(201);
+      Object.assign(prisma.users[0]!, {
+        status: 'suspended',
+        suspendedUntil: new Date(Date.now() - 1000),
+      });
+      await login();
+      expect(prisma.users[0]).toMatchObject({ status: 'active', suspendedUntil: null });
+    });
+
     it('rate-limits repeated attempts on one roll', async () => {
       await signup().expect(201);
       const attempt = () =>

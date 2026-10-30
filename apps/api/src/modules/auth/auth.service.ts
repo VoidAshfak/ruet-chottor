@@ -7,6 +7,7 @@ import {
 import {
   AUTH_LIMITS,
   ERROR_CODES,
+  formatDateTime,
   type LoginRequest,
   type OtpChallenge,
   type SessionUser,
@@ -103,7 +104,8 @@ export class AuthService {
     await this.rateLimit.consume(AUTH_RATE_LIMITS.loginPerIp, ip);
     await this.rateLimit.consume(AUTH_RATE_LIMITS.loginPerRoll, input.roll);
 
-    const user = await this.prisma.user.findUnique({ where: { roll: input.roll } });
+    const found = await this.prisma.user.findUnique({ where: { roll: input.roll } });
+    const user = found ? await this.liftExpiredSuspension(found) : null;
     const passwordOk = await argon2.verify(
       user?.passwordHash ?? (await this.dummyHash),
       input.password,
@@ -170,6 +172,17 @@ export class AuthService {
     return toSessionUser(user);
   }
 
+  /** A temporary suspension ends at the member's next login after `suspendedUntil`. */
+  private async liftExpiredSuspension(user: User): Promise<User> {
+    if (user.status !== 'suspended' || !user.suspendedUntil || user.suspendedUntil > new Date()) {
+      return user;
+    }
+    return this.prisma.user.update({
+      where: { id: user.id },
+      data: { status: 'active', suspendedUntil: null },
+    });
+  }
+
   private async sendCode(user: User, code: string) {
     const minutes = AUTH_LIMITS.otpSeconds / 60;
     await this.mail.send({
@@ -197,7 +210,9 @@ function assertActive(user: User) {
       message:
         user.status === 'banned'
           ? 'This account has been banned.'
-          : 'This account is suspended. Contact a moderator.',
+          : user.suspendedUntil
+            ? `This account is suspended until ${formatDateTime(user.suspendedUntil)}.`
+            : 'This account is suspended. Contact a moderator.',
     });
   }
 }

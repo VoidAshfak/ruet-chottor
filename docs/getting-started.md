@@ -80,7 +80,9 @@ Restart the API after changing flags. Sections whose flag is off show as "Coming
 
 ## Demo accounts
 
-Run `pnpm --filter api db:seed` (with `FEATURE_AUTH=true` and `FEATURE_USERS=true` in `apps/api/.env`).
+Run `pnpm --filter api db:seed`, and switch the Phase 1 modules on in `apps/api/.env`:
+`FEATURE_AUTH=true`, `FEATURE_USERS=true`, `FEATURE_DIRECTORY=true`, `FEATURE_ADMIN=true`.
+Log in as the moderator or admin to see the **Admin** link.
 Every demo account uses the password **`Password123!`** (development only). The login code is emailed to the
 Ethereal inbox; the API logs a link to read it.
 

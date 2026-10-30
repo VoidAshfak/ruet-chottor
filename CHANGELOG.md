@@ -8,6 +8,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Admin module (Phase 1, panel base): moderators and admins search all members, warn, suspend (1–90 days),
+  ban and reinstate them; admins change roles. Every action needs a reason, is emailed to the member and is
+  recorded in an append-only moderation log (enforced by a database trigger). Admin link for staff only.
+- Auth: suspensions can end at a set time (`suspendedUntil`), are lifted at the next login after it, and the
+  login error says until when; suspending or banning logs the member out everywhere.
+- Shared `formatDateTime()` for the `26 Oct 2026, 3:45 PM` (Asia/Dhaka) date format.
+- ADR 0007 (moderation log in `admin`, account status on `User`).
 - Directory module (Phase 1): search members by name or roll, and filter by department, series and role.
   Results show only the contact details each member shares; filters are kept in the URL.
 - Users module (Phase 1): **My profile** page and public member profiles (`/users/<id>`). Department and series
@@ -28,8 +35,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
-- Header links no longer block prerendering on member pages (`/users/<id>`); the active-link
-  highlight is added on the client (shared `NavLink`).
+- Header and admin tab links no longer block prerendering on pages with a member id (`/users/<id>`,
+  `/admin/users/<id>`); the active-link highlight is added on the client (shared `NavLink`).
 - API: environment validation, `/api/v1` routing, standard `{ error: { code, message } }` responses,
   security headers, CORS, Prisma 7 (PostgreSQL) and Redis connections.
 - API endpoints `GET /api/v1/health` and `GET /api/v1/features`.

@@ -44,6 +44,8 @@ model User {
   passwordHash   String
   role           Role          @default(student)
   status         AccountStatus @default(active)
+  /// End of a temporary suspension; lifted at the next login after this time.
+  suspendedUntil DateTime?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   sessions       Session[]
@@ -86,4 +88,37 @@ model Profile {
   updatedAt       DateTime @updatedAt
 
   @@map("profiles")
+}
+
+// ===== admin =====
+// The moderation audit trail. Owned by admin and written through ModerationLogService, which
+// later modules (moderation reports, news, chat...) use too. Field names follow the
+// add-moderation skill so content moderation can reuse it as is (ADR 0007).
+
+enum ModerationAction {
+  warn_user
+  suspend_user
+  ban_user
+  reinstate_user
+  change_role
+}
+
+/// Append-only: a database trigger rejects UPDATE and DELETE (see the add_admin migration).
+model ModerationLog {
+  id           String           @id @default(uuid(7)) @db.Uuid
+  /// Who acted. Kept as a plain id so the log survives account deletion.
+  moderatorId  String           @db.Uuid
+  action       ModerationAction
+  targetUserId String?          @db.Uuid
+  /// For content actions later, e.g. "marketplace.listing".
+  contentType  String?
+  contentId    String?
+  reason       String
+  /// Action specifics, e.g. { "days": 7 } or { "from": "student", "to": "moderator" }.
+  details      Json?
+  createdAt    DateTime         @default(now())
+
+  @@index([targetUserId, createdAt])
+  @@index([createdAt])
+  @@map("moderation_logs")
 }

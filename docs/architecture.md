@@ -75,7 +75,9 @@ In the API, `ConditionalModule.registerWhen` in `app.module.ts` skips disabled m
 
 Modules talk to each other only through exported services. Example: `directory` imports `UsersModule` and calls
 `UsersService.listPublic()`, so the rules for *what* a member may see about another member (privacy, hiding
-suspended accounts) live in one place, `users`.
+suspended accounts) live in one place, `users`. Likewise `admin` uses auth's exported `SessionsService` to log a
+suspended member out, and exports `ModerationLogService` so every module records staff actions in the same
+append-only log ([ADR 0007](decisions/0007-moderation-log-and-account-sanctions.md)).
 
 ## Decisions
 
