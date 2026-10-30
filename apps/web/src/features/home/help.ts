@@ -33,7 +33,7 @@ export const help = {
     tipLabel: 'About upcoming sections',
   },
   status: {
-    loading: 'Checking which sections are available…',
+    loading: 'Checking which sections are available',
     offline: 'Could not reach the server. Try again in a moment.',
   },
   intro: [

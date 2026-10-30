@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { RuetLoader } from '@/components/art/RuetLoader';
+import { EmptyState } from '@/components/art/EmptyState';
 import { InfoTip } from '@/components/guide/InfoTip';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/features/auth';
@@ -34,9 +36,7 @@ function Inbox() {
     );
   }
   if (items.length === 0) {
-    return (
-      <p className="rounded-lg border p-6 text-center text-muted-foreground">{help.list.empty}</p>
-    );
+    return <EmptyState>{help.list.empty}</EmptyState>;
   }
 
   return (
@@ -76,7 +76,7 @@ function Inbox() {
 export function NotificationsInbox() {
   const session = useSession();
   if (session.isPending) {
-    return <div className="h-40 animate-pulse rounded-lg border bg-muted" aria-hidden />;
+    return <RuetLoader />;
   }
   if (!session.user) {
     return (

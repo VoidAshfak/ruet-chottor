@@ -4,9 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { type ReactNode, Suspense } from 'react';
 
-/** The header's link style: muted text, tinted background when it is the current section. */
+/**
+ * The header's link style: muted text, tinted background when it is the current section, and an
+ * orange bar that grows in under it on hover and stays under the current one.
+ */
 export const NAV_LINK_CLASS =
-  'rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-muted-foreground hover:bg-accent hover:text-accent-foreground aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground';
+  'relative rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-muted-foreground no-underline transition-colors hover:bg-accent hover:text-accent-foreground aria-[current=page]:bg-accent aria-[current=page]:font-medium aria-[current=page]:text-accent-foreground after:absolute after:inset-x-3 after:bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-brand-orange after:transition-transform hover:after:scale-x-100 aria-[current=page]:after:scale-x-100 motion-reduce:after:transition-none';
 
 type NavLinkProps = {
   href: string;

@@ -1,6 +1,7 @@
 'use client';
 
 import { MessagesSquareIcon, NewspaperIcon, UsersRoundIcon } from 'lucide-react';
+import { RuetLoader } from '@/components/art/RuetLoader';
 import { InfoTip } from '@/components/guide/InfoTip';
 import { useSession } from '@/features/auth';
 import { LatestNews } from '@/features/news';
@@ -44,11 +45,7 @@ export function HomeBody() {
   const enabled = features.data?.modules ?? [];
 
   if (features.isPending) {
-    return (
-      <p role="status" className="text-sm text-muted-foreground">
-        {help.status.loading}
-      </p>
-    );
+    return <RuetLoader label={help.status.loading} />;
   }
   if (features.isError) {
     return (

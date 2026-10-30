@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { RuetLoader } from '@/components/art/RuetLoader';
 import { ConfirmDialog } from '@/components/dialog/ConfirmDialog';
 import { FormError } from '@/components/form/FormError';
 import { InfoTip } from '@/components/guide/InfoTip';
@@ -24,7 +25,7 @@ function Detail({ id }: { id: string }) {
   const text = help.event;
 
   if (event.isPending) {
-    return <div className="h-64 animate-pulse rounded-lg border bg-muted" aria-hidden />;
+    return <RuetLoader className="min-h-64" />;
   }
   if (event.isError) {
     const missing = event.error instanceof ApiError && [400, 404].includes(event.error.status);

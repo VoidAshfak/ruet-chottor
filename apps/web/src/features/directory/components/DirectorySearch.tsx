@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { EmptyState } from '@/components/art/EmptyState';
 import { InfoTip } from '@/components/guide/InfoTip';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/features/auth';
@@ -105,9 +106,7 @@ export function DirectorySearch() {
             </Button>
           </div>
         ) : members.length === 0 ? (
-          <p className="rounded-lg border p-6 text-center text-muted-foreground">
-            {help.results.empty}
-          </p>
+          <EmptyState>{help.results.empty}</EmptyState>
         ) : (
           <>
             <ul className="grid gap-3 sm:grid-cols-2">

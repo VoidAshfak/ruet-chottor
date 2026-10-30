@@ -57,6 +57,59 @@
   --color-route-red: var(--route-red);
   --color-route-purple: var(--route-purple);
   --color-route-teal: var(--route-teal);
+  --animate-gear-spin: gear-spin 2.4s linear infinite;
+  --animate-page-flip: page-flip 1.6s ease-in-out infinite;
+  --animate-bob: bob 2.4s ease-in-out infinite;
+  --animate-dot: dot 1.2s ease-in-out infinite;
+  --animate-drift: drift 6s ease-in-out infinite;
+
+  @keyframes gear-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  /* The right-hand page swings over the spine and back, like a page being turned. */
+  @keyframes page-flip {
+    0%,
+    15% {
+      transform: scaleX(1);
+    }
+    50%,
+    65% {
+      transform: scaleX(-1);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+  @keyframes dot {
+    0%,
+    80%,
+    100% {
+      opacity: 0.25;
+    }
+    40% {
+      opacity: 1;
+    }
+  }
+  @keyframes drift {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    50% {
+      transform: translate(6px, -6px) rotate(4deg);
+    }
+  }
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -110,6 +163,17 @@
   --art-trunk: #7a5134;
   --art-mango: #f2b51f;
   --art-ink: #3a3a3a;
+  /* RUET gate artwork: whitewashed concrete and its shade, iron grille, road. */
+  --art-concrete: #f6f1e7;
+  --art-concrete-dark: #ddd2bf;
+  --art-iron: #4a5560;
+  --art-road: #d9d4cb;
+  /* RUET entrance gate (footer): pale-blue concrete, its shade and the sweeping arc, the planter shrubs. */
+  --art-gate-wall: #c9d6ee;
+  --art-gate-wall-dark: #a3b6da;
+  --art-gate-arc: #dde8f8;
+  --art-shrub: #8cc63f;
+  --art-shrub-dark: #5f9e2c;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -173,5 +237,16 @@
   }
   html {
     @apply font-sans;
+  }
+  /* Links: a thick, offset underline that turns brand orange (decoration, never the text colour). */
+  a {
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    transition:
+      color 150ms,
+      text-decoration-color 150ms;
+  }
+  a:hover {
+    text-decoration-color: var(--brand-orange);
   }
 }

@@ -15,6 +15,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { RuetLoader } from '@/components/art/RuetLoader';
 import { FormError } from '@/components/form/FormError';
 import { InfoTip } from '@/components/guide/InfoTip';
 import { PageHeader } from '@/components/guide/PageHeader';
@@ -268,7 +269,7 @@ function Form({ existing }: { existing?: LostFoundItem }) {
 function Edit({ id }: { id: string }) {
   const item = useItem(id);
   if (item.isPending) {
-    return <div className="h-64 animate-pulse rounded-lg border bg-muted" aria-hidden />;
+    return <RuetLoader className="min-h-64" />;
   }
   if (item.isError || !item.data.isMine) {
     return <p className="rounded-lg border p-6 text-muted-foreground">{help.form.notYours}</p>;

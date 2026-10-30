@@ -9,6 +9,7 @@ import {
 } from '@ruet-chottor/shared';
 import Link from 'next/link';
 import { useState } from 'react';
+import { EmptyState } from '@/components/art/EmptyState';
 import { FormError } from '@/components/form/FormError';
 import { InfoTip } from '@/components/guide/InfoTip';
 import { Button } from '@/components/ui/button';
@@ -199,7 +200,7 @@ function ClubsAdmin() {
           {clubs.error.message}
         </p>
       ) : items.length === 0 ? (
-        <p className="rounded-lg border p-6 text-center text-muted-foreground">{help.list.empty}</p>
+        <EmptyState>{help.list.empty}</EmptyState>
       ) : (
         <ul className="grid gap-2">
           {items.map((club) => (

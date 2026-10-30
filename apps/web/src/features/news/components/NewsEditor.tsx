@@ -13,6 +13,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { RuetLoader } from '@/components/art/RuetLoader';
 import { FormError } from '@/components/form/FormError';
 import { InfoTip } from '@/components/guide/InfoTip';
 import { PageHeader } from '@/components/guide/PageHeader';
@@ -200,7 +201,7 @@ function Form({ existing }: { existing?: NewsPost }) {
 function Edit({ id, myId }: { id: string; myId: string }) {
   const post = useNewsPost(id, { enabled: true });
   if (post.isPending) {
-    return <div className="h-64 animate-pulse rounded-lg border bg-muted" aria-hidden />;
+    return <RuetLoader className="min-h-64" />;
   }
   // Someone else's post looks the same as a missing one.
   if (post.isError || post.data.author?.id !== myId) {
