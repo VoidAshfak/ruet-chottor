@@ -83,8 +83,10 @@ test('sign up, log in with the emailed code, then log out', async ({ page }) => 
   // Login page, roll pre-filled.
   await expect(page).toHaveURL(/\/login\?created=2103001/);
   await expect(page.getByText('Account created. Log in to continue.')).toBeVisible();
-  await expect(page.getByLabel('Roll', { exact: true })).toHaveValue(user.roll);
-  await page.getByLabel('Password', { exact: true }).fill('green-river-42');
+  // Next keeps the sign-up page mounted but hidden after navigating, so look at visible fields only.
+  const visible = { visible: true } as const;
+  await expect(page.getByLabel('Roll', { exact: true }).filter(visible)).toHaveValue(user.roll);
+  await page.getByLabel('Password', { exact: true }).filter(visible).fill('green-river-42');
   await page.getByRole('button', { name: 'Continue' }).click();
 
   await expect(page.getByText('We sent a 6-digit code to t•••@example.com.')).toBeVisible();

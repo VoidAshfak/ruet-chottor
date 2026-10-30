@@ -14,3 +14,4 @@ export * from './moderation/index.js';
 export * from './news/index.js';
 export * from './clubs/index.js';
 export * from './events/index.js';
+export * from './lost-found/index.js';

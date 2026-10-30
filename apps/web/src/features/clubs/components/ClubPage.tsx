@@ -142,8 +142,8 @@ function Club({ slug }: { slug: string }) {
         ) : null}
       </div>
 
-      <section aria-labelledby="club-about">
-        <h2 id="club-about" className="mb-1 font-medium">
+      <section aria-labelledby="club-about-heading">
+        <h2 id="club-about-heading" className="mb-1 font-medium">
           {text.about}
         </h2>
         <p className="break-words whitespace-pre-line text-muted-foreground">

@@ -39,7 +39,7 @@ export function SignupForm() {
       />
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
-          id="roll"
+          id="signup-roll"
           label={help.fields.roll}
           tip={help.tips.roll}
           inputMode="numeric"
@@ -88,7 +88,7 @@ export function SignupForm() {
         {...form.register('dateOfBirth')}
       />
       <FormField
-        id="password"
+        id="signup-password"
         type="password"
         label={help.fields.password}
         tip={help.tips.password}

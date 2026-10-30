@@ -36,7 +36,7 @@ Update this table whenever a phase changes state. Work only on the current phase
 | 1 | Auth (sign-up, login, 2FA), user profiles, contact directory, admin panel base | ✅ Done |
 | 2 | Real-time messaging (1:1 and group chat), with message reports (`moderation`) | ✅ Done |
 | 3 | News; clubs & events | ✅ Done |
-| 4 | Lost & found; campus marketplace | ⬜ Not started |
+| 4 | Lost & found; campus marketplace | 🟨 In progress (lost & found done; marketplace next) |
 | 5 | Bus schedule (live tracker later, once a location source exists) | ⬜ Not started |
 | 6 | Hardening, testing, documentation pass | ⬜ Not started |
 
@@ -254,6 +254,9 @@ so it can be reviewed and translated in one place. Use the `add-user-guidance` s
 - Pagination: cursor-based for feeds and chat; `?cursor=&limit=` (default 20, max 100).
 - Config only from environment variables, validated at startup (`apps/api/src/core/config/env.ts`).
   Every new variable goes into the app's `.env.example` with a comment.
+- Element `id`s must be unique across the whole app, not just the page: Next.js keeps previous pages mounted but
+  hidden, so a repeated `id` makes a label point at the wrong input. Prefix ids with the feature or page
+  (`login-roll`, `lf-board-category`).
 - Client components must render the same output on the server and on the first client render
   (no hydration mismatches): read browser-only state via `useSyncExternalStore` or `useHydrated()`.
 - No secrets, real student data, or real phone numbers/emails in the repo — ever.
