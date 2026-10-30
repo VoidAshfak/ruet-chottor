@@ -25,6 +25,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Phase 0 project foundation: pnpm monorepo with `apps/web` (Next.js 16), `apps/api` (NestJS 12) and
   `packages/shared` (Zod schemas and constants).
+
+### Fixed
+
+- Header links no longer block prerendering on member pages (`/users/<id>`); the active-link
+  highlight is added on the client (shared `NavLink`).
 - API: environment validation, `/api/v1` routing, standard `{ error: { code, message } }` responses,
   security headers, CORS, Prisma 7 (PostgreSQL) and Redis connections.
 - API endpoints `GET /api/v1/health` and `GET /api/v1/features`.

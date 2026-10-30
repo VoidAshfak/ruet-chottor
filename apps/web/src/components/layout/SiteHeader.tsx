@@ -1,13 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { AccountMenu } from '@/features/auth';
 import { enabledNavModules } from '@/lib/modules';
 import { useFeatures } from '@/lib/use-features';
+import { NavLink } from './NavLink';
 
 export function SiteHeader() {
-  const pathname = usePathname();
   const { data } = useFeatures();
   const modules = enabledNavModules(data?.modules ?? []);
   const authEnabled = data?.modules.includes('auth') ?? false;
@@ -21,19 +20,15 @@ export function SiteHeader() {
         </Link>
         {modules.length > 0 ? (
           <nav aria-label="Main" className="-mx-1 flex gap-1 overflow-x-auto">
-            {modules.map((module) => {
-              const active = pathname.startsWith(module.href);
-              return (
-                <Link
-                  key={module.key}
-                  href={module.href}
-                  aria-current={active ? 'page' : undefined}
-                  className="rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-muted-foreground hover:bg-accent hover:text-accent-foreground aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground"
-                >
-                  {module.label}
-                </Link>
-              );
-            })}
+            {modules.map((module) => (
+              <NavLink
+                key={module.key}
+                href={module.href}
+                className="rounded-md px-3 py-1.5 text-sm whitespace-nowrap text-muted-foreground hover:bg-accent hover:text-accent-foreground aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground"
+              >
+                {module.label}
+              </NavLink>
+            ))}
           </nav>
         ) : null}
         {authEnabled ? (
