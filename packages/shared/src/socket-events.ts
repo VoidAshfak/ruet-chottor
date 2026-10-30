@@ -6,6 +6,7 @@
 
 export const SOCKET_NAMESPACES = {
   chat: '/chat',
+  notifications: '/notifications',
 } as const;
 
 export const ChatEvents = {
@@ -21,4 +22,11 @@ export const ChatEvents = {
   TypingStart: 'chat:typing:start',
   /** server -> client: someone else in the conversation is typing */
   TypingUpdate: 'chat:typing:update',
+} as const;
+
+export const NotificationEvents = {
+  /** server -> client: a new notification was saved for you. */
+  New: 'notifications:notification:new',
+  /** server -> client: read state changed in another tab or device; refetch the count. */
+  ReadChanged: 'notifications:read:changed',
 } as const;

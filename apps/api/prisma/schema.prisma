@@ -642,3 +642,25 @@ model BusNotice {
   @@index([endsOn])
   @@map("bus_notices")
 }
+
+// ===== notifications =====
+// One row per recipient, written by the system when something happens to a member's content or
+// clubs (docs/modules/notifications.md). Not user-generated, so there is nothing to moderate.
+
+model Notification {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  userId    String    @db.Uuid
+  /// `<module>.<event>`, one of NOTIFICATION_TYPES in packages/shared.
+  type      String
+  title     String
+  body      String?
+  /// A path inside the web app.
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
+  @@index([createdAt])
+  @@map("notifications")
+}

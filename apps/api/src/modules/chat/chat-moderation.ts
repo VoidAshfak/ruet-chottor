@@ -45,6 +45,7 @@ export class ChatModeration implements ModeratableContent, OnModuleInit {
       preview: message.body,
       status: message.status,
       context: conversation?.type === 'group' ? 'Group chat' : '1:1 chat',
+      link: `/chat/${message.conversationId}`,
     };
   }
 

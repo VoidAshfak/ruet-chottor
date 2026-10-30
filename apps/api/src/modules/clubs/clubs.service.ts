@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import {
   type ClubDetail,
@@ -30,6 +31,7 @@ import {
   type User,
 } from '../../generated/prisma/client.js';
 import { ModerationLogService } from '../admin/moderation-log.service.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
 
 export const CLUBS_RATE_LIMITS = {
   join: { name: 'clubs:join', limit: 30, windowSeconds: 60 * 60 },
@@ -53,6 +55,7 @@ export class ClubsService {
     private readonly media: MediaService,
     private readonly log: ModerationLogService,
     private readonly rateLimit: RateLimitService,
+    @Optional() private readonly notifications?: NotificationsService,
   ) {}
 
   // ----- reading -----
@@ -169,6 +172,11 @@ export class ClubsService {
         },
       });
       await this.promote(adminId, managers, club.name);
+      await this.notifyAppointed(
+        managers.map((m) => m.id),
+        adminId,
+        club,
+      );
       return this.detail(club, adminId, true);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
@@ -213,6 +221,12 @@ export class ClubsService {
       }
     }
     await this.promote(adminId, managers, club.name);
+    const before = new Set(existing.filter((m) => m.role === 'manager').map((m) => m.userId));
+    await this.notifyAppointed(
+      managers.map((m) => m.id).filter((id) => !before.has(id)),
+      adminId,
+      club,
+    );
     return this.detail(club, adminId, true);
   }
 
@@ -268,6 +282,14 @@ export class ClubsService {
       where: { clubId_userId: { clubId, userId } },
       data: { state: 'active', joinedAt: new Date() },
     });
+    const club = await this.prisma.club.findUnique({ where: { id: clubId } });
+    if (club) {
+      await this.notifications?.notify([userId], {
+        type: 'clubs.join_approved',
+        title: `You are now a member of ${club.name}`,
+        link: `/clubs/${club.slug}`,
+      });
+    }
   }
 
   /** Declines a request or removes a member. Managers are changed by admins only. */
@@ -284,7 +306,7 @@ export class ClubsService {
   // ----- members -----
 
   async join(userId: string, clubId: string): Promise<ClubDetail> {
-    await this.requireActive(userId);
+    const user = await this.requireActive(userId);
     const club = await this.prisma.club.findUnique({ where: { id: clubId } });
     if (!club || club.status !== 'visible') throw notFound();
     await this.rateLimit.consume(CLUBS_RATE_LIMITS.join, userId);
@@ -299,6 +321,18 @@ export class ClubsService {
       }
       throw error;
     }
+    const managers = await this.prisma.clubMembership.findMany({
+      where: { clubId, role: 'manager', state: 'active' },
+    });
+    await this.notifications?.notify(
+      managers.map((m) => m.userId),
+      {
+        type: 'clubs.join_requested',
+        title: `${user.name} asked to join ${club.name}`,
+        body: 'Approve or decline the request on the members page.',
+        link: `/clubs/${club.slug}/members`,
+      },
+    );
     return this.detail(club, userId, false);
   }
 
@@ -393,6 +427,18 @@ export class ClubsService {
     if (!club) throw notFound();
     if (club.status !== 'visible' && !(await this.canManage(viewerId, clubId))) throw notFound();
     return club;
+  }
+
+  private async notifyAppointed(userIds: string[], adminId: string, club: ClubRow) {
+    await this.notifications?.notify(
+      userIds.filter((id) => id !== adminId),
+      {
+        type: 'clubs.manager_appointed',
+        title: `You are now a manager of ${club.name}`,
+        body: 'You can approve members, edit the club page and post news for the club.',
+        link: `/clubs/${club.slug}`,
+      },
+    );
   }
 
   /** Appointed managers get the club_manager role (logged like any role change). */

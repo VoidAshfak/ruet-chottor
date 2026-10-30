@@ -12,6 +12,7 @@ import { seedLostFound } from './lost-found.js';
 import { seedMarketplace } from './marketplace.js';
 import { seedModeration } from './moderation.js';
 import { seedNews } from './news.js';
+import { seedNotifications } from './notifications.js';
 import { seedUsers } from './users.js';
 
 const prisma = new PrismaClient({
@@ -33,6 +34,7 @@ async function main() {
   await seedLostFound(prisma);
   await seedMarketplace(prisma);
   await seedBus(prisma);
+  await seedNotifications(prisma);
 }
 
 main()

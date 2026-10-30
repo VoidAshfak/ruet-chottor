@@ -40,6 +40,7 @@ export class ClubsModeration implements ModeratableContent, OnModuleInit {
       preview: `${club.name}: ${club.tagline}\n\n${club.about}`,
       status: club.status,
       context: 'Club page',
+      link: `/clubs/${club.slug}`,
     };
   }
 

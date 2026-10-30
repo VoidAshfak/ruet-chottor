@@ -74,7 +74,7 @@ token and a 30-day refresh token that rotates on every use. Both are random stri
 
 ## Real time
 
-Socket.IO runs on the API's HTTP server, one namespace per module (`/chat` so far). A socket logs in with the same
+Socket.IO runs on the API's HTTP server, one namespace per module (`/chat`, `/notifications`). A socket logs in with the same
 session cookie as HTTP and joins only its own `user:<id>` room. Services save to Postgres first and then push the
 event to each recipient's room, so the socket is a delivery channel and HTTP stays the source of truth: after a
 reconnect the browser fetches what it missed. See [ADR 0008](decisions/0008-realtime-socket-io.md) and

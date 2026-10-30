@@ -35,6 +35,7 @@ export class LostFoundModeration implements ModeratableContent, OnModuleInit {
       preview: `${item.kind === 'lost' ? 'Lost' : 'Found'}: ${item.title}\n\n${item.description}`,
       status: item.status,
       context: 'Lost & found',
+      link: `/lost-found/${item.id}`,
     };
   }
 

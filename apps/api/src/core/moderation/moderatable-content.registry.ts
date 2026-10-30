@@ -9,6 +9,8 @@ export interface ModeratableItem {
   status: ContentStatus;
   /** Short context, e.g. "Group chat". */
   context: string;
+  /** Where the author can see it in the web app, for notifications about it. */
+  link?: string;
 }
 
 /**

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AdminModule } from '../admin/admin.module.js';
+import { NotificationsModule, notificationsOn } from '../notifications/notifications.module.js';
 import { ClubsController } from './clubs.controller.js';
 import { ClubsModeration } from './clubs-moderation.js';
 import { ClubsService } from './clubs.service.js';
@@ -10,7 +11,7 @@ import { ClubsService } from './clubs.service.js';
  * news (posting as a club). See docs/modules/clubs.md.
  */
 @Module({
-  imports: [AdminModule],
+  imports: [AdminModule, ...(notificationsOn() ? [NotificationsModule] : [])],
   controllers: [ClubsController],
   providers: [ClubsService, ClubsModeration],
   exports: [ClubsService],

@@ -10,7 +10,7 @@ One file per feature module, written from the template in `.claude/skills/write-
 | admin | [admin.md](admin.md) | 1 |
 | moderation | [moderation.md](moderation.md) | 2 |
 | chat | [chat.md](chat.md) | 2 |
-| notifications | _not started_ | — |
+| notifications | [notifications.md](notifications.md) | 7 |
 | news | [news.md](news.md) | 3 |
 | clubs | [clubs.md](clubs.md) | 3 |
 | events | [events.md](events.md) | 3 |

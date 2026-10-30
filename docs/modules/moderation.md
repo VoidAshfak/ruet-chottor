@@ -101,6 +101,6 @@ Limits: 20 reports per member per hour, 120 staff actions per 15 minutes.
 
 - The queue groups reports in memory (all reports with the chosen status). Fine for a campus; switch to a SQL
   `GROUP BY` if open reports reach the thousands.
-- Members are not notified when their content is hidden, apart from the note on the item (needs `notifications`).
+- Authors are notified (with the reason) when their content is hidden, removed or restored, if `notifications` is on.
 - Group names are not reportable yet; only messages.
 - No appeal flow.

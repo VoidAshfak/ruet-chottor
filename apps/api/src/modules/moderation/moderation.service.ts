@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -33,6 +34,7 @@ import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RateLimitService } from '../../core/rate-limit/rate-limit.service.js';
 import { Prisma, type Report } from '../../generated/prisma/client.js';
 import { ModerationLogService } from '../admin/moderation-log.service.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
 
 export const MODERATION_RATE_LIMITS = {
   report: { name: 'moderation:report', limit: 20, windowSeconds: 60 * 60 },
@@ -85,6 +87,8 @@ export class ModerationService {
     private readonly log: ModerationLogService,
     private readonly rateLimit: RateLimitService,
     config: ConfigService<Env, true>,
+    /** Present only when the notifications module is switched on. */
+    @Optional() private readonly notifications?: NotificationsService,
   ) {
     this.autoHideAt = config.get('MODERATION_AUTO_HIDE_REPORTS', { infer: true });
   }
@@ -138,6 +142,12 @@ export class ModerationService {
         reason: `Hidden automatically after ${open} reports.`,
         details: { auto: true, reports: open },
       });
+      await this.tellAuthor(
+        provider,
+        item,
+        'hidden',
+        'Several members reported it. A moderator will review it.',
+      );
     }
   }
 
@@ -234,6 +244,14 @@ export class ModerationService {
       }
     }
 
+    if (provider && item && item.authorId !== staffId) {
+      if (action === 'hide' || action === 'remove') {
+        await this.tellAuthor(provider, item, action === 'hide' ? 'hidden' : 'removed', reason);
+      }
+      const backUp = action === 'restore' || (action === 'dismiss' && item.status === 'hidden');
+      if (backUp) await this.tellAuthor(provider, item, 'restored');
+    }
+
     const now = new Date();
     // Restoring says the item is fine, so any reports still open (e.g. an automatic hold) close too.
     const resolve: Record<ContentAction, 'actioned' | 'dismissed'> = {
@@ -266,6 +284,28 @@ export class ModerationService {
   }
 
   // ----- helpers -----
+
+  /** The author learns what happened to their content and why (never who reported it). */
+  private async tellAuthor(
+    provider: ModeratableContent,
+    item: ModeratableItem,
+    outcome: 'hidden' | 'removed' | 'restored',
+    reason?: string,
+  ) {
+    if (item.authorId === SYSTEM_MODERATOR_ID) return;
+    const what = provider.label.toLowerCase();
+    const title = {
+      hidden: `Your ${what} was hidden`,
+      removed: `Your ${what} was removed by a moderator`,
+      restored: `Your ${what} is visible again`,
+    }[outcome];
+    await this.notifications?.notify([item.authorId], {
+      type: `moderation.${outcome}`,
+      title,
+      body: reason ? `Reason: ${reason}` : null,
+      link: outcome === 'removed' ? null : (item.link ?? null),
+    });
+  }
 
   private provider(type: ModeratableContentType): ModeratableContent {
     const provider = this.registry.get(type);

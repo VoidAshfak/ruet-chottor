@@ -13,6 +13,7 @@ import {
   type EventInput,
   type EventList,
   type EventRangeQuery,
+  formatDateTime,
   STAFF_ROLES,
 } from '@ruet-chottor/shared';
 import { MediaService } from '../../core/media/media.service.js';
@@ -20,6 +21,7 @@ import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RateLimitService } from '../../core/rate-limit/rate-limit.service.js';
 import { type Event as EventRow, Prisma, type User } from '../../generated/prisma/client.js';
 import { ClubsService } from '../clubs/clubs.service.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
 
 export const EVENTS_RATE_LIMITS = {
   create: { name: 'events:create', limit: 20, windowSeconds: 60 * 60 },
@@ -47,6 +49,8 @@ export class EventsService {
     private readonly rateLimit: RateLimitService,
     /** Present only when the clubs module is switched on. */
     @Optional() private readonly clubs?: ClubsService,
+    /** Present only when the notifications module is switched on. */
+    @Optional() private readonly notifications?: NotificationsService,
   ) {}
 
   /** Everything overlapping [from, to): a calendar month, or "upcoming" on a club page. */
@@ -116,6 +120,11 @@ export class EventsService {
     if (input.capacity !== null && input.capacity < going) {
       throw badRequest(`${going} people are already going; the capacity cannot be lower.`);
     }
+    // Worth telling the people going about; a new title or description is not.
+    const moved =
+      new Date(input.startsAt).getTime() !== event.startsAt.getTime() ||
+      new Date(input.endsAt).getTime() !== event.endsAt.getTime() ||
+      input.venue !== event.venue;
     await this.media.attach(userId, 'events.poster', id, input.posterId ? [input.posterId] : []);
     const updated = await this.prisma.event.update({
       where: { id },
@@ -130,6 +139,13 @@ export class EventsService {
         capacity: input.capacity,
       },
     });
+    if (moved && !updated.cancelledAt) {
+      await this.notifyGoing(userId, updated, {
+        type: 'events.changed',
+        title: `${updated.title} has changed`,
+        body: `Now ${formatDateTime(updated.startsAt)} at ${updated.venue}.`,
+      });
+    }
     return this.presentOne(updated, userId);
   }
 
@@ -139,9 +155,16 @@ export class EventsService {
     if (!event) throw notFound();
     if (!(await this.canEdit(userId, event)))
       throw forbidden('Only the organisers can cancel this event.');
-    const updated = event.cancelledAt
-      ? event
-      : await this.prisma.event.update({ where: { id }, data: { cancelledAt: new Date() } });
+    if (event.cancelledAt) return this.presentOne(event, userId);
+    const updated = await this.prisma.event.update({
+      where: { id },
+      data: { cancelledAt: new Date() },
+    });
+    await this.notifyGoing(userId, updated, {
+      type: 'events.cancelled',
+      title: `${updated.title} is cancelled`,
+      body: `It was planned for ${formatDateTime(updated.startsAt)} at ${updated.venue}.`,
+    });
     return this.presentOne(updated, userId);
   }
 
@@ -216,6 +239,20 @@ export class EventsService {
           : [];
       }),
     };
+  }
+
+  /** Tells everyone going, except the organiser who made the change. */
+  private async notifyGoing(
+    actorId: string,
+    event: EventRow,
+    input: { type: 'events.changed' | 'events.cancelled'; title: string; body: string },
+  ) {
+    if (!this.notifications) return;
+    const going = await this.prisma.eventRsvp.findMany({ where: { eventId: event.id } });
+    await this.notifications.notify(
+      going.map((r) => r.userId).filter((id) => id !== actorId),
+      { ...input, link: `/events/${event.id}` },
+    );
   }
 
   // ----- rules -----

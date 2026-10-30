@@ -22,6 +22,7 @@ import { RateLimitService } from '../../core/rate-limit/rate-limit.service.js';
 import type { NewsPost as NewsRow, Prisma, User } from '../../generated/prisma/client.js';
 import { ModerationLogService } from '../admin/moderation-log.service.js';
 import { ClubsService } from '../clubs/clubs.service.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
 
 export const NEWS_RATE_LIMITS = {
   // Spam protection (CLAUDE.md §7): a handful of posts an hour is plenty for real news.
@@ -56,6 +57,8 @@ export class NewsService {
     private readonly rateLimit: RateLimitService,
     /** Present only when the clubs module is switched on. */
     @Optional() private readonly clubs?: ClubsService,
+    /** Present only when the notifications module is switched on. */
+    @Optional() private readonly notifications?: NotificationsService,
   ) {}
 
   async feed(viewerId: string, query: NewsFeedQuery): Promise<NewsPage> {
@@ -203,6 +206,17 @@ export class NewsService {
         },
       }),
     ]);
+    if (post.createdById !== staffId) {
+      await this.notifications?.notify([post.createdById], {
+        type: review === 'approved' ? 'news.approved' : 'news.rejected',
+        title:
+          review === 'approved'
+            ? `Your post "${post.title}" is published`
+            : `Your post "${post.title}" was not published`,
+        body: review === 'approved' ? null : `Moderator's reason: ${reason}`,
+        link: `/news/${id}`,
+      });
+    }
     return this.presentOne(updated, staffId);
   }
 

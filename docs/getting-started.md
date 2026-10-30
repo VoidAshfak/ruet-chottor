@@ -96,6 +96,7 @@ sample events around today (the Demo Student is going to one). With `FEATURE_LOS
 three demo posts, and with `FEATURE_MARKETPLACE=true` the **Marketplace** has four demo listings.
 With `FEATURE_BUS=true`, **Bus** shows two **placeholder** routes (made-up times; enter the real timetable in
 **Admin → Bus**).
+With `FEATURE_NOTIFICATIONS=true`, the Demo Student has three notifications behind the bell in the header (two unread).
 Every demo account uses the password **`Password123!`** (development only). The login code is emailed to the
 Ethereal inbox; the API logs a link to read it.
 
