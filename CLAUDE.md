@@ -37,7 +37,7 @@ Update this table whenever a phase changes state. Work only on the current phase
 | 2 | Real-time messaging (1:1 and group chat), with message reports (`moderation`) | ✅ Done |
 | 3 | News; clubs & events | ✅ Done |
 | 4 | Lost & found; campus marketplace | ✅ Done |
-| 5 | Bus schedule (live tracker later, once a location source exists) | ⬜ Not started |
+| 5 | Bus schedule (live tracker later, once a location source exists) | ✅ Done (timetable; live tracker not started) |
 | 6 | Hardening, testing, documentation pass | ⬜ Not started |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done.

@@ -51,6 +51,12 @@
   --color-card: var(--card);
   --color-brand-orange: var(--brand-orange);
   --color-brand-green: var(--brand-green);
+  --color-route-blue: var(--route-blue);
+  --color-route-orange: var(--route-orange);
+  --color-route-green: var(--route-green);
+  --color-route-red: var(--route-red);
+  --color-route-purple: var(--route-purple);
+  --color-route-teal: var(--route-teal);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -81,6 +87,13 @@
   --ring: #0f7dbc;
   --brand-orange: #eb8a1b;
   --brand-green: #007749;
+  /* Bus route colour marks (dots and bars next to text, never text itself). */
+  --route-blue: #0d6aa3;
+  --route-orange: #eb8a1b;
+  --route-green: #007749;
+  --route-red: #c0392b;
+  --route-purple: #7a4fb0;
+  --route-teal: #138a8a;
   /* Homepage illustration (decoration only, never text): sky, grass, river, brick, skin, tree, mango. */
   --art-sky: #eaf5fd;
   --art-cloud: #ffffff;

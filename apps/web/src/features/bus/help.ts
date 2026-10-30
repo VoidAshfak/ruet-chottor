@@ -1,0 +1,153 @@
+import type { BusColor, BusDirection } from '@ruet-chottor/shared';
+
+// All guidance text for the bus timetable (CLAUDE.md §8). Keep it short and plain.
+export const help = {
+  page: {
+    title: 'Bus',
+    description: 'University bus routes, stops and times, and when the next bus leaves your stop.',
+  },
+  route: { title: 'Bus route', description: 'Stops and the full timetable of one route.' },
+  directions: {
+    from_campus: 'From campus',
+    to_campus: 'To campus',
+  } satisfies Record<BusDirection, string>,
+  colors: {
+    blue: 'Blue',
+    orange: 'Orange',
+    green: 'Green',
+    red: 'Red',
+    purple: 'Purple',
+    teal: 'Teal',
+  } satisfies Record<BusColor, string>,
+  // Saturday first: the Bangladeshi week.
+  dayOrder: [6, 0, 1, 2, 3, 4, 5],
+  dayShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  days: {
+    every: 'Every day',
+    working: 'Sat–Thu',
+    friday: 'Friday',
+  },
+  next: {
+    title: 'Next buses',
+    stop: 'Your stop',
+    pickStop: 'Pick a stop',
+    none: 'No more buses from this stop today.',
+    noStops: 'No routes yet.',
+    in: (minutes: number) =>
+      minutes <= 0
+        ? 'now'
+        : minutes < 60
+          ? `in ${minutes} min`
+          : `in ${Math.floor(minutes / 60)} h ${minutes % 60} min`,
+    tip: 'Times are from the timetable, not live tracking. A bus can be a few minutes early or late.',
+    tipLabel: 'About these times',
+  },
+  routes: {
+    title: 'Routes',
+    loading: 'Loading the timetable…',
+    error: 'Could not load the timetable.',
+    retry: 'Try again',
+    empty: 'No bus routes have been added yet.',
+    stops: (n: number) => `${n} stops`,
+    trips: (n: number) => (n === 1 ? '1 trip' : `${n} trips`),
+  },
+  detail: {
+    stops: 'Stops',
+    minutes: (n: number) => (n === 0 ? 'start' : `+${n} min`),
+    timetable: 'Timetable',
+    departs: 'Leaves',
+    runs: 'Runs',
+    note: 'Note',
+    noTrips: 'No trips in this direction.',
+    leavesFrom: (stop: string) => `Times are when the bus leaves ${stop}.`,
+    back: 'All routes',
+    inactive: 'This route is not running at the moment.',
+  },
+  notices: {
+    title: 'Notices',
+    allRoutes: 'All routes',
+    until: (date: string) => `until ${date}`,
+  },
+  admin: {
+    title: 'Admin · Bus',
+    description: 'Edit routes, stops, trips and notices. Changes show to everyone straight away.',
+    routes: 'Routes',
+    newRoute: 'New route',
+    edit: 'Edit',
+    inactive: 'Not running',
+    notices: 'Notices',
+    newNotice: 'Post a notice',
+    noticeRoute: 'For',
+    noticeMessage: 'Notice',
+    noticePlaceholder: 'e.g. No evening trips during the exam week.',
+    startsOn: 'From',
+    endsOn: 'Until',
+    post: 'Post notice',
+    delete: 'Delete',
+    noNotices: 'No notices.',
+    confirmDeleteNotice: {
+      title: 'Delete this notice?',
+      body: 'It disappears from the bus page straight away.',
+      confirm: 'Delete',
+      cancel: 'Keep it',
+    },
+    adminOnly: 'Only admins can edit the bus timetable.',
+  },
+  editor: {
+    newTitle: 'New bus route',
+    editTitle: 'Edit bus route',
+    description: 'Stops start at campus. Each trip leaves its first stop at the time you enter.',
+    name: 'Route name',
+    namePlaceholder: 'e.g. Route 2 (Shaheb Bazar)',
+    about: 'Description (optional)',
+    color: 'Colour',
+    active: 'Running (shown to members)',
+    stops: 'Stops, from campus outwards',
+    stopName: 'Stop',
+    stopMinutes: 'Minutes from campus',
+    stopsTip:
+      'The first stop is campus (0 minutes). Each next stop is further away; the minutes give the time at every stop.',
+    stopsTipLabel: 'About stops',
+    addStop: 'Add a stop',
+    removeStop: 'Remove stop',
+    moveUp: 'Move up',
+    moveDown: 'Move down',
+    trips: 'Trips',
+    tripDirection: 'Direction',
+    tripTime: 'Leaves at',
+    tripDays: 'Days',
+    tripNote: 'Note (optional)',
+    tripsTip:
+      '“From campus” trips leave campus at this time; “To campus” trips leave the furthest stop.',
+    tripsTipLabel: 'About trips',
+    addTrip: 'Add a trip',
+    removeTrip: 'Remove trip',
+    save: 'Save route',
+    saving: 'Saving…',
+    deleteRoute: 'Delete route',
+    cancel: 'Cancel',
+    confirmDelete: {
+      title: 'Delete this route?',
+      body: 'Its stops, trips and notices are deleted too. To pause it instead, untick “Running”.',
+      confirm: 'Delete',
+      cancel: 'Keep it',
+    },
+  },
+  loginNeeded: 'Log in to see the bus timetable.',
+  login: 'Log in',
+  notFound: 'This route does not exist, or it is not running.',
+  intro: [
+    {
+      title: 'When is the next bus?',
+      body: 'Pick your stop to see the next departures today, with a countdown.',
+    },
+    {
+      title: 'Routes and full timetables',
+      body: 'Open a route to see all its stops and every trip in both directions.',
+    },
+    {
+      title: 'Watch for notices',
+      body: 'Changes for exams, holidays or road works are posted at the top.',
+    },
+  ],
+} as const;
