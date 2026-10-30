@@ -244,6 +244,8 @@ export class FakePrisma {
   };
 
   session = {
+    findMany: async ({ where }: { where: Where }) =>
+      this.sessions.filter((s) => matches(s as unknown as Where, where)),
     create: async ({ data }: { data: Partial<Session> }) => {
       const now = new Date();
       const session = {
@@ -632,8 +634,15 @@ export class FakePrisma {
   };
 
   /** Operations already ran when their promises were created; just wait for them. */
-  async $transaction<T>(operations: Promise<T>[]) {
+  async $transaction<T>(operations: Promise<T>[] | ((tx: this) => Promise<T>)) {
+    // Interactive form: one process, so running the callback against this fake is already atomic.
+    if (typeof operations === 'function') return operations(this);
     return Promise.all(operations);
+  }
+
+  /** Row locks (`SELECT ... FOR UPDATE`) need no work in a single-process fake. */
+  async $queryRaw() {
+    return [];
   }
 
   async health() {

@@ -153,26 +153,34 @@ export class EventsService {
     if (event.endsAt.getTime() < Date.now()) throw badRequest('This event is over.');
     await this.rateLimit.consume(EVENTS_RATE_LIMITS.rsvp, userId);
 
-    const already = await this.prisma.eventRsvp.findUnique({
-      where: { eventId_userId: { eventId: id, userId } },
-    });
-    if (!already) {
-      if (event.capacity !== null) {
-        const count = await this.prisma.eventRsvp.count({ where: { eventId: id } });
-        if (count >= event.capacity) {
-          throw new ConflictException({
-            code: ERROR_CODES.CONFLICT,
-            message: 'This event is full.',
+    try {
+      await this.prisma.$transaction(
+        async (tx) => {
+          // Lock the event row: simultaneous taps for the last place queue up here, so the count
+          // below cannot be stale. (A parameterised template, not string building.)
+          await tx.$queryRaw`SELECT id FROM events WHERE id = ${id}::uuid FOR UPDATE`;
+          const already = await tx.eventRsvp.findUnique({
+            where: { eventId_userId: { eventId: id, userId } },
           });
-        }
-      }
-      try {
-        await this.prisma.eventRsvp.create({ data: { eventId: id, userId } });
-      } catch (error) {
-        // A double tap: the first request already saved it.
-        if (!(error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002')) {
-          throw error;
-        }
+          if (already) return;
+          if (event.capacity !== null) {
+            const count = await tx.eventRsvp.count({ where: { eventId: id } });
+            if (count >= event.capacity) {
+              throw new ConflictException({
+                code: ERROR_CODES.CONFLICT,
+                message: 'This event is full.',
+              });
+            }
+          }
+          await tx.eventRsvp.create({ data: { eventId: id, userId } });
+        },
+        // Taps for the same event wait for the lock in turn; the default 2 s is too short for that.
+        { maxWait: 10_000, timeout: 10_000 },
+      );
+    } catch (error) {
+      // A double tap on another server: the first request already saved it.
+      if (!(error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002')) {
+        throw error;
       }
     }
     return this.presentOne(event, userId);

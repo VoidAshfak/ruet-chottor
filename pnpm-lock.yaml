@@ -174,9 +174,6 @@ importers:
       react-hook-form:
         specifier: ^7.91.0
         version: 7.91.0(@types/react@19.3.0)(react@19.3.0)
-      shadcn:
-        specifier: ^4.23.0
-        version: 4.23.0
       socket.io-client:
         specifier: ^4.8.4
         version: 4.8.4
@@ -211,6 +208,9 @@ importers:
       eslint-config-prettier:
         specifier: ^10.1.0
         version: 10.1.8(eslint@9.39.5(jiti@2.7.0))
+      shadcn:
+        specifier: ^4.23.0
+        version: 4.23.0
       tailwindcss:
         specifier: ^4
         version: 4.3.3

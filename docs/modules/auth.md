@@ -43,6 +43,7 @@ Short-lived data lives in Redis, not Postgres:
 | Key | What | Lifetime |
 |---|---|---|
 | `auth:access:<hash>` | Access token → `{ userId, sessionId, role }` | 15 min |
+| `auth:session-access:<sessionId>` | Points at the session's live access token, so revoking the session deletes it | 15 min |
 | `auth:otp:<hash>` | Login code challenge: HMAC of the code, user id, resend count | 5 min |
 | `auth:otp:<hash>:attempts` / `:cooldown` | Wrong-code counter, resend cooldown | 5 min / 60 s |
 | `ratelimit:auth:*` | Rate-limit counters | window length |
@@ -80,6 +81,7 @@ Nothing user-generated is stored here except the user's name. Suspensions and ba
 [admin](admin.md) module. A suspended or banned user cannot log in or refresh a session; the login error says
 until when a suspension lasts. A suspension whose `suspendedUntil` has passed is lifted at the next login.
 `SessionsService.revokeAllForUser()` (exported) logs a member out everywhere when they are suspended or banned.
+Revoking a session also deletes its access token, so the member is cut off at once.
 
 ## Configuration
 
@@ -108,7 +110,6 @@ until when a suspension lasts. A suspension whose `suspendedUntil` has passed is
 - **SMS codes** are not built; `channel` is always `email`. The `SmsProvider` interface comes when SMS is needed.
 - **Forgot password / change password** are not built yet. When they are, all sessions must be revoked.
 - **Email ownership** is proven at the first login (the code goes to that address), not at sign-up.
-- **Suspension takes up to 15 minutes** to cut off an already-issued access token (refresh is blocked at once).
 - **Behind a reverse proxy**, configure Express `trust proxy` so rate limits see the real client IP.
 - The common-password list is short (~100 entries) on purpose; a larger list could be added later.
 - RUET roll is checked only as 7 digits; department codes are not validated.

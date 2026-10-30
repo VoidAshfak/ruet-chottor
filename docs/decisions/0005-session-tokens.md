@@ -18,6 +18,9 @@ Both tokens are **random 256-bit strings** with no meaning of their own.
   Each refresh replaces it (rotation). The previous hash is kept; if that old token is presented again more than
   30 seconds later, someone else has a copy, so the session is revoked.
 - Logout deletes the access token from Redis and revokes the session row.
+- *(Phase 6)* Each session also keeps a pointer to its live access token (`auth:session-access:<sessionId>`).
+  Revoking a session (logout, suspension, ban, a reused refresh token) deletes that token too, so access ends at
+  once instead of when the token expires.
 
 ## Alternatives considered
 
