@@ -9,6 +9,7 @@ import { ClubsModule } from './modules/clubs/clubs.module.js';
 import { DirectoryModule } from './modules/directory/directory.module.js';
 import { EventsModule } from './modules/events/events.module.js';
 import { LostFoundModule } from './modules/lost-found/lost-found.module.js';
+import { MarketplaceModule } from './modules/marketplace/marketplace.module.js';
 import { ModerationModule } from './modules/moderation/moderation.module.js';
 import { NewsModule } from './modules/news/news.module.js';
 import { UsersModule } from './modules/users/users.module.js';
@@ -37,6 +38,7 @@ const enabled = (key: ModuleKey) => (env: NodeJS.ProcessEnv) => env[featureEnvVa
     ),
     ConditionalModule.registerWhen(EventsModule, enabled('events')),
     ConditionalModule.registerWhen(LostFoundModule, enabled('lost-found')),
+    ConditionalModule.registerWhen(MarketplaceModule, enabled('marketplace')),
     // News reviews are written to admin's moderation log, so it needs both flags too.
     ConditionalModule.registerWhen(
       NewsModule,

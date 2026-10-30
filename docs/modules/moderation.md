@@ -20,8 +20,12 @@ internals ([ADR 0009](../decisions/0009-moderatable-content-registry.md)).
 - The moderator opens an item: the reported text, its author (linked to their admin page to warn, suspend or ban),
   every report with its reporter and note, and the actions already taken. Only the reported item is shown, never the
   rest of a private conversation.
-- **Hide** or **Remove** closes the open reports as "acted on". **Restore** makes the item visible again.
-  **Dismiss reports** closes them as "dismissed", and puts an automatically hidden item back. Every action needs a
+- **Hide** or **Remove** closes the open reports as "acted on". **Restore** makes the item visible again and
+  closes any open reports as "dismissed". **Dismiss reports** does the same for the reports, and puts an
+  automatically hidden item back.
+- Content modules can hold an item for review without a member's report: `ModerationService.holdForReview()`
+  (exported) files a report from the system account. The marketplace uses it for listings that mention prohibited
+  items. Every action needs a
   reason.
 - The author of a hidden or removed message sees "Hidden by a moderator" in its place; everyone else no longer
   sees it at all.

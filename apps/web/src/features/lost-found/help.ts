@@ -1,10 +1,10 @@
 import {
-  type CampusPlace,
   LOST_FOUND_LIMITS,
   type LostFoundCategory,
   type LostFoundKind,
   type LostFoundState,
 } from '@ruet-chottor/shared';
+import { CAMPUS_PLACE_LABELS } from '@/lib/campus-places';
 
 // All guidance text for lost & found (CLAUDE.md §8). Keep it short and plain.
 export const help = {
@@ -26,18 +26,7 @@ export const help = {
     clothing: 'Clothing',
     other: 'Other',
   } satisfies Record<LostFoundCategory, string>,
-  places: {
-    central_library: 'Central library',
-    academic_building: 'Academic building',
-    cafeteria: 'Cafeteria',
-    central_auditorium: 'Central auditorium',
-    residential_hall: 'Residential hall',
-    medical_centre: 'Medical centre',
-    playground: 'Playground',
-    bus: 'University bus',
-    main_gate: 'Main gate',
-    other: 'Somewhere else',
-  } satisfies Record<CampusPlace, string>,
+  places: CAMPUS_PLACE_LABELS,
   states: {
     open: 'Open',
     returned: 'Returned',

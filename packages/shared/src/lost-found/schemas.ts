@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ROLES } from '../auth/schemas.js';
 import { cursorPageQuerySchema, cursorPageSchema } from '../common/pagination.js';
+import { CAMPUS_PLACES } from '../common/places.js';
 import { MEDIA_PURPOSES, mediaAssetSchema, mediaIdsSchema } from '../media/schemas.js';
 
 export const LOST_FOUND_KINDS = ['lost', 'found'] as const;
@@ -18,21 +19,6 @@ export const LOST_FOUND_CATEGORIES = [
   'other',
 ] as const;
 export type LostFoundCategory = (typeof LOST_FOUND_CATEGORIES)[number];
-
-/** Generic campus places; `placeDetail` says exactly where (room, hall name...). */
-export const CAMPUS_PLACES = [
-  'central_library',
-  'academic_building',
-  'cafeteria',
-  'central_auditorium',
-  'residential_hall',
-  'medical_centre',
-  'playground',
-  'bus',
-  'main_gate',
-  'other',
-] as const;
-export type CampusPlace = (typeof CAMPUS_PLACES)[number];
 
 /** `open` posts are on the board; `returned` and `closed` are done. */
 export const LOST_FOUND_STATES = ['open', 'returned', 'closed'] as const;

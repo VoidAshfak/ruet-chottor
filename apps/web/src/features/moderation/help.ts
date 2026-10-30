@@ -12,6 +12,7 @@ const nouns: Record<ModeratableContentType, string> = {
   'clubs.club': 'club page',
   'events.event': 'event',
   'lost-found.item': 'post',
+  'marketplace.listing': 'listing',
 };
 
 // All guidance text for reporting and the moderation queue (CLAUDE.md §8). Keep it short and plain.
@@ -118,6 +119,8 @@ export const help = {
         'Reports are anonymous. A moderator reviews the event and can hide it if it is fake or harmful.',
       'lost-found.item':
         'Reports are anonymous. Report fake posts, scams asking for money, or posts that expose someone’s private details.',
+      'marketplace.listing':
+        'Reports are anonymous. Report scams, advance-payment requests or items that may not be sold here.',
     } satisfies Record<ModeratableContentType, string>,
     autoHide:
       'Items reported by several different members are hidden automatically until a moderator decides.',

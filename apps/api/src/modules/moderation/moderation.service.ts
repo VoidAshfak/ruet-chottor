@@ -141,6 +141,29 @@ export class ModerationService {
     }
   }
 
+  /**
+   * For content modules: put an item in front of moderators without a member's report, e.g. a
+   * marketplace listing that mentions a prohibited item. The report comes from the system account;
+   * the item should already be hidden. Restoring it (or dismissing the report) publishes it.
+   */
+  async holdForReview(
+    contentType: ModeratableContentType,
+    contentId: string,
+    note: string,
+  ): Promise<void> {
+    await this.prisma.report.upsert({
+      where: {
+        contentType_contentId_reporterId: {
+          contentType,
+          contentId,
+          reporterId: SYSTEM_MODERATOR_ID,
+        },
+      },
+      create: { contentType, contentId, reporterId: SYSTEM_MODERATOR_ID, reason: 'other', note },
+      update: { status: 'open', note, resolvedById: null, resolvedAt: null },
+    });
+  }
+
   async mine(userId: string, query: MyReportsQuery): Promise<MyReportsResponse> {
     const reports = await this.prisma.report.findMany({
       where: { reporterId: userId, contentType: query.contentType, contentId: { in: query.ids } },
@@ -212,9 +235,11 @@ export class ModerationService {
     }
 
     const now = new Date();
-    const resolve: Partial<Record<ContentAction, 'actioned' | 'dismissed'>> = {
+    // Restoring says the item is fine, so any reports still open (e.g. an automatic hold) close too.
+    const resolve: Record<ContentAction, 'actioned' | 'dismissed'> = {
       hide: 'actioned',
       remove: 'actioned',
+      restore: 'dismissed',
       dismiss: 'dismissed',
     };
     const status = resolve[action];

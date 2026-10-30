@@ -12,5 +12,7 @@ import { ModerationService } from './moderation.service.js';
   imports: [AdminModule],
   controllers: [ModerationController],
   providers: [ModerationService],
+  // For content modules that hold items for review (marketplace).
+  exports: [ModerationService],
 })
 export class ModerationModule {}
