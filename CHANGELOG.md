@@ -8,6 +8,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Lost & found module (Phase 4): a board of lost and found items with category, place, day, up to three photos and
+  search. Contact through chat (no phone numbers on posts). Found items can carry a public check question (the answer
+  is never stored) and their photos are blurred until tapped. Posters mark items returned or closed, and posts leave
+  the board after 30 days unless reopened. Reportable. Sample posts in the seed.
 - Events module (Phase 3): a month calendar in Dhaka time (Saturday-first weeks; titles on wide screens, dots on
   phones, the chosen day's events below). Club managers create events for their clubs and staff also campus-wide
   ones, with venue, poster and optional places; members tap **I'm going** ("Full" at capacity); organisers edit,
@@ -82,6 +86,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
+- Labels could point at the wrong input after navigating, because Next.js keeps previous pages mounted and some
+  pages reused the same element ids (`roll` and `password` on login and sign-up, `club-about`). Ids are now unique
+  across the app (CLAUDE.md §11).
 - The global auth guard no longer runs on WebSocket events (gateways authenticate sockets themselves).
 - Header and admin tab links no longer block prerendering on pages with a member id (`/users/<id>`,
   `/admin/users/<id>`); the active-link highlight is added on the client (shared `NavLink`).

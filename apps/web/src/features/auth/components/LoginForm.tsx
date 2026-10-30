@@ -50,7 +50,7 @@ export function LoginForm() {
         </p>
       ) : null}
       <FormField
-        id="roll"
+        id="login-roll"
         label={help.fields.roll}
         inputMode="numeric"
         autoComplete="username"
@@ -59,7 +59,7 @@ export function LoginForm() {
         {...form.register('roll')}
       />
       <FormField
-        id="password"
+        id="login-password"
         type="password"
         label={help.fields.password}
         passwordToggle={help.passwordToggle}

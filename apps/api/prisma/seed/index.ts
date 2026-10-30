@@ -7,6 +7,7 @@ import { seedAdmin } from './admin.js';
 import { seedChat } from './chat.js';
 import { seedClubs } from './clubs.js';
 import { seedEvents } from './events.js';
+import { seedLostFound } from './lost-found.js';
 import { seedModeration } from './moderation.js';
 import { seedNews } from './news.js';
 import { seedUsers } from './users.js';
@@ -23,6 +24,7 @@ async function main() {
   await seedNews(prisma);
   await seedClubs(prisma);
   await seedEvents(prisma);
+  await seedLostFound(prisma);
 }
 
 main()

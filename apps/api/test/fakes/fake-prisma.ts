@@ -6,6 +6,7 @@ import {
   type Event,
   type EventRsvp,
   type ConversationMember,
+  type LostFoundItem,
   type MediaAsset,
   type Message,
   type ModerationLog,
@@ -166,6 +167,7 @@ export class FakePrisma {
   clubMemberships: ClubMembership[] = [];
   events: Event[] = [];
   eventRsvps: EventRsvp[] = [];
+  lostFoundItems: LostFoundItem[] = [];
 
   private withProfile(user: User | undefined, args: { select?: Where; include?: Where }) {
     if (!user) return null;
@@ -364,6 +366,23 @@ export class FakePrisma {
         id: randomUUID(),
         status: 'visible',
         deletedAt: null,
+        createdAt: now,
+        updatedAt: now,
+      };
+    },
+  );
+
+  lostFoundItem = table<LostFoundItem>(
+    () => this.lostFoundItems,
+    () => {
+      const now = new Date();
+      return {
+        id: randomUUID(),
+        description: '',
+        placeDetail: null,
+        verifyQuestion: null,
+        state: 'open',
+        status: 'visible',
         createdAt: now,
         updatedAt: now,
       };

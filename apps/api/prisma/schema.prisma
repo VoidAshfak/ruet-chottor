@@ -446,3 +446,68 @@ model EventRsvp {
   @@index([userId])
   @@map("event_rsvps")
 }
+
+// ===== lost-found =====
+// Lost and found items on campus. Photos are MediaAssets with purpose "lost-found.item".
+// Open posts leave the board 30 days after posting (expiresAt); reopening adds another 30 days.
+
+enum LostFoundKind {
+  lost
+  found
+}
+
+enum LostFoundCategory {
+  id_card
+  phone
+  keys
+  wallet
+  bag
+  book
+  electronics
+  clothing
+  other
+}
+
+enum CampusPlace {
+  central_library
+  academic_building
+  cafeteria
+  central_auditorium
+  residential_hall
+  medical_centre
+  playground
+  bus
+  main_gate
+  other
+}
+
+enum LostFoundState {
+  open
+  returned
+  closed
+}
+
+model LostFoundItem {
+  id             String            @id @default(uuid(7)) @db.Uuid
+  kind           LostFoundKind
+  category       LostFoundCategory
+  title          String
+  description    String            @default("")
+  place          CampusPlace
+  placeDetail    String?
+  /// The day it was lost or found (Dhaka).
+  happenedOn     DateTime          @db.Date
+  /// Found items: asked to claimants in chat; the answer is never stored.
+  verifyQuestion String?
+  createdById    String            @db.Uuid
+  state          LostFoundState    @default(open)
+  /// No scheduler: the board simply leaves out open posts past this time.
+  expiresAt      DateTime
+  status         ContentStatus     @default(visible)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([status, state, expiresAt, createdAt])
+  @@index([createdById, createdAt])
+  @@map("lost_found_items")
+}

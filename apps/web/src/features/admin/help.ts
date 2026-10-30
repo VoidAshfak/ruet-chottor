@@ -95,6 +95,7 @@ export const help = {
       'news.post': 'news post',
       'clubs.club': 'club page',
       'events.event': 'event',
+      'lost-found.item': 'lost & found post',
     } as Record<string, string>,
     contentBy: (name: string) => `from ${name}`,
     days: (days: number) => `for ${days} day${days === 1 ? '' : 's'}`,
