@@ -12,6 +12,7 @@ export const MODERATABLE_CONTENT_TYPES = [
   'clubs.club',
   'events.event',
   'lost-found.item',
+  'marketplace.listing',
 ] as const;
 export type ModeratableContentType = (typeof MODERATABLE_CONTENT_TYPES)[number];
 

@@ -8,6 +8,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Marketplace module (Phase 4): buy and sell between members, paying in person. Listings with category,
+  condition, price in taka (or free), meeting place and up to five photos; browse with category, price range, free
+  only, search and price sorting; contact through chat with a safety note. Listings that mention prohibited items are
+  held for a moderator (`ModerationService.holdForReview()`); sellers mark items reserved or sold and renew after 30
+  days. Reportable. Campus places moved to `common/places.ts` and shared labels. Sample listings in the seed.
 - Lost & found module (Phase 4): a board of lost and found items with category, place, day, up to three photos and
   search. Contact through chat (no phone numbers on posts). Found items can carry a public check question (the answer
   is never stored) and their photos are blurred until tapped. Posters mark items returned or closed, and posts leave
@@ -77,6 +82,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- Moderation: **Restore** now also closes any open reports on the item as dismissed.
 - Header: sections sit inline on wide screens and behind a **Menu** button on narrower ones, so the bar never
   scrolls; members get a round initials button whose menu holds their full name, My profile and Log out (long
   names no longer stretch the header).

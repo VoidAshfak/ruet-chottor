@@ -32,6 +32,7 @@ export const MEDIA_PURPOSES = {
   'clubs.cover': { kinds: ['image'], maxPerItem: 1 },
   'events.poster': { kinds: ['image'], maxPerItem: 1 },
   'lost-found.item': { kinds: ['image'], maxPerItem: 3 },
+  'marketplace.listing': { kinds: ['image'], maxPerItem: 5 },
 } as const satisfies Record<string, { kinds: readonly MediaKind[]; maxPerItem: number }>;
 export type MediaPurpose = keyof typeof MEDIA_PURPOSES;
 const PURPOSE_KEYS = Object.keys(MEDIA_PURPOSES) as [MediaPurpose, ...MediaPurpose[]];

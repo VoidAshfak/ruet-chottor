@@ -511,3 +511,58 @@ model LostFoundItem {
   @@index([createdById, createdAt])
   @@map("lost_found_items")
 }
+
+// ===== marketplace =====
+// Buying and selling between members; payment happens in person. Photos are MediaAssets with purpose
+// "marketplace.listing". Listings mentioning a held term start hidden and go to the moderation queue.
+// Meeting places reuse CampusPlace (lost-found section).
+
+enum ListingCategory {
+  books
+  electronics
+  lab_equipment
+  furniture
+  clothing
+  bicycles
+  tickets
+  other
+}
+
+enum ListingCondition {
+  new
+  like_new
+  good
+  fair
+}
+
+enum ListingState {
+  available
+  reserved
+  sold
+}
+
+model Listing {
+  id          String           @id @default(uuid(7)) @db.Uuid
+  title       String
+  category    ListingCategory
+  condition   ListingCondition
+  /// Whole taka; 0 means free.
+  priceTaka   Int
+  description String           @default("")
+  meetPlace   CampusPlace
+  meetDetail  String?
+  createdById String           @db.Uuid
+  state       ListingState     @default(available)
+  /// No scheduler: browsing leaves out listings past this time; the seller can renew.
+  expiresAt   DateTime
+  status      ContentStatus    @default(visible)
+  /// The held term that sent it to moderators, shown to the seller.
+  heldTerm    String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([status, state, expiresAt, createdAt])
+  @@index([status, state, expiresAt, priceTaka])
+  @@index([createdById, createdAt])
+  @@map("listings")
+}

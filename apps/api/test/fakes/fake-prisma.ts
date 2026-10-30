@@ -6,6 +6,7 @@ import {
   type Event,
   type EventRsvp,
   type ConversationMember,
+  type Listing,
   type LostFoundItem,
   type MediaAsset,
   type Message,
@@ -134,6 +135,18 @@ function table<T extends object>(rows: () => T[], defaults: () => Partial<T>) {
       for (const row of matched) Object.assign(row, data);
       return { count: matched.length };
     },
+    upsert: async ({
+      where,
+      create,
+      update,
+    }: {
+      where: Where;
+      create: Partial<T>;
+      update: Partial<T>;
+    }) => {
+      const existing = find(where)[0];
+      return existing ? Object.assign(existing, update) : insert(create);
+    },
     delete: async ({ where }: { where: Where }) => {
       const row = one(where);
       rows().splice(rows().indexOf(row), 1);
@@ -168,6 +181,7 @@ export class FakePrisma {
   events: Event[] = [];
   eventRsvps: EventRsvp[] = [];
   lostFoundItems: LostFoundItem[] = [];
+  listings: Listing[] = [];
 
   private withProfile(user: User | undefined, args: { select?: Where; include?: Where }) {
     if (!user) return null;
@@ -366,6 +380,23 @@ export class FakePrisma {
         id: randomUUID(),
         status: 'visible',
         deletedAt: null,
+        createdAt: now,
+        updatedAt: now,
+      };
+    },
+  );
+
+  listing = table<Listing>(
+    () => this.listings,
+    () => {
+      const now = new Date();
+      return {
+        id: randomUUID(),
+        description: '',
+        meetDetail: null,
+        state: 'available',
+        status: 'visible',
+        heldTerm: null,
         createdAt: now,
         updatedAt: now,
       };
