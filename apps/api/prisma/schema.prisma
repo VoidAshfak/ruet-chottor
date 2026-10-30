@@ -395,3 +395,54 @@ model ClubMembership {
   @@index([clubId, state])
   @@map("club_memberships")
 }
+
+// ===== events =====
+// Campus events, organised by club managers (for their club) and staff (campus-wide or for a club).
+// Posters are MediaAssets with purpose "events.poster".
+
+enum EventCategory {
+  workshop
+  competition
+  seminar
+  cultural
+  sports
+  meeting
+  other
+}
+
+model Event {
+  id          String        @id @default(uuid(7)) @db.Uuid
+  title       String
+  category    EventCategory
+  description String        @default("")
+  venue       String
+  startsAt    DateTime
+  endsAt      DateTime
+  /// The organising club (clubs module); null for campus-wide events. Plain id, no relation.
+  clubId      String?       @db.Uuid
+  /// Most people who can say "Going"; null for no limit.
+  capacity    Int?
+  createdById String        @db.Uuid
+  /// Moderation after reports: hidden/removed events leave the calendar.
+  status      ContentStatus @default(visible)
+  /// Cancelled events stay on the calendar, marked, so people are not left guessing.
+  cancelledAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  rsvps       EventRsvp[]
+
+  @@index([status, startsAt])
+  @@index([clubId, startsAt])
+  @@map("events")
+}
+
+model EventRsvp {
+  eventId   String   @db.Uuid
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  @@id([eventId, userId])
+  @@index([userId])
+  @@map("event_rsvps")
+}

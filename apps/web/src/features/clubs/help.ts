@@ -56,6 +56,8 @@ export const help = {
     managers: 'Managers',
     news: 'Club news',
     newsLink: 'See news from this club',
+    events: 'Events',
+    eventsLink: 'See this club’s events',
     edit: 'Edit page',
     members: 'Members and requests',
     back: 'All clubs',

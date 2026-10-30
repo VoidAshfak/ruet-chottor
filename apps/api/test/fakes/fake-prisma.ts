@@ -3,6 +3,8 @@ import {
   type Club,
   type ClubMembership,
   type Conversation,
+  type Event,
+  type EventRsvp,
   type ConversationMember,
   type MediaAsset,
   type Message,
@@ -162,6 +164,8 @@ export class FakePrisma {
   newsPosts: NewsPost[] = [];
   clubs: Club[] = [];
   clubMemberships: ClubMembership[] = [];
+  events: Event[] = [];
+  eventRsvps: EventRsvp[] = [];
 
   private withProfile(user: User | undefined, args: { select?: Where; include?: Where }) {
     if (!user) return null;
@@ -365,6 +369,39 @@ export class FakePrisma {
       };
     },
   );
+
+  event = table<Event>(
+    () => this.events,
+    () => {
+      const now = new Date();
+      return {
+        id: randomUUID(),
+        description: '',
+        clubId: null,
+        capacity: null,
+        status: 'visible',
+        cancelledAt: null,
+        createdAt: now,
+        updatedAt: now,
+      };
+    },
+  );
+
+  eventRsvp = (() => {
+    const base = table<EventRsvp>(
+      () => this.eventRsvps,
+      () => ({ createdAt: new Date() }),
+    );
+    return {
+      ...base,
+      create: async ({ data }: { data: Partial<EventRsvp> }) => {
+        if (this.eventRsvps.some((r) => r.eventId === data.eventId && r.userId === data.userId)) {
+          throw uniqueViolation();
+        }
+        return base.insert(data);
+      },
+    };
+  })();
 
   clubMembership = (() => {
     const base = table<ClubMembership>(
