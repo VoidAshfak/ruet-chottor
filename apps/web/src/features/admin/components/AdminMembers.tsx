@@ -3,6 +3,7 @@
 import { ACCOUNT_STATUSES, ROLES } from '@ruet-chottor/shared';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { EmptyState } from '@/components/art/EmptyState';
 import { InfoTip } from '@/components/guide/InfoTip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -96,9 +97,7 @@ export function AdminMembers() {
           </Button>
         </div>
       ) : members.length === 0 ? (
-        <p className="rounded-lg border p-6 text-center text-muted-foreground">
-          {help.states.empty}
-        </p>
+        <EmptyState>{help.states.empty}</EmptyState>
       ) : (
         <>
           <ul className="divide-y rounded-lg border">

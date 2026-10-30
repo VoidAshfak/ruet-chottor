@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/art/EmptyState';
 import { InfoTip } from '@/components/guide/InfoTip';
 import { Button } from '@/components/ui/button';
 import { help } from '../help';
@@ -37,7 +38,7 @@ export function ModerationLogView() {
         <InfoTip text={help.tips.log} label={`About ${help.tabs.log.toLowerCase()}`} />
       </div>
       {entries.length === 0 ? (
-        <p className="rounded-lg border p-6 text-center text-muted-foreground">{help.log.empty}</p>
+        <EmptyState>{help.log.empty}</EmptyState>
       ) : (
         <ul className="grid gap-2">
           {entries.map((entry) => (

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { RuetLoader } from '@/components/art/RuetLoader';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/features/auth';
 import { help } from '../help';
@@ -10,7 +11,7 @@ import { help } from '../help';
 export function LoginGate({ children }: { children: (userId: string) => ReactNode }) {
   const session = useSession();
   if (session.isPending) {
-    return <div className="h-40 animate-pulse rounded-lg border bg-muted" aria-hidden />;
+    return <RuetLoader />;
   }
   if (!session.user) {
     return (

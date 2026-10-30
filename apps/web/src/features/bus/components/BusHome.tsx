@@ -3,6 +3,7 @@
 import { type BusNotice, type BusRoute, departuresFrom } from '@ruet-chottor/shared';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { EmptyState } from '@/components/art/EmptyState';
 import { InfoTip } from '@/components/guide/InfoTip';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -154,9 +155,7 @@ function Home() {
           {help.routes.title}
         </h2>
         {items.length === 0 ? (
-          <p className="rounded-lg border p-6 text-center text-muted-foreground">
-            {help.routes.empty}
-          </p>
+          <EmptyState>{help.routes.empty}</EmptyState>
         ) : (
           <ul className="grid gap-2 sm:grid-cols-2">
             {items.map((route) => (

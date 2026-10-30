@@ -2,6 +2,7 @@
 
 import type { LostFoundPage } from '@ruet-chottor/shared';
 import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
+import { EmptyState } from '@/components/art/EmptyState';
 import { Button } from '@/components/ui/button';
 import { help } from '../help';
 import { ItemCard } from './ItemCard';
@@ -37,7 +38,7 @@ export function ItemGrid({
     );
   }
   if (items.length === 0) {
-    return <p className="rounded-lg border p-6 text-center text-muted-foreground">{empty}</p>;
+    return <EmptyState>{empty}</EmptyState>;
   }
   return (
     <>

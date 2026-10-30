@@ -2,6 +2,7 @@
 
 import { BUS_DIRECTIONS, clockToMinutes } from '@ruet-chottor/shared';
 import Link from 'next/link';
+import { RuetLoader } from '@/components/art/RuetLoader';
 import { Button } from '@/components/ui/button';
 import { ApiError } from '@/lib/api-client';
 import { help } from '../help';
@@ -17,7 +18,7 @@ function Detail({ id }: { id: string }) {
   const text = help.detail;
 
   if (route.isPending) {
-    return <div className="h-64 animate-pulse rounded-lg border bg-muted" aria-hidden />;
+    return <RuetLoader className="min-h-64" />;
   }
   if (route.isError) {
     const missing = route.error instanceof ApiError && [400, 404].includes(route.error.status);

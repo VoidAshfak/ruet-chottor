@@ -3,6 +3,7 @@
 import { formatDateTime, REPORT_STATUSES, type ReportStatus } from '@ruet-chottor/shared';
 import Link from 'next/link';
 import { useState } from 'react';
+import { EmptyState } from '@/components/art/EmptyState';
 import { InfoTip } from '@/components/guide/InfoTip';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -50,7 +51,7 @@ export function ModerationQueue() {
           </Button>
         </div>
       ) : items.length === 0 ? (
-        <p className="rounded-lg border p-6 text-center text-muted-foreground">{text.empty}</p>
+        <EmptyState>{text.empty}</EmptyState>
       ) : (
         <ul className="grid gap-3">
           {items.map((item) => (

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { RuetLoader } from '@/components/art/RuetLoader';
 import { MediaGallery } from '@/components/media/MediaGallery';
 import { Button } from '@/components/ui/button';
 import { ReportAction, useReportedIds } from '@/features/moderation';
@@ -25,7 +26,7 @@ function Article({ id, myId }: { id: string; myId: string }) {
   );
 
   if (post.isPending) {
-    return <div className="h-64 animate-pulse rounded-lg border bg-muted" aria-hidden />;
+    return <RuetLoader className="min-h-64" />;
   }
   if (post.isError) {
     const missing = post.error instanceof ApiError && [400, 404].includes(post.error.status);

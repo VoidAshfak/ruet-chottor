@@ -3,6 +3,7 @@
 import { type ClubMember, formatDateTime } from '@ruet-chottor/shared';
 import Link from 'next/link';
 import { useState } from 'react';
+import { RuetLoader } from '@/components/art/RuetLoader';
 import { ConfirmDialog } from '@/components/dialog/ConfirmDialog';
 import { FormError } from '@/components/form/FormError';
 import { InfoTip } from '@/components/guide/InfoTip';
@@ -23,7 +24,7 @@ function Members({ slug }: { slug: string }) {
   const text = help.members;
 
   if (club.isPending) {
-    return <div className="h-64 animate-pulse rounded-lg border bg-muted" aria-hidden />;
+    return <RuetLoader className="min-h-64" />;
   }
   if (club.isError || !club.data.canEdit) {
     return <p className="rounded-lg border p-6 text-muted-foreground">{help.editor.notAllowed}</p>;

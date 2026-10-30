@@ -3,6 +3,7 @@
 import { busNoticeInputSchema, dhakaDateKey, type BusNotice } from '@ruet-chottor/shared';
 import Link from 'next/link';
 import { useState } from 'react';
+import { EmptyState } from '@/components/art/EmptyState';
 import { ConfirmDialog } from '@/components/dialog/ConfirmDialog';
 import { FormError } from '@/components/form/FormError';
 import { Button } from '@/components/ui/button';
@@ -122,9 +123,7 @@ function Panel() {
             {help.routes.loading}
           </p>
         ) : (routes.data?.items.length ?? 0) === 0 ? (
-          <p className="rounded-lg border p-6 text-center text-muted-foreground">
-            {help.routes.empty}
-          </p>
+          <EmptyState>{help.routes.empty}</EmptyState>
         ) : (
           <ul className="grid gap-2">
             {routes.data?.items.map((route) => (

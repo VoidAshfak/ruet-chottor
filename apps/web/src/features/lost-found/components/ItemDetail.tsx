@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { RuetLoader } from '@/components/art/RuetLoader';
 import { ConfirmDialog } from '@/components/dialog/ConfirmDialog';
 import { FormError } from '@/components/form/FormError';
 import { InfoTip } from '@/components/guide/InfoTip';
@@ -27,7 +28,7 @@ function Detail({ id }: { id: string }) {
   const text = help.detail;
 
   if (item.isPending) {
-    return <div className="h-64 animate-pulse rounded-lg border bg-muted" aria-hidden />;
+    return <RuetLoader className="min-h-64" />;
   }
   if (item.isError) {
     const missing = item.error instanceof ApiError && [400, 404].includes(item.error.status);

@@ -4,6 +4,7 @@ import type { ChatMessage } from '@ruet-chottor/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { RuetLoader } from '@/components/art/RuetLoader';
 import { PageHeader } from '@/components/guide/PageHeader';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/features/auth';
@@ -68,7 +69,7 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
   };
 
   if (session.isPending || (myId && conversation.isPending)) {
-    return <div className="h-64 animate-pulse rounded-lg border bg-muted" aria-hidden />;
+    return <RuetLoader className="min-h-64" />;
   }
   if (!myId) {
     return (

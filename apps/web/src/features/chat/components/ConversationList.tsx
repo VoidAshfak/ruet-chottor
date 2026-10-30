@@ -2,6 +2,7 @@
 
 import { type Conversation, formatDateTime } from '@ruet-chottor/shared';
 import Link from 'next/link';
+import { EmptyState } from '@/components/art/EmptyState';
 import { Button } from '@/components/ui/button';
 import { conversationTitle } from '../conversation-title';
 import { help } from '../help';
@@ -44,9 +45,7 @@ export function ConversationList({ myId }: { myId: string }) {
     );
   }
   if (items.length === 0) {
-    return (
-      <p className="rounded-lg border p-6 text-center text-muted-foreground">{help.list.empty}</p>
-    );
+    return <EmptyState>{help.list.empty}</EmptyState>;
   }
 
   return (

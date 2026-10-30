@@ -12,6 +12,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { RuetLoader } from '@/components/art/RuetLoader';
 import { ConfirmDialog } from '@/components/dialog/ConfirmDialog';
 import { FormError } from '@/components/form/FormError';
 import { InfoTip } from '@/components/guide/InfoTip';
@@ -369,8 +370,7 @@ function Editor({ existing }: { existing?: BusRoute }) {
 
 function Load({ id }: { id: string }) {
   const route = useRoute(id);
-  if (route.isPending)
-    return <div className="h-64 animate-pulse rounded-lg border bg-muted" aria-hidden />;
+  if (route.isPending) return <RuetLoader className="min-h-64" />;
   if (route.isError)
     return <p className="rounded-lg border p-6 text-muted-foreground">{help.notFound}</p>;
   return <Editor existing={route.data} />;

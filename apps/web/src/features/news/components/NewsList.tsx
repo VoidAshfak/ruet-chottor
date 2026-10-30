@@ -3,6 +3,7 @@
 import type { NewsPage } from '@ruet-chottor/shared';
 import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
+import { EmptyState } from '@/components/art/EmptyState';
 import { Button } from '@/components/ui/button';
 import { help } from '../help';
 import { NewsCard } from './NewsCard';
@@ -39,7 +40,7 @@ export function NewsList({ query, empty, showReview, renderActions }: NewsListPr
     );
   }
   if (posts.length === 0) {
-    return <p className="rounded-lg border p-6 text-center text-muted-foreground">{empty}</p>;
+    return <EmptyState>{empty}</EmptyState>;
   }
 
   return (

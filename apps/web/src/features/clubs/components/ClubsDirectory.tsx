@@ -3,6 +3,7 @@
 import { CLUB_CATEGORIES, type ClubCategory } from '@ruet-chottor/shared';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { EmptyState } from '@/components/art/EmptyState';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -96,7 +97,7 @@ function Directory() {
           </Button>
         </div>
       ) : items.length === 0 ? (
-        <p className="rounded-lg border p-6 text-center text-muted-foreground">{help.list.empty}</p>
+        <EmptyState>{help.list.empty}</EmptyState>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
           {items.map((club) => (

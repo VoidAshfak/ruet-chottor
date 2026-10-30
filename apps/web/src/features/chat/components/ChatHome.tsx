@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { RuetLoader } from '@/components/art/RuetLoader';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/features/auth';
 import { help } from '../help';
@@ -17,7 +18,7 @@ export function ChatHome() {
   const [creating, setCreating] = useState(false);
 
   if (session.isPending) {
-    return <div className="h-40 animate-pulse rounded-lg border bg-muted" aria-hidden />;
+    return <RuetLoader />;
   }
   if (!session.user) {
     return (
