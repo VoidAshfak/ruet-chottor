@@ -34,6 +34,7 @@ export const help = {
     older: 'Show older messages',
     loadingOlder: 'Loading…',
     deleted: 'Message deleted',
+    moderated: 'Hidden by a moderator',
     unknownSender: 'Deleted account',
     sending: 'Sending…',
     failed: 'Not sent.',
@@ -120,6 +121,8 @@ export const help = {
     newMembers: 'People you add see messages sent after they joined, not older ones.',
     deleted:
       'Deleted messages are hidden from everyone, but moderators can still review them if reported.',
+    moderated:
+      'A moderator hid this message after it was reported. Only you can see that it was here.',
   },
   intro: [
     {

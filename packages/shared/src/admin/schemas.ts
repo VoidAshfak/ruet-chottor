@@ -11,6 +11,11 @@ export const MODERATION_ACTIONS = [
   'ban_user',
   'reinstate_user',
   'change_role',
+  // Content actions (moderation module).
+  'hide_content',
+  'remove_content',
+  'restore_content',
+  'dismiss_reports',
 ] as const;
 export type ModerationAction = (typeof MODERATION_ACTIONS)[number];
 
@@ -70,6 +75,9 @@ export const moderationLogEntrySchema = z.object({
   /** null if that account no longer exists. */
   moderator: personRefSchema.nullable(),
   targetUser: personRefSchema.nullable(),
+  /** Set for content actions, e.g. "chat.message". */
+  contentType: z.string().nullable(),
+  contentId: z.string().nullable(),
   reason: z.string(),
   details: z.record(z.string(), z.unknown()).nullable(),
   createdAt: z.string(),

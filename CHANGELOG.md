@@ -8,6 +8,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Moderation module (Phase 2): members report messages (reason + optional note, one report each, anonymous to the
+  author); items are hidden automatically after `MODERATION_AUTO_HIDE_REPORTS` reports (default 5). Staff review the
+  queue under **Admin → Reports**, see only the reported item, and hide, remove, restore or dismiss with a reason,
+  all recorded in the moderation log. Senders see "Hidden by a moderator" on their own hidden messages. Content
+  modules plug in through `ModeratableContentRegistry` in core (ADR 0009).
 - Chat module (Phase 2): one-to-one and group chats (up to 50 members) with live delivery over Socket.IO,
   typing hints, unread counts and "Reconnecting…" with catch-up after a dropped connection. Group owners rename
   and manage members; anyone can leave. Senders can delete their own messages. Suspended members cannot send;

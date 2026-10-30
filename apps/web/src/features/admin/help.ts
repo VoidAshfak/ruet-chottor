@@ -8,7 +8,14 @@ import {
 // All guidance text for the admin panel (CLAUDE.md §8). Keep it short and plain.
 export const help = {
   nav: 'Admin',
-  tabs: { members: 'Members', log: 'Moderation log' },
+  tabs: { members: 'Members', reports: 'Reports', log: 'Moderation log' },
+  moderation: {
+    title: 'Admin · Reports',
+    description:
+      'Content members reported. Review each item, then hide, remove, restore or dismiss.',
+    itemTitle: 'Admin · Reported item',
+    itemDescription: 'One reported item, its reports and what staff did about it.',
+  },
   members: {
     title: 'Admin · Members',
     description: 'Find any member, including suspended and banned ones, and act on their account.',
@@ -60,10 +67,18 @@ export const help = {
     ban_user: 'Banned',
     reinstate_user: 'Reinstated',
     change_role: 'Role changed',
+    hide_content: 'Hid',
+    remove_content: 'Removed',
+    restore_content: 'Restored',
+    dismiss_reports: 'Dismissed reports on',
   } satisfies Record<ModerationAction, string>,
   logLine: {
     by: (name: string) => `by ${name}`,
     unknownPerson: 'a deleted account',
+    automatic: 'automatically',
+    content: (label: string) => `a ${label.toLowerCase()}`,
+    contentLabels: { 'chat.message': 'chat message' } as Record<string, string>,
+    contentBy: (name: string) => `from ${name}`,
     days: (days: number) => `for ${days} day${days === 1 ? '' : 's'}`,
     role: (from: string, to: string) => `${from} → ${to}`,
   },

@@ -14,6 +14,8 @@ export const ChatEvents = {
   /** server -> client */
   MessageNew: 'chat:message:new',
   MessageDeleted: 'chat:message:deleted',
+  /** A moderator hid, removed or restored a message: refetch the thread. */
+  MessageModerated: 'chat:message:moderated',
   ConversationUpdated: 'chat:conversation:updated',
   /** client -> server: "I am typing" */
   TypingStart: 'chat:typing:start',

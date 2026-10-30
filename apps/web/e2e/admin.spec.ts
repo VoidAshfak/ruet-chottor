@@ -52,6 +52,8 @@ async function mockApi(page: Page, role: 'moderator' | 'student') {
           action: 'suspend_user',
           moderator,
           targetUser: { id: user.id, name: user.name, roll: user.roll },
+          contentType: null,
+          contentId: null,
           reason,
           details: { days },
           createdAt: new Date().toISOString(),

@@ -50,6 +50,20 @@ export class ModerationLogService {
     return this.withPeople(rows);
   }
 
+  /** Every action taken on one content item, newest first. */
+  async forContent(
+    contentType: string,
+    contentId: string,
+    take = 50,
+  ): Promise<ModerationLogEntry[]> {
+    const rows = await this.prisma.moderationLog.findMany({
+      where: { contentType, contentId },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take,
+    });
+    return this.withPeople(rows);
+  }
+
   private async withPeople(rows: ModerationLog[]): Promise<ModerationLogEntry[]> {
     const ids = [
       ...new Set(rows.flatMap((row) => [row.moderatorId, row.targetUserId ?? []]).flat()),
@@ -64,6 +78,8 @@ export class ModerationLogService {
       action: row.action,
       moderator: byId.get(row.moderatorId) ?? null,
       targetUser: row.targetUserId ? (byId.get(row.targetUserId) ?? null) : null,
+      contentType: row.contentType,
+      contentId: row.contentId,
       reason: row.reason,
       details: (row.details as Record<string, unknown> | null) ?? null,
       createdAt: row.createdAt.toISOString(),

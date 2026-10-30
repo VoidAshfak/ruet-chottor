@@ -6,6 +6,7 @@ import {
   type ModerationLog,
   Prisma,
   type Profile,
+  type Report,
   type Session,
   type User,
 } from '../../src/generated/prisma/client.js';
@@ -121,6 +122,11 @@ function table<T extends object>(rows: () => T[], defaults: () => Partial<T>) {
     },
     update: async ({ where, data }: { where: Where; data: Partial<T> }) =>
       Object.assign(one(where), data),
+    updateMany: async ({ where, data }: { where: Where; data: Partial<T> }) => {
+      const matched = find(where);
+      for (const row of matched) Object.assign(row, data);
+      return { count: matched.length };
+    },
   };
 }
 
@@ -137,6 +143,7 @@ export class FakePrisma {
   conversations: Conversation[] = [];
   conversationMembers: ConversationMember[] = [];
   messages: Message[] = [];
+  reports: Report[] = [];
 
   private withProfile(user: User | undefined, args: { select?: Where; include?: Where }) {
     if (!user) return null;
@@ -340,6 +347,33 @@ export class FakePrisma {
       };
     },
   );
+
+  private readonly reportTable = table<Report>(
+    () => this.reports,
+    () => ({
+      id: randomUUID(),
+      note: null,
+      status: 'open',
+      resolvedById: null,
+      resolvedAt: null,
+      createdAt: new Date(),
+    }),
+  );
+
+  report = {
+    ...this.reportTable,
+    /** Enforces the one-report-per-person-per-item unique key. */
+    create: async ({ data }: { data: Partial<Report> }) => {
+      const duplicate = this.reports.some(
+        (r) =>
+          r.contentType === data.contentType &&
+          r.contentId === data.contentId &&
+          r.reporterId === data.reporterId,
+      );
+      if (duplicate) throw uniqueViolation();
+      return this.reportTable.insert(data);
+    },
+  };
 
   /** Operations already ran when their promises were created; just wait for them. */
   async $transaction<T>(operations: Promise<T>[]) {

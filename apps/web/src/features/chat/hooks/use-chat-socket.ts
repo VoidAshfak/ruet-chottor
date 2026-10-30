@@ -6,6 +6,7 @@ import {
   type ChatMessage,
   chatConversationUpdatedEventSchema,
   chatMessageDeletedEventSchema,
+  chatMessageModeratedEventSchema,
   chatMessageNewEventSchema,
   chatSendAckSchema,
   chatTypingEventSchema,
@@ -101,6 +102,15 @@ export function useChatSocket({ enabled }: { enabled: boolean }) {
       markMessageDeleted(queryClient, parsed.data.conversationId, parsed.data.messageId);
       refreshList();
     };
+    // Hidden messages vanish for others and change for their sender: reload that thread.
+    const onModerated = (payload: unknown) => {
+      const parsed = chatMessageModeratedEventSchema.safeParse(payload);
+      if (!parsed.success) return;
+      void queryClient.invalidateQueries({
+        queryKey: chatKeys.messages(parsed.data.conversationId),
+      });
+      refreshList();
+    };
     const onUpdated = (payload: unknown) => {
       const parsed = chatConversationUpdatedEventSchema.safeParse(payload);
       if (!parsed.success) return;
@@ -125,6 +135,7 @@ export function useChatSocket({ enabled }: { enabled: boolean }) {
     socket.on('connect', onConnect);
     socket.on(ChatEvents.MessageNew, onMessage);
     socket.on(ChatEvents.MessageDeleted, onDeleted);
+    socket.on(ChatEvents.MessageModerated, onModerated);
     socket.on(ChatEvents.ConversationUpdated, onUpdated);
     socket.on(ChatEvents.TypingUpdate, onTyping);
     if (!socket.connected) socket.connect();
@@ -133,6 +144,7 @@ export function useChatSocket({ enabled }: { enabled: boolean }) {
       socket.off('connect', onConnect);
       socket.off(ChatEvents.MessageNew, onMessage);
       socket.off(ChatEvents.MessageDeleted, onDeleted);
+      socket.off(ChatEvents.MessageModerated, onModerated);
       socket.off(ChatEvents.ConversationUpdated, onUpdated);
       socket.off(ChatEvents.TypingUpdate, onTyping);
       // Leaving the Messages section (or logging out) closes the connection.

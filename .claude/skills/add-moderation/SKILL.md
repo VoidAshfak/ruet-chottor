@@ -15,20 +15,24 @@ On the content model:
 status      ContentStatus @default(VISIBLE)   // VISIBLE | HIDDEN | REMOVED
 createdById String
 ```
-Shared models (create once in the `moderation` section if missing):
-- `Report { id, contentType, contentId, reporterId, reason, note?, status (OPEN|ACTIONED|DISMISSED), createdAt, resolvedById?, resolvedAt? }`
-- `ModerationLog { id, moderatorId, action, contentType?, contentId?, targetUserId?, reason, createdAt }` — append-only; never update or delete rows.
-- `UserSanction { id, userId, type (WARNING|SUSPENSION|BAN), reason, expiresAt?, createdById, createdAt }`
+Reuse the `ContentStatus` enum (defined in the chat section). Shared models already exist:
+- `Report` (moderation section): one per reporter per item; `status` open | actioned | dismissed.
+- `ModerationLog` (admin section, ADR 0007): append-only, enforced by a database trigger. Write it through admin's
+  exported `ModerationLogService`.
+- Account sanctions are `User.status` + `suspendedUntil` (ADR 0007); there is no `UserSanction` table.
 
 Report reasons (shared enum): `spam`, `harassment`, `violence`, `misinformation`, `inappropriate`, `scam`, `other`.
 
 ## 2. Register the content type
 
-Add the content type key (e.g. `marketplace.listing`) to the `ModeratableContent` registry in the
-moderation module, with:
-- a loader to fetch the item for review,
-- a function to set its status,
-- a short label for the admin UI.
+Add the content type key (e.g. `marketplace.listing`) to `MODERATABLE_CONTENT_TYPES` in
+`packages/shared/src/moderation/schemas.ts`, then implement `ModeratableContent` from
+`core/moderation/moderatable-content.registry.ts` in the content module and register it in `onModuleInit`
+(example: `apps/api/src/modules/chat/chat-moderation.ts`, ADR 0009):
+- `canReport(userId, id)`: only people who can see the item,
+- `load(id)`: preview, author, status, short context, for review (only the item, never its surroundings),
+- `setStatus(id, status)`: also tell open clients,
+- `label` for the admin UI, plus `logLine.contentLabels` in `features/admin/help.ts`.
 
 This way the moderation module never imports the content module's internals.
 
@@ -40,24 +44,24 @@ This way the moderation module never imports the content module's internals.
 
 ## 4. Reporting UI
 
-- Every item gets a "Report" action (in its `...` menu) opening a dialog with reason + optional note.
-- One report per user per item; show "You reported this" afterwards.
-- Add an `<InfoTip>` explaining that reports are anonymous to the author.
+- Every item gets `<ReportAction>` from `@/features/moderation` (dialog with reason + optional note and an
+  `<InfoTip>` saying reports are anonymous to the author). Pass `reported` from `useReportedIds()`, which batches
+  the "You reported this" lookup for a whole list.
 
 ## 5. Admin panel
 
-Add a view for the content type under `/admin/moderation/<contentType>`:
-- queue of open reports, sorted by number of reports, then age,
-- preview of the item and author,
-- actions: dismiss, hide, remove, restore, warn/suspend/ban author — each requires a reason,
-- every action writes a `ModerationLog` row.
+The shared queue at `/admin/moderation` (moderation module) already covers every registered type:
+- open reports sorted by number of reports, then age; item page at `/admin/moderation/<contentType>/<id>`,
+- preview of the item and author (link to the author's admin page to warn/suspend/ban),
+- actions: dismiss, hide, remove, restore — each requires a reason and writes a `ModerationLog` row.
+Registering the type (step 2) is all a content module needs.
 
 Only `moderator` and `admin` roles can access it (backend guard).
 
 ## 6. Spam protection
 
 - Rate-limit creation endpoints (e.g. 10 posts/hour/user; chat stricter per minute). Put limits in config.
-- Auto-hide an item once it reaches a configurable number of unique reports (default 5) and put it at the top of the queue.
+- Auto-hiding after `MODERATION_AUTO_HIDE_REPORTS` unique reports (default 5) is done by the moderation module.
 - For news: posts from non-verified roles start as `HIDDEN` until a moderator approves them.
 
 ## 7. Tests

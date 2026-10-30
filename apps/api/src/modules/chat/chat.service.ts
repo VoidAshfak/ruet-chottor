@@ -288,8 +288,13 @@ export class ChatService {
     query: MessagesQuery,
   ): Promise<ChatMessagePage> {
     const me = await this.requireMember(userId, conversationId);
-    // Members only see what was sent after they joined; moderated messages are not served.
-    const base = { conversationId, status: 'visible' as const, createdAt: { gte: me.joinedAt } };
+    // Members only see what was sent after they joined. Moderated messages are served only to
+    // their sender, without the text, so they know a moderator acted (the add-moderation skill).
+    const base = {
+      conversationId,
+      createdAt: { gte: me.joinedAt },
+      OR: [{ status: 'visible' as const }, { senderId: userId }],
+    };
 
     if (query.after) {
       const anchor = await this.prisma.message.findFirst({
@@ -472,8 +477,9 @@ export class ChatService {
         id: m.id,
         conversationId: m.conversationId,
         sender: sender ? { id: sender.id, name: sender.name, role: sender.role } : null,
-        body: m.deletedAt ? null : m.body,
+        body: m.deletedAt || m.status !== 'visible' ? null : m.body,
         deleted: m.deletedAt !== null,
+        moderated: m.status !== 'visible',
         createdAt: m.createdAt.toISOString(),
       };
     });

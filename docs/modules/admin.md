@@ -17,7 +17,8 @@ base that every later module adds its own moderation views to (CLAUDE.md §7).
 - A moderator **bans** a member (logged out everywhere, cannot log in) or **reinstates** a suspended or banned member.
 - An admin **changes a member's role**, e.g. student → club manager.
 - Every action needs a reason (5–500 characters) and a confirmation, and is written to the **moderation log**.
-- Anyone on staff reads the full log, newest first.
+- Anyone on staff reads the full log, newest first. With `FEATURE_MODERATION`, a **Reports** tab holds the content
+  queue ([moderation.md](moderation.md)); content actions show in the log with a link to the item.
 
 ## Roles & permissions
 
@@ -37,8 +38,9 @@ See the `// ===== admin =====` section of [`schema.prisma`](../../apps/api/prism
 [ADR 0007](../decisions/0007-moderation-log-and-account-sanctions.md).
 
 - **ModerationLog** (append-only; a database trigger rejects `UPDATE` and `DELETE`):
-  `moderatorId`, `action` (`warn_user | suspend_user | ban_user | reinstate_user | change_role`), `targetUserId`,
-  `contentType` / `contentId` (for content actions later), `reason`, `details` (e.g. `{ days: 7 }`,
+  `moderatorId`, `action` (`warn_user | suspend_user | ban_user | reinstate_user | change_role`, and the content
+  actions `hide_content | remove_content | restore_content | dismiss_reports` from moderation), `targetUserId`,
+  `contentType` / `contentId`, `reason`, `details` (e.g. `{ days: 7 }`,
   `{ from: "student", to: "moderator" }`), `createdAt`.
 - **User** (auth): `status` (`active | suspended | banned`) and `suspendedUntil`.
 
@@ -64,8 +66,8 @@ All paths start with `/api/v1/admin`. Errors use `{ error: { code, message } }`.
 
 ## Moderation
 
-This module *is* the moderation tooling for accounts. Content reports and per-module queues
-(`/admin/moderation/<contentType>`) come with the `moderation` module and each content module.
+This module *is* the moderation tooling for accounts. Content reports and their queue live in the `moderation`
+module and show here as the **Reports** tab (`/admin/moderation`).
 
 ## Configuration
 
@@ -90,5 +92,4 @@ This module *is* the moderation tooling for accounts. Content reports and per-mo
   modules exist.
 - An expired suspension is lifted only when the member logs in; until then they stay hidden in the directory.
 - Emails to members are best effort: if sending fails, the action still stands and is logged.
-- No content reports or queues yet (comes with `moderation`).
 - No bulk actions, and no way to correct a log entry other than adding a new one.

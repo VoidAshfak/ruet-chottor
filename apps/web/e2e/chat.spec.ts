@@ -14,6 +14,7 @@ type Message = {
   sender: typeof ME;
   body: string | null;
   deleted: boolean;
+  moderated: boolean;
   createdAt: string;
 };
 
@@ -104,6 +105,7 @@ async function mockApi(page: Page, { unread = 0 } = {}) {
           sender: ME,
           body: body.body,
           deleted: false,
+          moderated: false,
           createdAt: new Date('2026-10-26T09:45:00Z').toISOString(),
         };
         messages.push(message);

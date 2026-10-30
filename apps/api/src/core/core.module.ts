@@ -6,13 +6,14 @@ import { AuthGuard } from './auth/auth.guard.js';
 import { validateEnv } from './config/env.js';
 import { MailService } from './mail/mail.service.js';
 import { MetaController } from './meta/meta.controller.js';
+import { ModeratableContentRegistry } from './moderation/moderatable-content.registry.js';
 import { PrismaService } from './prisma/prisma.service.js';
 import { RateLimitService } from './rate-limit/rate-limit.service.js';
 import { RedisService } from './redis/redis.service.js';
 
 /**
- * Infrastructure every module can inject: config, database, Redis, mail, rate limits, and the
- * access-token check. The AuthGuard is global, so every route is private unless @Public().
+ * Infrastructure every module can inject: config, database, Redis, mail, rate limits, the
+ * access-token check, and the registry where content modules plug into moderation. The AuthGuard is global, so every route is private unless @Public().
  */
 @Global()
 @Module({
@@ -32,8 +33,16 @@ import { RedisService } from './redis/redis.service.js';
     MailService,
     RateLimitService,
     AccessTokenStore,
+    ModeratableContentRegistry,
     { provide: APP_GUARD, useClass: AuthGuard },
   ],
-  exports: [PrismaService, RedisService, MailService, RateLimitService, AccessTokenStore],
+  exports: [
+    PrismaService,
+    RedisService,
+    MailService,
+    RateLimitService,
+    AccessTokenStore,
+    ModeratableContentRegistry,
+  ],
 })
 export class CoreModule {}

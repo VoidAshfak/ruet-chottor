@@ -7,6 +7,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { PageHeader } from '@/components/guide/PageHeader';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/features/auth';
+import { useReportedIds } from '@/features/moderation';
 import { ApiError } from '@/lib/api-client';
 import { conversationTitle } from '../conversation-title';
 import { help } from '../help';
@@ -36,6 +37,10 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
   // Pages are newest first; show oldest at the top.
   const items = (messages.data?.pages.flatMap((page) => page.items) ?? []).toReversed();
   const newestId = items.at(-1)?.id;
+  const reportedIds = useReportedIds(
+    'chat.message',
+    items.filter((m) => m.sender?.id !== myId && !m.deleted).map((m) => m.id),
+  );
 
   useEffect(() => {
     if (newestId && document.visibilityState === 'visible') markRead.mutate();
@@ -159,6 +164,7 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
               key={message.id}
               message={message}
               mine={message.sender?.id === myId}
+              reported={reportedIds.has(message.id)}
               showSender={
                 chat.type === 'group' &&
                 message.sender?.id !== myId &&

@@ -4,8 +4,7 @@ Real-time messaging: one-to-one chats and groups of up to 50 members. Messages a
 then pushed to everyone in the conversation over Socket.IO; the socket is only a delivery channel
 ([ADR 0008](../decisions/0008-realtime-socket-io.md)).
 
-**Status:** In progress (Phase 2). Built: 1:1 and group chat, live delivery, typing hints, unread counts.
-Message reporting arrives with the `moderation` module.
+**Status:** Done (Phase 2): 1:1 and group chat, live delivery, typing hints, unread counts, message reports.
 **Feature flag:** `FEATURE_CHAT` (needs `FEATURE_AUTH`; the group member picker also needs `FEATURE_DIRECTORY`)
 
 ## User flows
@@ -80,6 +79,7 @@ Namespace `/chat`. Event names are constants in
 | `chat:message:send` | client → server, acknowledged | `{ conversationId, body, clientId? }` → `{ ok: true, message }` or `{ ok: false, error }` |
 | `chat:message:new` | server → client | `{ message }` |
 | `chat:message:deleted` | server → client | `{ conversationId, messageId }` |
+| `chat:message:moderated` | server → client | `{ conversationId, messageId }` (a moderator acted: refetch the thread) |
 | `chat:conversation:updated` | server → client | `{ conversationId }` (refetch it: name, members, or you were removed) |
 | `chat:typing:start` | client → server | `{ conversationId }` |
 | `chat:typing:update` | server → client | `{ conversationId, userId, name }` |
@@ -92,9 +92,12 @@ Namespace `/chat`. Event names are constants in
 
 ## Moderation
 
-Messages carry `status` and are rate-limited: `CHAT_SEND_LIMIT_PER_MINUTE` messages per member (default 30),
-10 new groups and 30 new 1:1 chats per hour. Suspended members cannot send. **Reporting a message and the admin
-queue for messages are not built yet**: they come with the `moderation` module, the next change.
+Members can **Report** other people's messages (see [moderation.md](moderation.md)); only people in the conversation
+who could see the message may report it. `chat-moderation.ts` registers `chat.message` with the moderation registry.
+A hidden or removed message is no longer served to anyone except its sender, who sees `moderated: true` without the
+text ("Hidden by a moderator"); open chats refresh on `chat:message:moderated`. Sending is rate-limited:
+`CHAT_SEND_LIMIT_PER_MINUTE` messages per member (default 30), 10 new groups and 30 new 1:1 chats per hour.
+Suspended members cannot send.
 
 ## Configuration
 
@@ -118,7 +121,6 @@ queue for messages are not built yet**: they come with the `moderation` module, 
 
 ## Known limitations / future work
 
-- No message reporting yet (next: `moderation`).
 - Text only: attachments need the file-storage service first. No editing, reactions or per-person read receipts.
 - One API instance only: running several needs the Socket.IO Redis adapter.
 - No blocking yet: any active member can message any other. Rate limits slow down spam meanwhile.

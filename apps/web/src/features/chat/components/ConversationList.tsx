@@ -10,7 +10,11 @@ import { useConversations } from '../hooks/use-chat';
 function preview(conversation: Conversation, myId: string): string {
   const last = conversation.lastMessage;
   if (!last) return help.list.noMessages;
-  const text = last.deleted ? help.list.deleted : (last.body ?? '');
+  const text = last.moderated
+    ? help.messages.moderated
+    : last.deleted
+      ? help.list.deleted
+      : (last.body ?? '');
   if (last.sender?.id === myId) return `${help.list.you}: ${text}`;
   return conversation.type === 'group' && last.sender ? `${last.sender.name}: ${text}` : text;
 }

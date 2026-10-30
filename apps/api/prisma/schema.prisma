@@ -102,6 +102,10 @@ enum ModerationAction {
   ban_user
   reinstate_user
   change_role
+  hide_content
+  remove_content
+  restore_content
+  dismiss_reports
 }
 
 /// Append-only: a database trigger rejects UPDATE and DELETE (see the add_admin migration).
@@ -197,4 +201,45 @@ model Message {
 
   @@index([conversationId, createdAt])
   @@map("messages")
+}
+
+// ===== moderation =====
+// Reports on user-generated content (CLAUDE.md §7). Content modules register their content type
+// in core/moderation (ModeratableContentRegistry); this module never imports their internals.
+
+enum ReportReason {
+  spam
+  harassment
+  violence
+  misinformation
+  inappropriate
+  scam
+  other
+}
+
+enum ReportStatus {
+  open
+  /// A moderator hid or removed the item.
+  actioned
+  dismissed
+}
+
+model Report {
+  id           String       @id @default(uuid(7)) @db.Uuid
+  /// e.g. "chat.message" (MODERATABLE_CONTENT_TYPES in packages/shared).
+  contentType  String
+  contentId    String       @db.Uuid
+  /// Never shown to the author; staff see it to follow up false reports.
+  reporterId   String       @db.Uuid
+  reason       ReportReason
+  note         String?
+  status       ReportStatus @default(open)
+  resolvedById String?      @db.Uuid
+  resolvedAt   DateTime?
+  createdAt    DateTime     @default(now())
+
+  /// One report per person per item.
+  @@unique([contentType, contentId, reporterId])
+  @@index([status, contentType])
+  @@map("reports")
 }

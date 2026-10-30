@@ -38,6 +38,7 @@ packages/shared  Zod schemas, types and constants used by both
 | `src/core/prisma` | `PrismaService`: the only way to reach the database |
 | `src/core/redis` | `RedisService`: shared Redis connection |
 | `src/core/meta` | `GET /health` and `GET /features` |
+| `src/core/moderation` | `ModeratableContentRegistry`: content modules register their content type for reports (ADR 0009) |
 | `src/core/realtime` | Socket.IO adapter (origin check) and cookie login for sockets (ADR 0008) |
 | `src/modules/<module>` | Feature modules, e.g. `auth`, `users`; real-time ones add a `*.gateway.ts` |
 | `prisma/` | Schema, migrations, seed scripts |
@@ -86,7 +87,9 @@ Modules talk to each other only through exported services. Example: `directory` 
 `UsersService.listPublic()`, so the rules for *what* a member may see about another member (privacy, hiding
 suspended accounts) live in one place, `users`. Likewise `admin` uses auth's exported `SessionsService` to log a
 suspended member out, and exports `ModerationLogService` so every module records staff actions in the same
-append-only log ([ADR 0007](decisions/0007-moderation-log-and-account-sanctions.md)).
+append-only log ([ADR 0007](decisions/0007-moderation-log-and-account-sanctions.md)). Content modules (chat so far)
+register an adapter in `core`'s `ModeratableContentRegistry`, which `moderation` uses to load, hide and restore
+reported items without importing them ([ADR 0009](decisions/0009-moderatable-content-registry.md)).
 
 ## Decisions
 

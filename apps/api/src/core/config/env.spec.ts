@@ -9,6 +9,7 @@ describe('validateEnv', () => {
       WEB_ORIGIN: 'http://localhost:3000',
       MAIL_FROM: '"RUET Chottor" <no-reply@example.com>',
       CHAT_SEND_LIMIT_PER_MINUTE: 30,
+      MODERATION_AUTO_HIDE_REPORTS: 5,
       ENABLED_MODULES: [],
     });
   });

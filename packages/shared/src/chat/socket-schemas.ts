@@ -29,6 +29,8 @@ export const chatMessageDeletedEventSchema = z.object({
 });
 export type ChatMessageDeletedEvent = z.infer<typeof chatMessageDeletedEventSchema>;
 
+export const chatMessageModeratedEventSchema = chatMessageDeletedEventSchema;
+
 /** Members or name changed, or the viewer was removed: refetch the conversation. */
 export const chatConversationUpdatedEventSchema = z.object({ conversationId: z.string() });
 export type ChatConversationUpdatedEvent = z.infer<typeof chatConversationUpdatedEventSchema>;

@@ -38,9 +38,11 @@ export const chatMessageSchema = z.object({
   conversationId: z.string(),
   /** null if the sender's account no longer exists. */
   sender: chatPersonSchema.nullable(),
-  /** null once the message was deleted by its sender or removed by a moderator. */
+  /** null once the message was deleted by its sender or hidden by a moderator. */
   body: z.string().nullable(),
   deleted: z.boolean(),
+  /** Hidden or removed by a moderator. Only the sender still sees that the message existed. */
+  moderated: z.boolean(),
   createdAt: z.string(),
   /** Echoed back to the sender only, so the browser can replace its pending copy. */
   clientId: z.string().optional(),

@@ -30,7 +30,22 @@ export function LogEntry({
     <li className="rounded-lg border p-3">
       <p className="text-sm">
         <span className="font-medium">{help.actionNames[entry.action]}</span>
-        {showTarget ? (
+        {entry.contentType && entry.contentId ? (
+          <>
+            {' '}
+            <Link
+              href={`/admin/moderation/${entry.contentType}/${entry.contentId}`}
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              {help.logLine.content(
+                help.logLine.contentLabels[entry.contentType] ?? entry.contentType,
+              )}
+            </Link>
+            {showTarget && entry.targetUser
+              ? ` ${help.logLine.contentBy(entry.targetUser.name)}`
+              : null}
+          </>
+        ) : showTarget ? (
           <>
             {' '}
             {entry.targetUser ? (
@@ -47,8 +62,10 @@ export function LogEntry({
         ) : null}
         {extra ? ` ${extra}` : null}{' '}
         <span className="text-muted-foreground">
-          {help.logLine.by(entry.moderator?.name ?? help.logLine.unknownPerson)} ·{' '}
-          <time dateTime={entry.createdAt}>{formatDateTime(entry.createdAt)}</time>
+          {entry.details?.auto === true
+            ? help.logLine.automatic
+            : help.logLine.by(entry.moderator?.name ?? help.logLine.unknownPerson)}{' '}
+          · <time dateTime={entry.createdAt}>{formatDateTime(entry.createdAt)}</time>
         </span>
       </p>
       <p className="mt-1 text-sm break-words text-muted-foreground">{entry.reason}</p>

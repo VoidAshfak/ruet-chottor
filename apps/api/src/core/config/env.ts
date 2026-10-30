@@ -16,6 +16,8 @@ const envSchema = z
     MAIL_FROM: z.string().min(3).default('"RUET Chottor" <no-reply@example.com>'),
     // Spam protection for chat (CLAUDE.md §7): messages one member may send per minute.
     CHAT_SEND_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(30),
+    // An item is hidden automatically once this many different members reported it.
+    MODERATION_AUTO_HIDE_REPORTS: z.coerce.number().int().positive().default(5),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') return;
