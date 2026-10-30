@@ -4,7 +4,7 @@ Sign-up and login. A RUET student creates an account with their roll and registr
 with roll + password followed by a 6-digit code sent to their email (two-step login). Sessions live in
 `httpOnly` cookies, so the browser's JavaScript never sees a token.
 
-**Status:** In progress (Phase 1)
+**Status:** Done (Phase 1).
 **Feature flag:** `FEATURE_AUTH`
 
 ## User flows

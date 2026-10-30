@@ -4,7 +4,7 @@ Member profiles. Each member has a profile page showing their name, role, roll, 
 email and phone only if they chose to share them. Members control that privacy on **My profile**. This module
 also remembers which first-visit guides a member has closed, so a guide never shows twice on any device.
 
-**Status:** In progress (Phase 1)
+**Status:** Done (Phase 1).
 **Feature flag:** `FEATURE_USERS` (needs `FEATURE_AUTH` too: every route needs a logged-in member)
 
 ## User flows

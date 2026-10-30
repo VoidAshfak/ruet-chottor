@@ -12,7 +12,7 @@ packages/shared  Zod schemas, types and constants used by both
  Browser ──HTTP (cookies)──▶ apps/api ──▶ PostgreSQL (Neon, via Prisma)
     │  └── files (signed, direct) ──▶ Cloudinary ◀── apps/api checks and deletes
     │                          │
-    └────── Socket.IO ─────────┘──────▶ Redis (Upstash): cache, rate limits, OTPs, socket adapter
+    └────── Socket.IO ─────────┘──────▶ Redis (Upstash): sessions, rate limits, OTPs
 ```
 
 ## Why this shape
@@ -99,3 +99,9 @@ reported items without importing them ([ADR 0009](decisions/0009-moderatable-con
 ## Decisions
 
 Significant choices are recorded in [docs/decisions](decisions/).
+
+## Deployment
+
+The web app and the API are deployed separately, on subdomains of one domain (session cookies need the same
+site), and the API runs as a single long-lived process because chat sockets live in it. See
+[deployment.md](deployment.md).

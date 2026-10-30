@@ -116,3 +116,8 @@ The seed also adds a few fake members (one suspended) with mixed privacy setting
 - **`pnpm` not found after installing:** open a new terminal so `PATH` refreshes.
 - **Health shows `"database": "down"`:** check `DATABASE_URL`, and that the Neon project is not suspended (open it in the Neon console to wake it).
 - **Port already in use:** change `PORT` in `apps/api/.env`, or stop the other process.
+
+## Next steps
+
+- Make a change: [contributing.md](contributing.md).
+- Run staging or production: [deployment.md](deployment.md).

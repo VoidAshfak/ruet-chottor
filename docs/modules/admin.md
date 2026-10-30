@@ -4,7 +4,7 @@ The staff side of RUET Chottor. Moderators and admins find any member (including
 warn, suspend, ban or reinstate them, and read the moderation log. Admins can also change roles. This is the
 base that every later module adds its own moderation views to (CLAUDE.md §7).
 
-**Status:** In progress (Phase 1: panel base)
+**Status:** Done (Phase 1). Each later module added its own staff views (news review, reports, bus).
 **Feature flag:** `FEATURE_ADMIN` (needs `FEATURE_AUTH`)
 
 ## User flows
