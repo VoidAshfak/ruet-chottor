@@ -4,7 +4,7 @@ Sign-up and login. A RUET student creates an account with their roll and registr
 with roll + password followed by a 6-digit code sent to their email (two-step login). Sessions live in
 `httpOnly` cookies, so the browser's JavaScript never sees a token.
 
-**Status:** In progress (Phase 1)
+**Status:** Done (Phase 1).
 **Feature flag:** `FEATURE_AUTH`
 
 ## User flows
@@ -90,6 +90,7 @@ Revoking a session also deletes its access token, so the member is cut off at on
 | `FEATURE_AUTH` | off | Registers the auth routes and shows Log in / Sign up in the header |
 | `REDIS_URL` | — | Required: access tokens, codes and rate limits live in Redis |
 | `DATABASE_URL` | — | Required: users and sessions |
+| `TRUST_PROXY` | `0` | Proxies in front of the API; set it (usually `1`) behind a host's load balancer so per-IP rate limits see the real client |
 | `OTP_SECRET` | random per run (dev) | HMAC key for login codes. Required in production |
 | `SMTP_URL` | Ethereal (dev) | SMTP server for emails. Required in production ([ADR 0004](../decisions/0004-dev-email-ethereal.md)) |
 | `MAIL_FROM` | `"RUET Chottor" <no-reply@example.com>` | Sender address |
@@ -110,6 +111,5 @@ Revoking a session also deletes its access token, so the member is cut off at on
 - **SMS codes** are not built; `channel` is always `email`. The `SmsProvider` interface comes when SMS is needed.
 - **Forgot password / change password** are not built yet. When they are, all sessions must be revoked.
 - **Email ownership** is proven at the first login (the code goes to that address), not at sign-up.
-- **Behind a reverse proxy**, configure Express `trust proxy` so rate limits see the real client IP.
 - The common-password list is short (~100 entries) on purpose; a larger list could be added later.
 - RUET roll is checked only as 7 digits; department codes are not validated.

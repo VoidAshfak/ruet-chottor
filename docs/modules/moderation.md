@@ -5,7 +5,7 @@ wrong; moderators hide, remove, restore or dismiss, and every action lands in th
 [admin](admin.md). Content modules plug in through a small registry in `core`, so this module never imports their
 internals ([ADR 0009](../decisions/0009-moderatable-content-registry.md)).
 
-**Status:** Done for chat messages (Phase 2) and news posts (Phase 3). Each later content module registers its own type.
+**Status:** Done (Phase 2). Content types: `chat.message`, `news.post`, `clubs.club`, `events.event`, `lost-found.item`, `marketplace.listing`.
 **Feature flag:** `FEATURE_MODERATION` (needs `FEATURE_ADMIN`, which owns the moderation log, and `FEATURE_AUTH`)
 
 ## User flows

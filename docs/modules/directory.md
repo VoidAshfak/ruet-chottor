@@ -4,7 +4,7 @@ A searchable list of RUET Chottor members. Students, alumni and teachers can fin
 and narrow the list by department, series and role. It replaces asking around in Facebook groups for someone's
 contact: each result shows an email or phone only if that member chose to share it.
 
-**Status:** In progress (Phase 1)
+**Status:** Done (Phase 1).
 **Feature flag:** `FEATURE_DIRECTORY` (needs `FEATURE_AUTH` and `FEATURE_USERS`)
 
 ## User flows

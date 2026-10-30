@@ -6,6 +6,9 @@ const envSchema = z
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     PORT: z.coerce.number().int().positive().default(4000),
     WEB_ORIGIN: z.url().default('http://localhost:3000'),
+    // Proxies in front of the API (a host's load balancer). Without it, rate limits see the proxy's
+    // address, so every member shares one per-IP limit. 0 = connected directly.
+    TRUST_PROXY: z.coerce.number().int().min(0).max(5).default(0),
     // Optional so the app (and `pnpm test`) starts without hosted services;
     // features that need them answer 503 until they are set.
     DATABASE_URL: z.url().optional(),

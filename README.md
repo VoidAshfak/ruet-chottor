@@ -4,26 +4,33 @@
 Rajshahi University of Engineering & Technology. It brings the things students currently scatter across
 Facebook and WhatsApp groups into one place: finding people, talking in real time, and using campus services.
 
-> Status: **early development.** The project foundation (Phase 0) is in place; features arrive one at a time.
+> Status: every planned section is built and hardened (Phases 0–6). Next: live bus tracking and notifications.
+> This is a student project, not an official RUET service.
 
-## Planned sections
+## What's inside
 
-| Section | What it does | Status |
-|---|---|---|
-| Accounts | Sign up with roll and registration number, log in with a one-time code | Planned (Phase 1) |
-| Directory | Find students, alumni and teachers; you choose what contact info is visible | Planned (Phase 1) |
-| Messages | One-to-one and group chat in real time | Planned (Phase 2) |
-| News, Clubs & Events | Campus news, club pages and an events calendar | Planned (Phase 3) |
-| Lost & Found, Marketplace | Return lost items; buy and sell used items within RUET | Planned (Phase 4) |
-| Bus | Bus routes and schedules | Planned (Phase 5) |
+| Section | What you can do |
+|---|---|
+| **Accounts** | Sign up with your roll and registration number; log in with your password and a 6-digit code sent by email |
+| **Profiles & Directory** | Find students, alumni and teachers by name, roll, department or series. You choose whether your email and phone are shown; both are hidden by default |
+| **Messages** | One-to-one and group chat in real time, with unread counts and typing indicators |
+| **News** | Campus news. Posts from staff and club managers go live at once; others wait for a moderator |
+| **Clubs** | A page per club with its managers, members and news. Joining needs a manager's approval |
+| **Events** | A month calendar of campus and club events; tap **I'm going** (some events have limited places) |
+| **Lost & Found** | Post a lost or found item; found items can carry a check question, and photos stay blurred until tapped |
+| **Marketplace** | Buy and sell within RUET, paying in person. Listings mentioning prohibited items wait for a moderator |
+| **Bus** | Routes, stops and the full timetable, the next buses from your stop, and notices about changes |
+| **Admin** | Staff review reports, hide or remove content, warn, suspend or ban members, and read the moderation log |
 
-Every section is moderated: anyone can report harmful, false or spam content, and moderators review it.
+Every page explains itself: a one-line description, **(i)** tips next to anything unclear, and a short guide the
+first time you open a section. Anything members post can be reported, and moderators act on reports.
 Course management is out of scope; Google Classroom already does that well.
 
 ## Tech stack
 
 TypeScript monorepo (pnpm workspaces): **Next.js** web app, **NestJS** API, **PostgreSQL** with **Prisma**,
-**Redis**, **Socket.IO** for real time. Full details and reasons are in [docs/architecture.md](docs/architecture.md).
+**Redis**, **Socket.IO** for real time, **Cloudinary** for photos and videos.
+How the pieces fit is in [docs/architecture.md](docs/architecture.md); the reasons are in [docs/decisions](docs/decisions).
 
 ## Quick start
 
@@ -36,12 +43,23 @@ pnpm dev
 
 Web app: http://localhost:3000 · API: http://localhost:4000/api/v1/health
 
-See [docs/getting-started.md](docs/getting-started.md) for the full setup, including free database and Redis accounts.
+[docs/getting-started.md](docs/getting-started.md) has the full setup: free database and Redis accounts, feature
+flags, and demo accounts for every role.
+
+## Documentation
+
+| Read this | When you want to |
+|---|---|
+| [Getting started](docs/getting-started.md) | Run the app on your machine |
+| [Contributing](docs/contributing.md) | Make your first change |
+| [Architecture](docs/architecture.md) | Understand how the code is organised |
+| [Modules](docs/modules) | Learn how one section works: rules, API, data |
+| [Deployment](docs/deployment.md) | Run staging or production |
+| [CLAUDE.md](CLAUDE.md) | Check the rules every change follows |
 
 ## Contributing
 
 RUET students are welcome to contribute. Start with [docs/contributing.md](docs/contributing.md).
-The rules every change follows are in [CLAUDE.md](CLAUDE.md).
 
 ## License
 

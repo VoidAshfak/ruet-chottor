@@ -3,7 +3,7 @@
 RUET clubs in one place: a page per club, its managers and members, and news posted in the club's name. Admins
 create clubs and appoint managers; members ask to join and a manager approves.
 
-**Status:** Done (Phase 3). Events (next) will belong to clubs.
+**Status:** Done (Phase 3).
 **Feature flag:** `FEATURE_CLUBS` (needs `FEATURE_AUTH` and `FEATURE_ADMIN`; appointing a manager changes their
 role, which is written to admin's moderation log). Logos and covers need `CLOUDINARY_URL`; manager picking needs
 `FEATURE_DIRECTORY`; reporting needs `FEATURE_MODERATION`.

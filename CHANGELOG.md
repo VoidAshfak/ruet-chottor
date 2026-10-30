@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Documentation
+
+- Deployment guide (`docs/deployment.md`): what runs where, same-site domains for the session cookies, every
+  production variable, build, `prisma migrate deploy`, the first admin, seed policy per environment, the
+  single-API-instance limit for chat, and a release checklist.
+- README tour of every section; a fuller contributing guide (module map, running tests, common mistakes); module
+  doc statuses brought up to date.
+
 ### Performance
 
 - Lists no longer run a query per item: the chat list gets every conversation's unread count in one grouped query
@@ -14,6 +22,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Security
 
+- `TRUST_PROXY` (default 0): behind a host's load balancer, rate limits use the real client address instead of
+  sharing one per-IP limit between all members.
 - Ending a session (logout, suspension, ban, a reused refresh token) now also deletes its access token, so access
   stops at once instead of up to 15 minutes later.
 - The web app sends security headers: a Content Security Policy (only this site, the API and Cloudinary), no
