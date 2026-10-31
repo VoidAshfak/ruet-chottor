@@ -21,6 +21,8 @@ base that every later module adds its own moderation views to (CLAUDE.md §7).
   queue ([moderation.md](moderation.md)); content actions show in the log with a link to the item.
 - With `FEATURE_USERS`, a **Class reps** tab verifies, turns down or removes class representatives
   ([users.md](users.md)); those decisions show in the log against the member.
+- With `FEATURE_EVENTS`, an **Event review** tab approves or turns down class events proposed by class
+  representatives ([events.md](events.md)).
 
 ## Roles & permissions
 

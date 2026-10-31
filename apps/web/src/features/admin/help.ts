@@ -12,6 +12,7 @@ export const help = {
     members: 'Members',
     reports: 'Reports',
     news: 'News review',
+    events: 'Event review',
     classReps: 'Class reps',
     clubs: 'Clubs',
     bus: 'Bus',

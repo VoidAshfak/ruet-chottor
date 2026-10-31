@@ -1,5 +1,6 @@
 // Sample events around the day the seed runs, so the calendar always shows something.
-// Matched by title, so re-running adds nothing. Runs after seed/clubs.ts.
+// Matched by title, so re-running adds nothing. Runs after seed/clubs.ts and the class rep seed
+// (two class events by the demo CR: one approved, one waiting in Admin → Event review).
 import type { EventCategory, PrismaClient } from '../../src/generated/prisma/client.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -16,6 +17,9 @@ export async function seedEvents(prisma: PrismaClient) {
   const manager = await byRoll('0000003'); // Demo Club Manager
   const admin = await byRoll('0000001');
   const student = await byRoll('1703999');
+  const moderator = await byRoll('0000002');
+  const classRep = await byRoll('2103901'); // Rafiq Fakeuddin, verified CR of CSE 2021 section A
+  const forClass = { classDepartment: '03', classSeries: 2021, classSection: 'A' };
   const club = (name: string) => prisma.club.findUnique({ where: { name } });
   const robotics = await club('Robotics Club (demo)');
   const debating = await club('Debating Club (demo)');
@@ -31,6 +35,13 @@ export async function seedEvents(prisma: PrismaClient) {
     clubId: string | null;
     createdById: string;
     capacity?: number;
+    review?: 'pending' | 'approved';
+    reviewedById?: string;
+    reviewedAt?: Date;
+    approvedAt?: Date;
+    classDepartment?: string;
+    classSeries?: number;
+    classSection?: string;
   }[] = [
     {
       title: 'Line-follower workshop (demo)',
@@ -72,6 +83,34 @@ export async function seedEvents(prisma: PrismaClient) {
       hours: 3,
       clubId: null,
       createdById: admin.id,
+    },
+    {
+      title: 'CSE 2021 section A farewell planning (demo)',
+      category: 'meeting',
+      venue: 'ECE building, room 205',
+      description: 'Venue, food and the slideshow for our farewell. (Sample class event.)',
+      startsAt: at(4, 17),
+      hours: 1,
+      clubId: null,
+      createdById: classRep.id,
+      ...forClass,
+      review: 'approved',
+      reviewedById: moderator.id,
+      reviewedAt: new Date(),
+      approvedAt: new Date(),
+    },
+    {
+      title: 'CSE 2021 section A Sajek tour sign-up (demo)',
+      category: 'other',
+      venue: 'Department common room',
+      description:
+        'Pay the advance and sign up for the class tour. (Sample class event waiting for review.)',
+      startsAt: at(8, 14),
+      hours: 2,
+      clubId: null,
+      createdById: classRep.id,
+      ...forClass,
+      review: 'pending',
     },
   ];
 

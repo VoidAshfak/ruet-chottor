@@ -56,6 +56,12 @@ export const help = {
     ended: 'This event is over.',
     moderated:
       'A moderator hid this event after it was reported. Only its organisers and staff can see it.',
+    forClass: 'For class',
+    pending: 'Waiting for a moderator to approve it. Until then only you and staff can see it.',
+    rejected: 'A moderator did not approve this event. Edit it and it goes back for review.',
+    reason: (reason: string) => `Moderator's reason: ${reason}`,
+    editLocked:
+      'You are no longer a class representative, so you cannot change it. You can still cancel it.',
     edit: 'Edit',
     cancel: 'Cancel event',
     attendees: 'Who is going',
@@ -81,8 +87,12 @@ export const help = {
     category: 'Category',
     organiser: 'Organised by',
     campusWide: 'Campus-wide (staff)',
+    forMyClass: (label: string) => `My class: ${label}`,
+    classNote:
+      'Class events are for class meetings, farewells, tours and get-togethers, not tests or assignments. A moderator approves each one, and each change, before it shows on the calendar.',
+    editClassDescription: 'Your changes go to a moderator again before they show on the calendar.',
     organiserTip:
-      'Club managers create events for their own clubs. Moderators and admins can also create campus-wide events.',
+      'Club managers create events for their own clubs, verified class representatives for their class. Moderators and admins can also create campus-wide events.',
     organiserTipLabel: 'About organisers',
     startsAt: 'Starts',
     endsAt: 'Ends',
@@ -101,8 +111,34 @@ export const help = {
     saving: 'Saving…',
     waitUploads: 'Wait for the upload to finish',
     back: 'Cancel',
-    notAllowed: 'Only club managers, moderators and admins can create events.',
+    notAllowed:
+      'Only club managers, verified class representatives, moderators and admins can create events.',
     notEditable: 'Only this event’s organisers can edit it.',
+  },
+  review: {
+    title: 'Event review',
+    description:
+      'Class events from class representatives wait here until a moderator approves them.',
+    empty: 'No class events are waiting.',
+    loading: 'Loading waiting events',
+    error: 'Could not load the waiting events.',
+    retry: 'Try again',
+    more: 'Show more',
+    loadingMore: 'Loading…',
+    by: (name: string) => `Proposed by ${name}`,
+    edited: 'Changed after approval',
+    approve: 'Approve',
+    approveTip:
+      'Check it is a real class gathering (not a test or assignment) and the time and place make sense.',
+    approveTipLabel: 'About approving',
+    reject: 'Turn down',
+    rejectTitle: 'Turn down this event?',
+    rejectBody: 'The class representative sees your reason and can edit it and send it again.',
+    reason: 'Reason (the class representative sees this)',
+    reasonPlaceholder: 'e.g. Please say which room is booked.',
+    cancel: 'Cancel',
+    approved: 'Approved.',
+    open: 'Open event',
   },
   report: 'Report this event',
   notFound: 'This event does not exist, or it is not visible.',
@@ -118,8 +154,8 @@ export const help = {
       body: 'Organisers see how many are coming. Some events have limited places and show “Full” when taken.',
     },
     {
-      title: 'Run a club?',
-      body: 'Club managers can put their club’s events on the calendar with a poster.',
+      title: 'Run a club or a class?',
+      body: 'Club managers add their club’s events. Verified class representatives propose class events, which a moderator approves first.',
     },
   ],
 } as const;

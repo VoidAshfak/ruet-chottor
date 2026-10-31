@@ -86,7 +86,15 @@ export function departmentFromRoll(
 ): Department | null {
   const series = seriesFromRoll(roll, today);
   if (series === null) return null;
-  const code = roll.slice(2, 4);
+  return departmentByCode(roll.slice(2, 4), series, departments);
+}
+
+/** The department a code meant for a given series (codes can change meaning over the years). */
+export function departmentByCode(
+  code: string,
+  series: number,
+  departments: readonly Department[] = DEPARTMENTS,
+): Department | null {
   return (
     departments.find((department) => department.code === code && covers(department, series)) ?? null
   );

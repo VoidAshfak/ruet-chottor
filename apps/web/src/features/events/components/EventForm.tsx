@@ -23,9 +23,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useManagedClubs } from '@/features/clubs';
+import { classLabel } from '../class-label';
 import { help } from '../help';
 import { useEvent, useSaveEvent } from '../hooks/use-events';
+import { useMyClass } from '../hooks/use-my-class';
 import { LoginGate } from './LoginGate';
+
+/** The organiser select's value for "my class" (a CR's class event). */
+const CLASS = 'class';
 
 const fieldClass =
   'w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive md:text-sm';
@@ -33,7 +38,14 @@ const fieldClass =
 type Field =
   'title' | 'category' | 'startsAt' | 'endsAt' | 'venue' | 'clubId' | 'capacity' | 'description';
 
-function Form({ existing, isStaff }: { existing?: CampusEvent; isStaff: boolean }) {
+type FormProps = {
+  existing?: CampusEvent;
+  isStaff: boolean;
+  /** The class the viewer is a verified CR of, e.g. "CSE 2021 · Section A". */
+  myClass: string | null;
+};
+
+function Form({ existing, isStaff, myClass }: FormProps) {
   const router = useRouter();
   const save = useSaveEvent(existing?.id);
   const managed = useManagedClubs({ enabled: true });
@@ -41,7 +53,7 @@ function Form({ existing, isStaff }: { existing?: CampusEvent; isStaff: boolean 
   const [title, setTitle] = useState(existing?.title ?? '');
   const [category, setCategory] = useState<EventCategory | ''>(existing?.category ?? '');
   const [clubId, setClubId] = useState(
-    existing?.club?.id ?? (isStaff ? '' : (managed[0]?.id ?? '')),
+    existing?.class ? CLASS : (existing?.club?.id ?? (isStaff ? '' : (managed[0]?.id ?? ''))),
   );
   const [startsAt, setStartsAt] = useState(existing ? toDhakaLocal(existing.startsAt) : '');
   const [endsAt, setEndsAt] = useState(existing ? toDhakaLocal(existing.endsAt) : '');
@@ -52,8 +64,13 @@ function Form({ existing, isStaff }: { existing?: CampusEvent; isStaff: boolean 
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
 
-  // A club manager who has not picked yet gets their first club (the hook loads after the form).
-  const organiser = clubId || (isStaff ? '' : (managed[0]?.id ?? ''));
+  // A club manager who has not picked yet gets their first club (the hook loads after the form);
+  // a CR who manages no club gets their class.
+  const organiser =
+    clubId || (isStaff ? '' : (managed[0]?.id ?? (myClass && !existing ? CLASS : '')));
+  const forClass = organiser === CLASS;
+  // An event cannot switch between a class event and other events, so editing keeps its kind.
+  const classOption = existing ? (existing.class ? classLabel(existing.class) : null) : myClass;
   const clubs =
     existing?.club && !managed.some((c) => c.id === existing.club?.id)
       ? [...managed, { id: existing.club.id, name: existing.club.name }]
@@ -67,9 +84,10 @@ function Form({ existing, isStaff }: { existing?: CampusEvent; isStaff: boolean 
       venue,
       startsAt: startsAt ? fromDhakaLocal(startsAt) : '',
       endsAt: endsAt ? fromDhakaLocal(endsAt) : '',
-      clubId: organiser,
+      clubId: forClass ? null : organiser,
       capacity,
       posterId: poster[0]?.id ?? null,
+      forClass,
     });
     if (!parsed.success) {
       const next: Partial<Record<Field, string>> = {};
@@ -87,7 +105,13 @@ function Form({ existing, isStaff }: { existing?: CampusEvent; isStaff: boolean 
     <>
       <PageHeader
         title={existing ? text.editTitle : text.newTitle}
-        description={existing ? text.editDescription : text.newDescription}
+        description={
+          existing
+            ? existing.class && !isStaff
+              ? text.editClassDescription
+              : text.editDescription
+            : text.newDescription
+        }
       />
       <form
         noValidate
@@ -138,18 +162,30 @@ function Form({ existing, isStaff }: { existing?: CampusEvent; isStaff: boolean 
               id="event-organiser"
               className={`${fieldClass} h-10 py-0`}
               value={organiser}
+              disabled={!!existing?.class}
               onChange={(e) => setClubId(e.target.value)}
             >
-              {isStaff ? <option value="">{text.campusWide}</option> : null}
-              {clubs.map((club) => (
-                <option key={club.id} value={club.id}>
-                  {club.name}
-                </option>
-              ))}
+              {existing?.class ? null : (
+                <>
+                  {isStaff ? <option value="">{text.campusWide}</option> : null}
+                  {clubs.map((club) => (
+                    <option key={club.id} value={club.id}>
+                      {club.name}
+                    </option>
+                  ))}
+                </>
+              )}
+              {classOption ? <option value={CLASS}>{text.forMyClass(classOption)}</option> : null}
             </select>
             {error('clubId')}
           </div>
         </div>
+
+        {forClass ? (
+          <p className="rounded-md bg-accent px-3 py-2 text-sm text-accent-foreground">
+            {text.classNote}
+          </p>
+        ) : null}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-1.5">
@@ -258,20 +294,21 @@ function Form({ existing, isStaff }: { existing?: CampusEvent; isStaff: boolean 
 function Gate({ id, role }: { id?: string; role: string }) {
   const isStaff = (STAFF_ROLES as readonly string[]).includes(role);
   const managed = useManagedClubs({ enabled: true });
+  const myClass = useMyClass();
   const event = useEvent(id ?? '', { enabled: !!id });
   if (id) {
     if (event.isPending) {
       return <RuetLoader className="min-h-64" />;
     }
-    if (event.isError || !event.data.canEdit) {
+    if (event.isError || !event.data.canEditDetails) {
       return <p className="rounded-lg border p-6 text-muted-foreground">{help.form.notEditable}</p>;
     }
-    return <Form existing={event.data} isStaff={isStaff} />;
+    return <Form existing={event.data} isStaff={isStaff} myClass={myClass} />;
   }
-  if (!isStaff && managed.length === 0) {
+  if (!isStaff && managed.length === 0 && !myClass) {
     return <p className="rounded-lg border p-6 text-muted-foreground">{help.form.notAllowed}</p>;
   }
-  return <Form isStaff={isStaff} />;
+  return <Form isStaff={isStaff} myClass={myClass} />;
 }
 
 /** /events/new and /events/[id]/edit. The API checks who may organise, too. */

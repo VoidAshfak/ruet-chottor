@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { ReportAction, useReportedIds } from '@/features/moderation';
 import { ApiError } from '@/lib/api-client';
 import { timeRange } from '../calendar';
+import { classLabel } from '../class-label';
 import { help } from '../help';
 import { useAttendees, useEvent, useEventActions } from '../hooks/use-events';
 import { LoginGate } from './LoginGate';
@@ -44,6 +45,7 @@ function Detail({ id }: { id: string }) {
   const data = event.data;
   const ended = Date.parse(data.endsAt) < openedAt;
   const rsvpError = actions.going.error?.message ?? actions.notGoing.error?.message;
+  const published = data.review === 'approved' && !data.moderated;
 
   return (
     <article className="grid gap-5">
@@ -78,12 +80,29 @@ function Detail({ id }: { id: string }) {
       {data.moderated ? (
         <p className="rounded-md bg-muted px-3 py-2 text-sm">{text.moderated}</p>
       ) : null}
+      {data.review === 'pending' ? (
+        <p role="status" className="rounded-md bg-accent px-3 py-2 text-sm text-accent-foreground">
+          {text.pending}
+        </p>
+      ) : null}
+      {data.review === 'rejected' ? (
+        <div role="status" className="rounded-md bg-destructive/10 px-3 py-2 text-sm">
+          <p className="text-destructive">{text.rejected}</p>
+          {data.reviewNote ? <p>{text.reason(data.reviewNote)}</p> : null}
+        </div>
+      ) : null}
 
       <dl className="grid gap-2 text-sm sm:grid-cols-[8rem_1fr]">
         <dt className="text-muted-foreground">{text.when}</dt>
         <dd>{timeRange(data.startsAt, data.endsAt)}</dd>
         <dt className="text-muted-foreground">{text.where}</dt>
         <dd className="break-words">{data.venue}</dd>
+        {data.class ? (
+          <>
+            <dt className="text-muted-foreground">{text.forClass}</dt>
+            <dd>{classLabel(data.class)}</dd>
+          </>
+        ) : null}
         <dt className="text-muted-foreground">{text.organiser}</dt>
         <dd>
           {data.club ? (
@@ -96,7 +115,7 @@ function Detail({ id }: { id: string }) {
         </dd>
       </dl>
 
-      {!data.cancelled && !data.moderated ? (
+      {!data.cancelled && published ? (
         <div className="grid gap-2 rounded-lg border p-4">
           <p className="text-sm text-muted-foreground">
             {data.capacity !== null
@@ -159,10 +178,15 @@ function Detail({ id }: { id: string }) {
               ))}
             </ul>
           )}
+          {data.canEditDetails ? null : (
+            <p className="text-sm text-muted-foreground">{text.editLocked}</p>
+          )}
           <div className="flex flex-wrap gap-2">
-            <Button asChild size="sm" variant="outline">
-              <Link href={`/events/${data.id}/edit`}>{text.edit}</Link>
-            </Button>
+            {data.canEditDetails ? (
+              <Button asChild size="sm" variant="outline">
+                <Link href={`/events/${data.id}/edit`}>{text.edit}</Link>
+              </Button>
+            ) : null}
             {data.cancelled ? null : (
               <Button size="sm" variant="destructive" onClick={() => setConfirmCancel(true)}>
                 {text.cancel}

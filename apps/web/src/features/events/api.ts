@@ -3,6 +3,7 @@ import {
   type EventCategory,
   type EventInputValues,
   eventListSchema,
+  eventReviewPageSchema,
   eventSchema,
 } from '@ruet-chottor/shared';
 import { apiRequest } from '@/lib/api-client';
@@ -24,4 +25,13 @@ export const eventsApi = {
   going: (id: string) => apiRequest(`/events/${id}/rsvp`, eventSchema, { method: 'POST' }),
   notGoing: (id: string) => apiRequest(`/events/${id}/rsvp`, eventSchema, { method: 'DELETE' }),
   attendees: (id: string) => apiRequest(`/events/${id}/attendees`, eventAttendeesSchema),
+  reviewQueue: (cursor?: string) =>
+    apiRequest(
+      `/events/review${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`,
+      eventReviewPageSchema,
+    ),
+  approve: (id: string) =>
+    apiRequest(`/events/${id}/approve`, eventSchema, { method: 'POST', body: {} }),
+  reject: (id: string, reason: string) =>
+    apiRequest(`/events/${id}/reject`, eventSchema, { method: 'POST', body: { reason } }),
 };
