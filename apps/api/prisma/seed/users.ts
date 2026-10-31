@@ -67,3 +67,32 @@ export async function seedUsers(prisma: PrismaClient) {
     });
   }
 }
+
+/**
+ * Class representative demo: one verified CR and one request waiting in the admin panel. Demo
+ * Student has none, so the "ask to be verified" flow can be tried. Re-running replaces these rows.
+ */
+export async function seedClassReps(prisma: PrismaClient) {
+  const byRoll = (roll: string) => prisma.user.findUniqueOrThrow({ where: { roll } });
+  const moderator = await byRoll('0000002');
+  const verified = await byRoll('2103901');
+  const waiting = await byRoll('2202904');
+  await prisma.classRepRequest.deleteMany({ where: { userId: { in: [verified.id, waiting.id] } } });
+  await prisma.classRepRequest.create({
+    data: {
+      userId: verified.id,
+      section: 'A',
+      note: 'Chosen by CSE 2021 section A in the first week of term. The class adviser can confirm.',
+      status: 'approved',
+      reviewedById: moderator.id,
+      reviewedAt: new Date(),
+    },
+  });
+  await prisma.classRepRequest.create({
+    data: {
+      userId: waiting.id,
+      section: 'B',
+      note: 'Elected CR of ME 2022 section B last month. Ask anyone in our section.',
+    },
+  });
+}

@@ -19,6 +19,8 @@ base that every later module adds its own moderation views to (CLAUDE.md §7).
 - Every action needs a reason (5–500 characters) and a confirmation, and is written to the **moderation log**.
 - Anyone on staff reads the full log, newest first. With `FEATURE_MODERATION`, a **Reports** tab holds the content
   queue ([moderation.md](moderation.md)); content actions show in the log with a link to the item.
+- With `FEATURE_USERS`, a **Class reps** tab verifies, turns down or removes class representatives
+  ([users.md](users.md)); those decisions show in the log against the member.
 
 ## Roles & permissions
 

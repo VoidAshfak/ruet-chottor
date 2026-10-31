@@ -1,5 +1,6 @@
 import type { PublicProfile } from '@ruet-chottor/shared';
 import { InfoTip } from '@/components/guide/InfoTip';
+import { ClassRepBadge } from './ClassRepBadge';
 import { help } from '../help';
 
 type ProfileDetailsProps = {
@@ -31,7 +32,10 @@ export function ProfileDetails({ profile, showTips = false }: ProfileDetailsProp
   return (
     <section className="rounded-lg border p-4 sm:p-6">
       <h2 className="text-xl font-semibold break-words">{profile.name}</h2>
-      <p className="text-sm text-muted-foreground">{help.roles[profile.role]}</p>
+      <div className="mt-1 flex flex-wrap items-center gap-2">
+        <p className="text-sm text-muted-foreground">{help.roles[profile.role]}</p>
+        {profile.classRep ? <ClassRepBadge badge={profile.classRep} /> : null}
+      </div>
       <dl className="mt-4 grid gap-3 sm:grid-cols-[10rem_1fr]">
         {rows.map((row) => (
           <div key={row.label} className="contents">

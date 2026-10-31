@@ -21,6 +21,7 @@ const TABS: Tab[] = [
   },
   { href: '/admin/moderation', label: help.tabs.reports, needs: 'moderation' },
   { href: '/admin/news', label: help.tabs.news, needs: 'news' },
+  { href: '/admin/class-reps', label: help.tabs.classReps, needs: 'users' },
   { href: '/admin/clubs', label: help.tabs.clubs, needs: 'clubs' },
   { href: '/admin/bus', label: help.tabs.bus, needs: 'bus' },
   { href: '/admin/log', label: help.tabs.log },
@@ -29,13 +30,16 @@ const TABS: Tab[] = [
 export function AdminTabs() {
   const modules = useFeatures().data?.modules ?? [];
   return (
-    <nav aria-label={help.nav} className="mb-6 flex gap-1 border-b">
+    <nav
+      aria-label={help.nav}
+      className="mb-6 flex gap-1 overflow-x-auto overflow-y-hidden border-b"
+    >
       {TABS.filter((tab) => !tab.needs || modules.includes(tab.needs)).map((tab) => (
         <NavLink
           key={tab.href}
           href={tab.href}
           isActive={tab.isActive}
-          className="-mb-px border-b-2 border-transparent px-3 py-2 text-sm text-muted-foreground hover:text-foreground aria-[current=page]:border-primary aria-[current=page]:text-foreground"
+          className="-mb-px shrink-0 border-b-2 border-transparent px-3 py-2 text-sm whitespace-nowrap text-muted-foreground hover:text-foreground aria-[current=page]:border-primary aria-[current=page]:text-foreground"
         >
           {tab.label}
         </NavLink>

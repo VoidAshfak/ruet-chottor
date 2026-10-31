@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import {
   type BusNotice,
+  type ClassRepRequest,
   type Notification,
   type BusRoute,
   type BusStop,
@@ -206,6 +207,7 @@ export class FakePrisma {
   busTrips: BusTrip[] = [];
   busNotices: BusNotice[] = [];
   notifications: Notification[] = [];
+  classRepRequests: ClassRepRequest[] = [];
 
   private withProfile(user: User | undefined, args: { select?: Where; include?: Where }) {
     if (!user) return null;
@@ -591,6 +593,38 @@ export class FakePrisma {
       return this.clubTable.update({ where, data });
     },
   };
+
+  classRepRequest = (() => {
+    const base = table<ClassRepRequest>(
+      () => this.classRepRequests,
+      () => {
+        const now = new Date();
+        return {
+          id: randomUUID(),
+          section: null,
+          status: 'pending',
+          reviewNote: null,
+          reviewedById: null,
+          reviewedAt: null,
+          createdAt: now,
+          updatedAt: now,
+        };
+      },
+    );
+    const open = (row: Partial<ClassRepRequest>) =>
+      row.status === undefined || row.status === 'pending' || row.status === 'approved';
+    return {
+      ...base,
+      /** Enforces the partial unique index: one open (pending or approved) request per member. */
+      create: async ({ data }: { data: Partial<ClassRepRequest> }) => {
+        const clash = this.classRepRequests.some(
+          (r) => r.userId === data.userId && open(r) && open(data),
+        );
+        if (clash) throw uniqueViolation();
+        return base.insert(data);
+      },
+    };
+  })();
 
   newsPost = table<NewsPost>(
     () => this.newsPosts,

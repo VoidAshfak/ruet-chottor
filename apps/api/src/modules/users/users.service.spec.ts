@@ -39,6 +39,7 @@ describe('UsersService', () => {
       series: 2017,
       email: null,
       phone: null,
+      classRep: null,
     });
   });
 

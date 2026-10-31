@@ -13,7 +13,7 @@ import { seedMarketplace } from './marketplace.js';
 import { seedModeration } from './moderation.js';
 import { seedNews } from './news.js';
 import { seedNotifications } from './notifications.js';
-import { seedUsers } from './users.js';
+import { seedClassReps, seedUsers } from './users.js';
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
@@ -25,6 +25,7 @@ async function main() {
     throw new Error('Refusing to seed: NODE_ENV is production. Seed development and staging only.');
   }
   await seedUsers(prisma);
+  await seedClassReps(prisma);
   await seedAdmin(prisma);
   await seedChat(prisma);
   await seedModeration(prisma);

@@ -12,6 +12,7 @@ export const help = {
     members: 'Members',
     reports: 'Reports',
     news: 'News review',
+    classReps: 'Class reps',
     clubs: 'Clubs',
     bus: 'Bus',
     log: 'Moderation log',
@@ -85,6 +86,9 @@ export const help = {
     dismiss_reports: 'Dismissed reports on',
     approve_content: 'Approved',
     reject_content: 'Rejected',
+    verify_class_rep: 'Class rep verified',
+    reject_class_rep: 'Class rep request turned down',
+    revoke_class_rep: 'Class rep status removed',
   } satisfies Record<ModerationAction, string>,
   logLine: {
     by: (name: string) => `by ${name}`,
@@ -102,6 +106,7 @@ export const help = {
     contentBy: (name: string) => `from ${name}`,
     days: (days: number) => `for ${days} day${days === 1 ? '' : 's'}`,
     role: (from: string, to: string) => `${from} → ${to}`,
+    section: (section: string) => `(section ${section})`,
   },
   actions: {
     warn: {
