@@ -1,6 +1,7 @@
 import type { PublicProfile } from '@ruet-chottor/shared';
 import Link from 'next/link';
 import { StartChatButton } from '@/features/chat';
+import { ClassRepBadge } from '@/features/users';
 import { help } from '../help';
 
 /** One search result. The whole name links to the member's profile. */
@@ -22,6 +23,11 @@ export function MemberCard({ member }: { member: PublicProfile }) {
         {member.name}
       </Link>
       <p className="mt-1 text-sm text-muted-foreground">{facts.join(' · ')}</p>
+      {member.classRep ? (
+        <div className="mt-2">
+          <ClassRepBadge badge={member.classRep} />
+        </div>
+      ) : null}
       {contacts.length > 0 ? (
         <ul className="mt-2 grid gap-0.5 text-sm">
           {contacts.map((contact) => (

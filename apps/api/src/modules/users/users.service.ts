@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import {
+  type ClassRepBadge,
   departmentFromRoll,
   ERROR_CODES,
   MAX_DISMISSED_GUIDES,
@@ -44,8 +45,8 @@ type UserRow = {
 
 const DEFAULT_SETTINGS = { showEmail: false, showPhone: false, dismissedGuides: [] as string[] };
 
-/** Public view with privacy applied. Exported for the directory module. */
-export function toPublicProfile(user: UserRow): PublicProfile {
+/** Public view with privacy applied. `classRep` is the badge while they are a verified CR. */
+function toPublicProfile(user: UserRow, classRep: ClassRepBadge | null): PublicProfile {
   const settings = user.profile ?? DEFAULT_SETTINGS;
   const department = departmentFromRoll(user.roll);
   return {
@@ -59,13 +60,14 @@ export function toPublicProfile(user: UserRow): PublicProfile {
     series: seriesFromRoll(user.roll),
     email: settings.showEmail ? user.email : null,
     phone: settings.showPhone ? user.phone : null,
+    classRep,
   };
 }
 
-function toMyProfile(user: UserRow): MyProfile {
+function toMyProfile(user: UserRow, classRep: ClassRepBadge | null): MyProfile {
   const settings = user.profile ?? DEFAULT_SETTINGS;
   return {
-    ...toPublicProfile(user),
+    ...toPublicProfile(user, classRep),
     email: user.email,
     phone: user.phone,
     showEmail: settings.showEmail,
@@ -82,7 +84,9 @@ export class UsersService {
   ) {}
 
   async getMine(userId: string): Promise<MyProfile> {
-    return toMyProfile(await this.findSelf(userId));
+    const user = await this.findSelf(userId);
+    const badges = await this.classRepBadges([user.id]);
+    return toMyProfile(user, badges.get(user.id) ?? null);
   }
 
   /** Suspended and banned members are hidden, as if they did not exist. */
@@ -91,7 +95,8 @@ export class UsersService {
     if (!user || user.status !== 'active') {
       throw new NotFoundException({ code: ERROR_CODES.NOT_FOUND, message: 'User not found.' });
     }
-    return toPublicProfile(user);
+    const badges = await this.classRepBadges([user.id]);
+    return toPublicProfile(user, badges.get(user.id) ?? null);
   }
 
   /**
@@ -112,8 +117,9 @@ export class UsersService {
     });
     const hasMore = rows.length > options.take;
     const page = hasMore ? rows.slice(0, options.take) : rows;
+    const badges = await this.classRepBadges(page.map((user) => user.id));
     return {
-      items: page.map(toPublicProfile),
+      items: page.map((user) => toPublicProfile(user, badges.get(user.id) ?? null)),
       nextCursor: hasMore ? (page.at(-1)?.id ?? null) : null,
     };
   }
@@ -153,6 +159,20 @@ export class UsersService {
       update: { dismissedGuides: [] },
     });
     return [];
+  }
+
+  /** Approved class representatives among these members (see ClassRepsService). */
+  private async classRepBadges(userIds: string[]): Promise<Map<string, ClassRepBadge>> {
+    if (userIds.length === 0) return new Map();
+    const rows = await this.prisma.classRepRequest.findMany({
+      where: { userId: { in: userIds }, status: 'approved' },
+    });
+    return new Map(
+      rows.map((row) => [
+        row.userId,
+        { section: row.section, since: (row.reviewedAt ?? row.createdAt).toISOString() },
+      ]),
+    );
   }
 
   private async findSelf(userId: string): Promise<UserRow> {

@@ -16,6 +16,18 @@ export const departmentSummarySchema = z.object({
   name: z.string(),
 });
 
+/** Class sections a CR can stand for; most RUET classes have up to three. */
+export const CLASS_SECTIONS = ['A', 'B', 'C', 'D', 'E'] as const;
+export type ClassSection = (typeof CLASS_SECTIONS)[number];
+
+/** Shown on a verified class representative's profile (see class-reps.ts). */
+export const classRepBadgeSchema = z.object({
+  /** null when the class has no sections. */
+  section: z.enum(CLASS_SECTIONS).nullable(),
+  since: z.string(),
+});
+export type ClassRepBadge = z.infer<typeof classRepBadgeSchema>;
+
 /**
  * What any logged-in member sees. Email and phone are null unless the owner chose to show them.
  * Date of birth is never included (CLAUDE.md §6).
@@ -30,6 +42,8 @@ export const publicProfileSchema = z.object({
   series: z.number().int().nullable(),
   email: z.string().nullable(),
   phone: z.string().nullable(),
+  /** Set while the member is a verified class representative. */
+  classRep: classRepBadgeSchema.nullable().default(null),
 });
 export type PublicProfile = z.infer<typeof publicProfileSchema>;
 

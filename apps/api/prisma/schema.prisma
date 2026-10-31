@@ -71,27 +71,28 @@ enum AccountStatus {
 }
 
 model User {
-  id             String               @id @default(uuid(7)) @db.Uuid
-  name           String
-  roll           String               @unique
-  registrationNo String               @unique
+  id               String               @id @default(uuid(7)) @db.Uuid
+  name             String
+  roll             String               @unique
+  registrationNo   String               @unique
   /// Stored lowercase.
-  email          String               @unique
+  email            String               @unique
   /// Normalised to +8801XXXXXXXXX.
-  phone          String               @unique
-  dateOfBirth    DateTime             @db.Date
+  phone            String               @unique
+  dateOfBirth      DateTime             @db.Date
   /// argon2id; never returned by the API.
-  passwordHash   String
-  role           Role                 @default(student)
-  status         AccountStatus        @default(active)
+  passwordHash     String
+  role             Role                 @default(student)
+  status           AccountStatus        @default(active)
   /// End of a temporary suspension; lifted at the next login after this time.
-  suspendedUntil DateTime?
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
-  sessions       Session[]
-  profile        Profile?
-  conversations  ConversationMember[]
-  clubs          ClubMembership[]
+  suspendedUntil   DateTime?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  sessions         Session[]
+  profile          Profile?
+  classRepRequests ClassRepRequest[]
+  conversations    ConversationMember[]
+  clubs            ClubMembership[]
 
   @@map("users")
 }
@@ -132,6 +133,46 @@ model Profile {
   @@map("profiles")
 }
 
+/// Class representative verification. The class (department + series) comes from the roll; only
+/// the section is stored. A partial unique index (see the add_class_reps migration) allows at most
+/// one open request (pending or approved) per member.
+enum ClassRepStatus {
+  pending
+  approved
+  rejected
+  withdrawn
+  revoked
+}
+
+enum ClassSection {
+  A
+  B
+  C
+  D
+  E
+}
+
+model ClassRepRequest {
+  id           String         @id @default(uuid(7)) @db.Uuid
+  userId       String         @db.Uuid
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// null when the class has no sections.
+  section      ClassSection?
+  /// The student's proof, e.g. who appointed them. Shown to staff only.
+  note         String
+  status       ClassRepStatus @default(pending)
+  /// Staff's reason, shown to the student on rejection or revocation.
+  reviewNote   String?
+  reviewedById String?        @db.Uuid
+  reviewedAt   DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@map("class_rep_requests")
+}
+
 // ===== admin =====
 // The moderation audit trail. Owned by admin and written through ModerationLogService, which
 // later modules (moderation reports, news, chat...) use too. Field names follow the
@@ -149,6 +190,9 @@ enum ModerationAction {
   dismiss_reports
   approve_content
   reject_content
+  verify_class_rep
+  reject_class_rep
+  revoke_class_rep
 }
 
 /// Append-only: a database trigger rejects UPDATE and DELETE (see the add_admin migration).

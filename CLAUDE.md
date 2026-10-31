@@ -40,6 +40,7 @@ Update this table whenever a phase changes state. Work only on the current phase
 | 5 | Bus schedule (live tracker later, once a location source exists) | ✅ Done (timetable; live tracker not started) |
 | 6 | Hardening, testing, documentation pass | ✅ Done (security, performance, docs + deployment guide) |
 | 7 | Notifications (in-app inbox, live bell) | ✅ Done (in-app; no email or settings yet) |
+| 8 | Class representatives: verification (`users`), then CR class events with approval (`events`) | 🟨 In progress (verification done; CR events not started) |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done.
 The admin panel grows with every phase: each new module adds its own moderation views.

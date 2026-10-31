@@ -42,6 +42,67 @@ export const help = {
     resetting: 'Resetting…',
     done: 'Done. Each section will show its short intro again.',
   },
+  classRep: {
+    heading: 'Class representative',
+    description: 'Are you the CR of your class? Get verified so everyone knows they can trust you.',
+    badge: (section: string | null) => (section ? `CR · Section ${section}` : 'CR'),
+    badgeLabel: (section: string | null) =>
+      section
+        ? `Verified class representative, section ${section}`
+        : 'Verified class representative',
+    forClass: (label: string) => `For your class: ${label}`,
+    section: 'Section',
+    noSections: 'My class has no sections',
+    note: 'How can a moderator check this?',
+    notePlaceholder: 'e.g. Chosen by the class on 2 January; our class adviser can confirm.',
+    ask: 'Ask to be verified',
+    asking: 'Sending…',
+    pending: (date: string) => `You asked on ${date}. A moderator will check it soon.`,
+    approved: (date: string) => `You are a verified CR since ${date}.`,
+    rejected: 'Your last request was not approved.',
+    revoked: 'Your CR status has ended.',
+    reason: (reason: string) => `Moderator's reason: ${reason}`,
+    withdraw: 'Withdraw request',
+    stepDown: 'Step down as CR',
+    cancel: 'Keep it',
+    confirmWithdraw: {
+      title: 'Withdraw your request?',
+      body: 'A moderator will not check it any more. You can ask again later.',
+    },
+    confirmStepDown: {
+      title: 'Step down as CR?',
+      body: 'Your CR badge goes away at once. To become CR again, you will need to ask again.',
+    },
+    unknownClass:
+      'We cannot tell your class from your roll, so you cannot ask yet. Tell a moderator.',
+    loadError: 'Could not load your CR status.',
+  },
+  classRepAdmin: {
+    title: 'Class representatives',
+    description: 'Check students who say they are their class CR, and manage the current CRs.',
+    lists: { pending: 'Waiting', approved: 'Current CRs' },
+    listsLabel: 'Which requests to show',
+    empty: { pending: 'No requests are waiting.', approved: 'No verified CRs yet.' },
+    loading: 'Loading requests',
+    error: 'Could not load the requests.',
+    retry: 'Try again',
+    more: 'Show more',
+    loadingMore: 'Loading…',
+    asked: (date: string) => `Asked ${date}`,
+    since: (date: string) => `CR since ${date}`,
+    proof: 'Their proof',
+    approve: 'Verify as CR',
+    reject: 'Turn down',
+    revoke: 'Remove CR status',
+    cancel: 'Cancel',
+    reason: 'Reason (the student sees this)',
+    reasonPlaceholder: 'e.g. Your class adviser did not confirm this.',
+    rejectTitle: 'Turn down this request?',
+    rejectBody: 'The student sees your reason and can ask again.',
+    revokeTitle: 'Remove CR status?',
+    revokeBody: 'Their CR badge goes away at once. The student sees your reason.',
+    verified: 'Verified.',
+  },
   states: {
     loading: 'Loading profile…',
     error: 'Could not load the profile.',
@@ -58,6 +119,14 @@ export const help = {
     showPhone:
       'If on, any logged-in RUET Chottor member can see your phone number. Off by default. Change it any time.',
     reset: 'Brings back the short intro popup in every section, like on your first visit.',
+    classRep:
+      'Verified CRs get a badge on their profile and in the directory. A moderator checks each request first.',
+    classRepSection:
+      'Pick the section you represent. Choose "no sections" if your whole series is one class.',
+    classRepNote:
+      'Only moderators see this. Say who chose you and who can confirm it, like your class adviser.',
+    classRepVerify:
+      'Check the proof first, e.g. ask the class adviser or a classmate. The student gets a CR badge.',
   },
   intro: [
     {

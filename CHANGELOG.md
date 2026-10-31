@@ -35,6 +35,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Class representative verification (`users`): a current student asks from **My profile** with their section and a
+  short proof note (their class comes from the roll); a moderator or admin verifies or turns it down in the new
+  **Admin → Class reps** tab. Verified CRs get a "CR · Section A" badge on their profile and directory card until
+  they step down or staff remove it. Decisions are logged (`verify_class_rep`, `reject_class_rep`,
+  `revoke_class_rep`) and the student is notified. Needs `FEATURE_ADMIN`. Migration `add_class_reps`; see
+  [ADR 0011](docs/decisions/0011-class-rep-verification.md).
 - Notifications module (Phase 7): an in-app inbox with a bell in the header showing the unread count, updated live
   over a `/notifications` Socket.IO namespace. Members hear when a moderator approves or rejects their news post,
   hides, removes or restores their content (with the reason, never the reporter), when someone asks to join a club

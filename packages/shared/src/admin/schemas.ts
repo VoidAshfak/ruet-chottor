@@ -19,6 +19,10 @@ export const MODERATION_ACTIONS = [
   // News review (news module).
   'approve_content',
   'reject_content',
+  // Class representative verification (users module).
+  'verify_class_rep',
+  'reject_class_rep',
+  'revoke_class_rep',
 ] as const;
 export type ModerationAction = (typeof MODERATION_ACTIONS)[number];
 

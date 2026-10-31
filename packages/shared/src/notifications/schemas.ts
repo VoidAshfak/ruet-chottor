@@ -16,6 +16,9 @@ export const NOTIFICATION_TYPES = [
   'moderation.hidden',
   'moderation.removed',
   'moderation.restored',
+  'users.class_rep_approved',
+  'users.class_rep_rejected',
+  'users.class_rep_revoked',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 

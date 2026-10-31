@@ -14,6 +14,12 @@ function detailText(entry: ModerationLogEntry): string | null {
   ) {
     return help.logLine.role(help.roles[details.from as Role], help.roles[details.to as Role]);
   }
+  if (
+    (entry.action === 'verify_class_rep' || entry.action === 'revoke_class_rep') &&
+    typeof details.section === 'string'
+  ) {
+    return help.logLine.section(details.section);
+  }
   return null;
 }
 
