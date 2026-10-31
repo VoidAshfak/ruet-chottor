@@ -13,6 +13,8 @@ export const NOTIFICATION_TYPES = [
   'news.rejected',
   'events.changed',
   'events.cancelled',
+  'events.approved',
+  'events.rejected',
   'moderation.hidden',
   'moderation.removed',
   'moderation.restored',

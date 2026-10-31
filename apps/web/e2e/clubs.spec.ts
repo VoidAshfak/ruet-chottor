@@ -45,6 +45,7 @@ async function mockApi(page: Page, viewer: typeof STUDENT) {
     links: [{ label: 'Facebook page', url: 'https://example.com/robotics' }],
     managers: [MANAGER],
     canEdit: isManager,
+    canEditDetails: isManager,
   });
 
   await page.route('**/api/v1/**', async (route) => {

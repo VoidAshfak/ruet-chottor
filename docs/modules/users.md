@@ -109,4 +109,3 @@ in the same transaction as the decision. Staff roles are re-read from the databa
   locally keeps it closed there.
 - Contact visibility is all-or-nothing for logged-in members; finer audiences (e.g. same series only) could come later.
 - **CR status does not follow role changes:** a CR whose role becomes alumni keeps the badge until staff remove it.
-- **CRs cannot create events yet;** that is the next step (class events with moderator approval).

@@ -1,7 +1,7 @@
 'use client';
 
 import type { CampusEvent, EventInputValues } from '@ruet-chottor/shared';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type EventRange, eventsApi } from '../api';
 
 export function useEventRange(range: EventRange) {
@@ -54,5 +54,31 @@ export function useEventActions(id: string) {
     going: useMutation({ mutationFn: () => eventsApi.going(id), onSuccess: refresh }),
     notGoing: useMutation({ mutationFn: () => eventsApi.notGoing(id), onSuccess: refresh }),
     cancel: useMutation({ mutationFn: () => eventsApi.cancel(id), onSuccess: refresh }),
+  };
+}
+
+export function useEventReviewQueue() {
+  return useInfiniteQuery({
+    queryKey: ['events', 'review'],
+    queryFn: ({ pageParam }) => eventsApi.reviewQueue(pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (page) => page.nextCursor ?? undefined,
+  });
+}
+
+/** Staff decisions move events onto the calendar and into the moderation log. */
+export function useEventDecision() {
+  const refresh = useRefresh();
+  const queryClient = useQueryClient();
+  const done = (event: CampusEvent) => {
+    refresh(event);
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'log'] });
+  };
+  return {
+    approve: useMutation({ mutationFn: eventsApi.approve, onSuccess: done }),
+    reject: useMutation({
+      mutationFn: ({ id, reason }: { id: string; reason: string }) => eventsApi.reject(id, reason),
+      onSuccess: done,
+    }),
   };
 }

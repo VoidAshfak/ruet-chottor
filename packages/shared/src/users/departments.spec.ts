@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   type Department,
+  departmentByCode,
   DEPARTMENTS,
   departmentFromRoll,
   rollPrefixes,
@@ -59,5 +60,18 @@ describe('departmentFromRoll', () => {
     expect(departmentFromRoll('2015001', table, today)?.short).toBe('NEW');
     expect(rollPrefixes({ department: 'OLD', series: 2020 }, table, today)).toEqual([]);
     expect(rollPrefixes({ department: 'NEW', series: 2020 }, table, today)).toEqual(['2015']);
+  });
+});
+
+describe('departmentByCode', () => {
+  it('finds the department a code meant for that series', () => {
+    const table: Department[] = [
+      { code: '15', short: 'OLD', name: 'Old Department', untilSeries: 2019 },
+      { code: '15', short: 'NEW', name: 'New Department', fromSeries: 2020 },
+    ];
+    expect(departmentByCode('15', 2019, table)?.short).toBe('OLD');
+    expect(departmentByCode('15', 2021, table)?.short).toBe('NEW');
+    expect(departmentByCode('03', 2021)?.short).toBe('CSE');
+    expect(departmentByCode('99', 2021)).toBeNull();
   });
 });

@@ -16,8 +16,10 @@ import { InfoTip } from '@/components/guide/InfoTip';
 import { Button } from '@/components/ui/button';
 import { useManagedClubs } from '@/features/clubs';
 import { dayLabel, eventsOn, monthGrid, monthLabel, shiftMonth } from '../calendar';
+import { classLabel } from '../class-label';
 import { help } from '../help';
 import { useEventRange } from '../hooks/use-events';
+import { useMyClass } from '../hooks/use-my-class';
 import { LoginGate } from './LoginGate';
 
 const MAX_IN_CELL = 2;
@@ -50,6 +52,7 @@ function EventLine({ event }: { event: CampusEvent }) {
               event.cancelled ? help.event.cancelled : null,
               help.categories[event.category],
               event.club?.name,
+              event.class ? classLabel(event.class) : null,
               event.venue,
             ]
               .filter(Boolean)
@@ -76,7 +79,9 @@ function Calendar({ role }: { role: string }) {
     category,
   });
   const managed = useManagedClubs({ enabled: true });
-  const canCreate = (STAFF_ROLES as readonly string[]).includes(role) || managed.length > 0;
+  const myClass = useMyClass();
+  const canCreate =
+    (STAFF_ROLES as readonly string[]).includes(role) || managed.length > 0 || myClass !== null;
   const items = events.data?.items ?? [];
   const selectedEvents = selected.startsWith(month) ? eventsOn(items, selected) : [];
   const clubName = items.find((e) => e.club?.id === clubId)?.club?.name;

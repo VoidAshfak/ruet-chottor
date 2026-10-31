@@ -8,11 +8,15 @@ import {
 } from '@nestjs/common';
 import {
   type CampusEvent,
+  type ClassSection,
+  type CursorPageQuery,
+  departmentByCode,
   ERROR_CODES,
   type EventAttendees,
   type EventInput,
   type EventList,
   type EventRangeQuery,
+  type EventReviewPage,
   formatDateTime,
   STAFF_ROLES,
 } from '@ruet-chottor/shared';
@@ -20,14 +24,27 @@ import { MediaService } from '../../core/media/media.service.js';
 import { PrismaService } from '../../core/prisma/prisma.service.js';
 import { RateLimitService } from '../../core/rate-limit/rate-limit.service.js';
 import { type Event as EventRow, Prisma, type User } from '../../generated/prisma/client.js';
+import { ModerationLogService } from '../admin/moderation-log.service.js';
 import { ClubsService } from '../clubs/clubs.service.js';
 import { NotificationsService } from '../notifications/notifications.service.js';
+import { UsersService } from '../users/users.service.js';
 
 export const EVENTS_RATE_LIMITS = {
   create: { name: 'events:create', limit: 20, windowSeconds: 60 * 60 },
   edit: { name: 'events:edit', limit: 60, windowSeconds: 60 * 60 },
   rsvp: { name: 'events:rsvp', limit: 60, windowSeconds: 60 * 60 },
+  review: { name: 'events:review', limit: 120, windowSeconds: 15 * 60 },
 } as const;
+
+type ClassOf = NonNullable<Awaited<ReturnType<UsersService['classRepOf']>>>;
+
+/** "CSE 2021, section A", for notifications. */
+function classText(row: Pick<EventRow, 'classDepartment' | 'classSeries' | 'classSection'>) {
+  if (!row.classDepartment || row.classSeries === null) return '';
+  const department = departmentByCode(row.classDepartment, row.classSeries);
+  const section = row.classSection ? `, section ${row.classSection}` : '';
+  return `${department?.short ?? row.classDepartment} ${row.classSeries}${section}`;
+}
 
 /** The calendar returns at most this many events per request (a busy month, with room to spare). */
 const RANGE_LIMIT = 300;
@@ -41,6 +58,19 @@ const forbidden = (message: string) =>
 const badRequest = (message: string) =>
   new BadRequestException({ code: ERROR_CODES.BAD_REQUEST, message });
 
+function presentClass(row: EventRow): CampusEvent['class'] {
+  if (!row.classDepartment || row.classSeries === null) return null;
+  const department = departmentByCode(row.classDepartment, row.classSeries);
+  return {
+    department: department
+      ? { code: department.code, short: department.short, name: department.name }
+      : null,
+    series: row.classSeries,
+    // Written from a validated ClassSection when the event was created.
+    section: row.classSection as ClassSection | null,
+  };
+}
+
 @Injectable()
 export class EventsService {
   constructor(
@@ -51,6 +81,9 @@ export class EventsService {
     @Optional() private readonly clubs?: ClubsService,
     /** Present only when the notifications module is switched on. */
     @Optional() private readonly notifications?: NotificationsService,
+    /** Class events: present only when users and admin are on (CR verification and reviews). */
+    @Optional() private readonly users?: UsersService,
+    @Optional() private readonly log?: ModerationLogService,
   ) {}
 
   /** Everything overlapping [from, to): a calendar month, or "upcoming" on a club page. */
@@ -58,6 +91,7 @@ export class EventsService {
     const rows = await this.prisma.event.findMany({
       where: {
         status: 'visible',
+        review: 'approved',
         startsAt: { lt: new Date(query.to) },
         endsAt: { gt: new Date(query.from) },
         ...(query.clubId ? { clubId: query.clubId } : {}),
@@ -72,13 +106,40 @@ export class EventsService {
   async get(viewerId: string, id: string): Promise<CampusEvent> {
     const event = await this.prisma.event.findUnique({ where: { id } });
     if (!event) throw notFound();
-    if (event.status !== 'visible' && !(await this.canEdit(viewerId, event))) throw notFound();
+    const published = event.status === 'visible' && event.review === 'approved';
+    if (!published && !(await this.canEdit(viewerId, event))) throw notFound();
     return this.presentOne(event, viewerId);
+  }
+
+  /** Staff: class events waiting for review, oldest first. */
+  async reviewQueue(staffId: string, query: CursorPageQuery): Promise<EventReviewPage> {
+    await this.requireStaff(staffId);
+    const rows = await this.prisma.event.findMany({
+      where: { review: 'pending', status: { not: 'removed' } },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      take: query.limit + 1,
+      ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+    });
+    const hasMore = rows.length > query.limit;
+    const page = hasMore ? rows.slice(0, query.limit) : rows;
+    return {
+      items: await this.present(page, staffId),
+      nextCursor: hasMore ? (page.at(-1)?.id ?? null) : null,
+    };
+  }
+
+  approve(staffId: string, id: string): Promise<CampusEvent> {
+    return this.decide(staffId, id, 'approved', 'Approved for the calendar.');
+  }
+
+  reject(staffId: string, id: string, reason: string): Promise<CampusEvent> {
+    return this.decide(staffId, id, 'rejected', reason);
   }
 
   async create(userId: string, input: EventInput): Promise<CampusEvent> {
     const user = await this.requireActive(userId);
-    await this.requireOrganiser(user, input.clubId);
+    const classOf = input.forClass ? await this.requireClassRep(user) : null;
+    if (!classOf) await this.requireOrganiser(user, input.clubId);
     if (Date.parse(input.startsAt) < Date.now() - START_GRACE_MS) {
       throw badRequest('The event cannot start in the past.');
     }
@@ -91,9 +152,18 @@ export class EventsService {
         venue: input.venue,
         startsAt: new Date(input.startsAt),
         endsAt: new Date(input.endsAt),
-        clubId: input.clubId,
+        clubId: classOf ? null : input.clubId,
         capacity: input.capacity,
         createdById: userId,
+        // A CR's class event waits for a moderator before it reaches the calendar.
+        ...(classOf
+          ? {
+              review: 'pending' as const,
+              classDepartment: classOf.departmentCode,
+              classSeries: classOf.series,
+              classSection: classOf.section,
+            }
+          : {}),
       },
     });
     await this.media.attach(
@@ -112,8 +182,21 @@ export class EventsService {
     if (!(await this.canEdit(userId, event)))
       throw forbidden('Only the organisers can edit this event.');
     if (event.status === 'removed') throw forbidden('A moderator removed this event.');
-    // Moving it to another club needs the right to organise for that club too.
-    if (input.clubId !== event.clubId) await this.requireOrganiser(user, input.clubId);
+    const isClass = event.classSeries !== null;
+    if (input.forClass !== isClass) {
+      throw badRequest('An event cannot switch between a class event and other events.');
+    }
+    // A CR's edit goes back to review, and only a current CR may make one. Staff edits stand.
+    let backToReview = false;
+    if (isClass) {
+      if (!this.isStaffUser(user)) {
+        await this.requireClassRep(user);
+        backToReview = true;
+      }
+    } else if (input.clubId !== event.clubId) {
+      // Moving it to another club needs the right to organise for that club too.
+      await this.requireOrganiser(user, input.clubId);
+    }
     await this.rateLimit.consume(EVENTS_RATE_LIMITS.edit, userId);
 
     const going = await this.prisma.eventRsvp.count({ where: { eventId: id } });
@@ -137,9 +220,11 @@ export class EventsService {
         endsAt: new Date(input.endsAt),
         clubId: input.clubId,
         capacity: input.capacity,
+        ...(backToReview ? { review: 'pending' as const, reviewNote: null } : {}),
       },
     });
-    if (moved && !updated.cancelledAt) {
+    // Off the calendar until approved again; the approval tells the people going instead.
+    if (moved && !updated.cancelledAt && !backToReview) {
       await this.notifyGoing(userId, updated, {
         type: 'events.changed',
         title: `${updated.title} has changed`,
@@ -171,7 +256,7 @@ export class EventsService {
   async going(userId: string, id: string): Promise<CampusEvent> {
     await this.requireActive(userId);
     const event = await this.prisma.event.findUnique({ where: { id } });
-    if (!event || event.status !== 'visible') throw notFound();
+    if (!event || event.status !== 'visible' || event.review !== 'approved') throw notFound();
     if (event.cancelledAt) throw badRequest('This event was cancelled.');
     if (event.endsAt.getTime() < Date.now()) throw badRequest('This event is over.');
     await this.rateLimit.consume(EVENTS_RATE_LIMITS.rsvp, userId);
@@ -263,6 +348,84 @@ export class EventsService {
     );
   }
 
+  /** A staff decision on a waiting class event: logged, and the organiser is told. */
+  private async decide(
+    staffId: string,
+    id: string,
+    review: 'approved' | 'rejected',
+    reason: string,
+  ): Promise<CampusEvent> {
+    await this.requireStaff(staffId);
+    if (!this.log) throw forbidden('Event review is not available.');
+    await this.rateLimit.consume(EVENTS_RATE_LIMITS.review, staffId);
+    const event = await this.prisma.event.findUnique({ where: { id } });
+    if (!event || event.review !== 'pending' || event.status === 'removed') throw notFound();
+    if (event.createdById === staffId) {
+      throw forbidden('Another staff member must review your event.');
+    }
+    const now = new Date();
+    const [, updated] = await this.prisma.$transaction([
+      this.log.record({
+        moderatorId: staffId,
+        action: review === 'approved' ? 'approve_content' : 'reject_content',
+        contentType: 'events.event',
+        contentId: id,
+        targetUserId: event.createdById,
+        reason,
+      }),
+      this.prisma.event.update({
+        where: { id },
+        data: {
+          review,
+          reviewNote: review === 'approved' ? null : reason,
+          reviewedById: staffId,
+          reviewedAt: now,
+          ...(review === 'approved' && !event.approvedAt ? { approvedAt: now } : {}),
+        },
+      }),
+    ]);
+    const label = classText(updated);
+    await this.notifications?.notify([event.createdById], {
+      type: review === 'approved' ? 'events.approved' : 'events.rejected',
+      title:
+        review === 'approved'
+          ? `${updated.title} is on the calendar`
+          : `${updated.title} was not approved`,
+      body:
+        review === 'rejected'
+          ? `Moderator's reason: ${reason}`
+          : label
+            ? `Class event for ${label}.`
+            : null,
+      link: `/events/${id}`,
+    });
+    // An edit that was approved again: the people going should look at it.
+    if (review === 'approved' && event.approvedAt && !updated.cancelledAt) {
+      await this.notifyGoing(event.createdById, updated, {
+        type: 'events.changed',
+        title: `${updated.title} was updated`,
+        body: `Now ${formatDateTime(updated.startsAt)} at ${updated.venue}.`,
+      });
+    }
+    return this.presentOne(updated, staffId);
+  }
+
+  /** Class events need a currently verified class representative (users module). */
+  private async requireClassRep(user: User): Promise<ClassOf> {
+    if (!this.users || !this.log) throw forbidden('Class events are not available.');
+    const classOf = await this.users.classRepOf(user.id);
+    if (!classOf) {
+      throw forbidden('Only verified class representatives can create or edit class events.');
+    }
+    return classOf;
+  }
+
+  /** From the database, so a demoted moderator loses access at once. */
+  private async requireStaff(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!this.isStaffUser(user)) throw forbidden('You do not have permission to do this.');
+  }
+
   /** Staff organise anything; club managers organise for their own clubs. */
   private async requireOrganiser(user: User, clubId: string | null) {
     if (this.isStaffUser(user)) {
@@ -325,6 +488,12 @@ export class EventsService {
       this.prisma.user.findUnique({ where: { id: viewerId } }),
     ]);
     const staff = this.isStaffUser(viewer);
+    // Only asked when the viewer organised a class event here: may they still edit it?
+    const viewerIsRep =
+      !staff &&
+      !!this.users &&
+      rows.some((r) => r.classSeries !== null && r.createdById === viewerId) &&
+      (await this.users.classRepOf(viewerId)) !== null;
     const byId = new Map(organisers.map((u) => [u.id, u]));
     const goingCounts = new Map(counts.map((c) => [c.eventId, c._count._all]));
     return rows.map((row) => {
@@ -340,6 +509,7 @@ export class EventsService {
         startsAt: row.startsAt.toISOString(),
         endsAt: row.endsAt.toISOString(),
         club: (row.clubId && clubs.get(row.clubId)) || null,
+        class: presentClass(row),
         organiser: byId.get(row.createdById) ?? null,
         poster: posters.get(row.id)?.[0] ?? null,
         capacity: row.capacity,
@@ -349,6 +519,10 @@ export class EventsService {
         cancelled: row.cancelledAt !== null,
         moderated: row.status !== 'visible',
         canEdit: canEdit && row.status !== 'removed',
+        canEditDetails:
+          canEdit && row.status !== 'removed' && (row.classSeries === null || staff || viewerIsRep),
+        review: row.review,
+        reviewNote: canEdit ? row.reviewNote : null,
       };
     });
   }

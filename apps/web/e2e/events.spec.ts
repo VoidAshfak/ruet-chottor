@@ -54,6 +54,7 @@ async function mockApi(page: Page, viewer: typeof STUDENT) {
     cancelled: false,
     moderated: false,
     canEdit: viewer.id === MANAGER.id,
+    canEditDetails: viewer.id === MANAGER.id,
   };
   const created: unknown[] = [];
 

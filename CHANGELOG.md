@@ -35,6 +35,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Class events (`events`): a verified class representative proposes an event for their class ("My class: CSE
+  2021 · Section A"). It waits off the calendar until a moderator or admin approves it or turns it down with a
+  reason in the new **Admin → Event review** tab; approved class events show for everyone, labelled with the class.
+  A CR's edit goes back to review, and the people going are told once it is approved again. A former CR keeps their
+  events and can cancel them, but cannot create or edit class events. The form says class events are for
+  gatherings, not tests or assignments. Reviews are logged and notified (`events.approved`, `events.rejected`).
+  Needs `FEATURE_USERS` and `FEATURE_ADMIN`. Migration `add_class_events` (existing events become `approved`).
 - Class representative verification (`users`): a current student asks from **My profile** with their section and a
   short proof note (their class comes from the roll); a moderator or admin verifies or turns it down in the new
   **Admin → Class reps** tab. Verified CRs get a "CR · Section A" badge on their profile and directory card until

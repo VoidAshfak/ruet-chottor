@@ -1,7 +1,9 @@
 import { z } from 'zod';
 import { ROLES } from '../auth/schemas.js';
 import { clubRefSchema } from '../clubs/schemas.js';
+import { cursorPageSchema } from '../common/pagination.js';
 import { mediaAssetSchema } from '../media/schemas.js';
+import { CLASS_SECTIONS, departmentSummarySchema } from '../users/schemas.js';
 
 export const EVENT_CATEGORIES = [
   'workshop',
@@ -13,6 +15,13 @@ export const EVENT_CATEGORIES = [
   'other',
 ] as const;
 export type EventCategory = (typeof EVENT_CATEGORIES)[number];
+
+/**
+ * Class events by verified class representatives wait for a moderator (`pending`); every other
+ * event is `approved` at once. A CR's edit sends the event back to `pending`.
+ */
+export const EVENT_REVIEWS = ['pending', 'approved', 'rejected'] as const;
+export type EventReview = (typeof EVENT_REVIEWS)[number];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -66,9 +75,18 @@ export const eventInputSchema = z
     ),
     /** A checked upload (purpose "events.poster"), or null. */
     posterId: z.preprocess(emptyToNull, z.uuid().nullable()),
+    /** A class event by a verified class representative (needs clubId null); waits for review. */
+    forClass: z.boolean().default(false),
   })
   .strict()
   .superRefine((value, ctx) => {
+    if (value.forClass && value.clubId) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['clubId'],
+        message: 'A class event cannot also be a club event',
+      });
+    }
     const start = Date.parse(value.startsAt);
     const end = Date.parse(value.endsAt);
     if (end <= start) {
@@ -84,6 +102,14 @@ export const eventInputSchema = z
 export type EventInput = z.infer<typeof eventInputSchema>;
 export type EventInputValues = z.input<typeof eventInputSchema>;
 
+/** The class a CR event is for, fixed when it was created. */
+export const eventClassSchema = z.object({
+  department: departmentSummarySchema.nullable(),
+  series: z.number().int(),
+  section: z.enum(CLASS_SECTIONS).nullable(),
+});
+export type EventClass = z.infer<typeof eventClassSchema>;
+
 export const eventSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -94,6 +120,8 @@ export const eventSchema = z.object({
   endsAt: z.string(),
   /** null for campus-wide events, or when clubs are switched off. */
   club: clubRefSchema.nullable(),
+  /** Set for class events by a class representative. */
+  class: eventClassSchema.nullable().default(null),
   organiser: z.object({ id: z.string(), name: z.string(), role: z.enum(ROLES) }).nullable(),
   poster: mediaAssetSchema.nullable(),
   capacity: z.number().int().nullable(),
@@ -103,8 +131,16 @@ export const eventSchema = z.object({
   cancelled: z.boolean(),
   /** Hidden or removed by a moderator; only its organisers and staff still get it. */
   moderated: z.boolean(),
-  /** The organiser, the club's managers and staff may edit, cancel and see attendees. */
+  /** The organiser, the club's managers and staff may cancel and see attendees. */
   canEdit: z.boolean(),
+  /**
+   * May open the edit form: like `canEdit`, except that a class event's organiser must still be a
+   * verified CR.
+   */
+  canEditDetails: z.boolean(),
+  review: z.enum(EVENT_REVIEWS).default('approved'),
+  /** The moderator's reason on rejection; only for the organisers and staff. */
+  reviewNote: z.string().nullable().default(null),
 });
 export type CampusEvent = z.infer<typeof eventSchema>;
 
@@ -129,6 +165,10 @@ export const eventListSchema = z.object({ items: z.array(eventSchema) });
 export type EventList = z.infer<typeof eventListSchema>;
 
 export const eventIdParamSchema = z.object({ id: z.uuid() });
+
+/** GET /events/review: class events waiting for a moderator, oldest first. */
+export const eventReviewPageSchema = cursorPageSchema(eventSchema);
+export type EventReviewPage = z.infer<typeof eventReviewPageSchema>;
 
 export const eventAttendeeSchema = z.object({
   id: z.string(),

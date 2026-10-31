@@ -1,16 +1,21 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
 import {
   type CampusEvent,
+  type CursorPageQuery,
+  cursorPageQuerySchema,
   type EventAttendees,
   eventIdParamSchema,
   type EventInput,
   eventInputSchema,
   type EventList,
   type EventRangeQuery,
+  type EventReviewPage,
+  type ReasonRequest,
+  reasonRequestSchema,
   eventRangeQuerySchema,
 } from '@ruet-chottor/shared';
 import type { Principal } from '../../core/auth/access-token.store.js';
-import { CurrentUser } from '../../core/auth/decorators.js';
+import { CurrentUser, Roles } from '../../core/auth/decorators.js';
 import { ZodValidationPipe } from '../../core/http/zod-validation.pipe.js';
 import { EventsService } from './events.service.js';
 
@@ -25,6 +30,37 @@ export class EventsController {
     @Query(new ZodValidationPipe(eventRangeQuerySchema)) query: EventRangeQuery,
   ): Promise<EventList> {
     return this.events.range(principal.userId, query);
+  }
+
+  // Declared before `:id` so "review" is never read as an event id.
+  @Get('review')
+  @Roles('moderator', 'admin')
+  reviewQueue(
+    @CurrentUser() principal: Principal,
+    @Query(new ZodValidationPipe(cursorPageQuerySchema)) query: CursorPageQuery,
+  ): Promise<EventReviewPage> {
+    return this.events.reviewQueue(principal.userId, query);
+  }
+
+  @Post(':id/approve')
+  @HttpCode(200)
+  @Roles('moderator', 'admin')
+  approve(
+    @CurrentUser() principal: Principal,
+    @Param(new ZodValidationPipe(eventIdParamSchema)) params: { id: string },
+  ): Promise<CampusEvent> {
+    return this.events.approve(principal.userId, params.id);
+  }
+
+  @Post(':id/reject')
+  @HttpCode(200)
+  @Roles('moderator', 'admin')
+  reject(
+    @CurrentUser() principal: Principal,
+    @Param(new ZodValidationPipe(eventIdParamSchema)) params: { id: string },
+    @Body(new ZodValidationPipe(reasonRequestSchema)) body: ReasonRequest,
+  ): Promise<CampusEvent> {
+    return this.events.reject(principal.userId, params.id, body.reason);
   }
 
   @Get(':id')

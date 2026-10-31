@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import {
   type ClassRepBadge,
+  type ClassSection,
   departmentFromRoll,
   ERROR_CODES,
   MAX_DISMISSED_GUIDES,
@@ -159,6 +160,24 @@ export class UsersService {
       update: { dismissedGuides: [] },
     });
     return [];
+  }
+
+  /**
+   * The class a member is a verified class representative of, or null. For the events module
+   * (class events); the class comes from the roll, the section from the approved request.
+   */
+  async classRepOf(
+    userId: string,
+  ): Promise<{ departmentCode: string; series: number; section: ClassSection | null } | null> {
+    const [user, request] = await Promise.all([
+      this.prisma.user.findUnique({ where: { id: userId }, select: { roll: true, status: true } }),
+      this.prisma.classRepRequest.findFirst({ where: { userId, status: 'approved' } }),
+    ]);
+    if (!user || user.status !== 'active' || !request) return null;
+    const department = departmentFromRoll(user.roll);
+    const series = seriesFromRoll(user.roll);
+    if (!department || series === null) return null;
+    return { departmentCode: department.code, series, section: request.section };
   }
 
   /** Approved class representatives among these members (see ClassRepsService). */
