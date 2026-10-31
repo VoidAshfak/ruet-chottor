@@ -16,17 +16,52 @@ export const help = {
     // "Let's have an adda!" Adda is the long, easy chat that campus squares are known for.
     bubble: 'চলো আড্ডা দিই!',
   },
-  values: [
-    {
-      title: 'Find people',
-      body: 'Search classmates, seniors and teachers by name, roll or department.',
-    },
-    {
-      title: 'Talk',
-      body: 'One-to-one and group chats, without hunting through social media groups.',
-    },
-    { title: 'Campus life', body: 'News and clubs in one place, checked by moderators.' },
-  ],
+  sections: {
+    title: 'Explore Chottor',
+    description: 'Everything the campus square offers, one tap away.',
+    open: 'Open',
+  },
+  quickActions: {
+    title: 'Quick actions',
+    chat: 'Start a chat',
+    lost: 'Report a lost item',
+    sell: 'Sell something',
+    bus: 'Check the bus',
+  },
+  join: {
+    title: 'Join in three steps',
+    steps: [
+      {
+        title: 'Sign up with your roll',
+        body: 'Your name, RUET roll, registration number, email and phone. Takes a minute.',
+      },
+      {
+        title: 'Enter the 6-digit code',
+        body: 'Every login sends a one-time code to your email, so only you can get in.',
+      },
+      {
+        title: 'Make it yours',
+        body: 'Your department and series fill in from your roll. Choose who can see your email or phone.',
+      },
+    ],
+  },
+  safety: {
+    title: 'Safe by default',
+    items: [
+      {
+        title: 'Your details stay private',
+        body: 'Email and phone are hidden unless you choose to show them. Your birthday never is.',
+      },
+      {
+        title: 'Anything can be reported',
+        body: 'Posts, messages, listings and events all have a Report button.',
+      },
+      {
+        title: 'Real moderators',
+        body: 'Moderators review every report and keep the square clean, kind and spam-free.',
+      },
+    ],
+  },
   comingSoon: {
     title: 'Coming to Chottor',
     tip: 'Sections are added one at a time. These are being built and will appear in the menu when ready.',

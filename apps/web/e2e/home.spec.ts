@@ -58,9 +58,10 @@ test('first visit shows the intro guide, then the home page', async ({ page }) =
   ).toBeVisible();
   await expect(page.getByRole('img', { name: /Cartoon of RUET campus life/ })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Join with your RUET roll' })).toBeVisible();
-  // Only sections that are not on yet are listed, so the page never repeats the menu.
+  // Sections that are on get a card; the rest are listed as coming.
+  await expect(page.getByRole('main').getByRole('link', { name: /^Directory/ })).toBeVisible();
   await expect(page.getByText('Lost & Found', { exact: true })).toBeVisible();
-  await expect(page.getByRole('main').getByText('Directory', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Join in three steps' })).toBeVisible();
 
   // The guide stays dismissed after a reload.
   await page.reload();
@@ -118,7 +119,7 @@ test('a long name never stretches the header, and the menu opens on phones', asy
   expect(overflow).toBe(false);
 
   await page.getByRole('button', { name: 'Open the list of sections' }).click();
-  await page.getByRole('link', { name: 'Messages' }).click();
+  await page.getByRole('link', { name: 'Messages', exact: true }).click();
   await expect(page).toHaveURL(/\/chat$/);
 
   await page.getByRole('button', { name: `Account menu for ${name}` }).click();

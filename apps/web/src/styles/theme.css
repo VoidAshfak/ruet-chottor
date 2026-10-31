@@ -163,12 +163,10 @@
   --art-trunk: #7a5134;
   --art-mango: #f2b51f;
   --art-ink: #3a3a3a;
-  /* RUET gate artwork: whitewashed concrete and its shade, iron grille, road. */
-  --art-concrete: #f6f1e7;
+  /* Line shade (loader, 404 map) and the iron of the entrance gates. */
   --art-concrete-dark: #ddd2bf;
   --art-iron: #4a5560;
-  --art-road: #d9d4cb;
-  /* RUET entrance gate (footer): pale-blue concrete, its shade and the sweeping arc, the planter shrubs. */
+  /* RUET entrance gate (login, sign-up): pale-blue concrete, its shade and the sweeping arc, the planter shrubs. */
   --art-gate-wall: #c9d6ee;
   --art-gate-wall-dark: #a3b6da;
   --art-gate-arc: #dde8f8;

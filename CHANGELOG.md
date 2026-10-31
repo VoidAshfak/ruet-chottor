@@ -120,13 +120,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
-- Look and feel: a cartoon of the RUET main gate on the login and sign-up pages; an illustrated 404; a
-  notebook-and-pencil drawing on every empty list; a hand-drawn squiggle under page titles. All art is inline SVG
-  using theme tokens (`components/art/`).
+- Home page: an "Explore Chottor" card for every section that is on; quick actions for members (start a chat,
+  report a lost item, sell something, check the bus); for visitors, how to join in three steps and what keeps the
+  square safe.
+- Look and feel: an illustrated 404; a notebook-and-pencil drawing on every empty list; a hand-drawn squiggle
+  under page titles. All art is inline SVG using theme tokens (`components/art/`).
 - New animated loader (`RuetLoader`: a turning gear over a book whose page flips, in the logo's colours; still
   under `prefers-reduced-motion`). It replaces the grey placeholder blocks and is the route `loading.tsx`.
-- The footer is centred, under a drawing of the RUET entrance gate (name pillar, truss, arc, planter, IN/OUT
-  gates; the emblem is left out).
+- The footer is centred. The RUET entrance gate drawing (name pillar, truss, arc, planter, IN/OUT gates; the
+  emblem is left out) sits above the login and sign-up forms.
 - Links get a thick, offset underline that turns orange on hover; the current header section has an orange bar
   under it.
 - Moderation: **Restore** now also closes any open reports on the item as dismissed.
