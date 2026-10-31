@@ -1,6 +1,5 @@
 'use client';
 
-import { MessagesSquareIcon, NewspaperIcon, UsersRoundIcon } from 'lucide-react';
 import { RuetLoader } from '@/components/art/RuetLoader';
 import { InfoTip } from '@/components/guide/InfoTip';
 import { useSession } from '@/features/auth';
@@ -8,8 +7,9 @@ import { LatestNews } from '@/features/news';
 import { NAV_MODULES } from '@/lib/modules';
 import { useFeatures } from '@/lib/use-features';
 import { help } from '../help';
-
-const VALUE_ICONS = [UsersRoundIcon, MessagesSquareIcon, NewspaperIcon];
+import { QuickActions } from './QuickActions';
+import { SectionGrid } from './SectionGrid';
+import { VisitorGuide } from './VisitorGuide';
 
 /** Sections not switched on yet. The menu lists the ones that are, so this never repeats it. */
 function ComingSoon({ enabled }: { enabled: readonly string[] }) {
@@ -38,7 +38,10 @@ function ComingSoon({ enabled }: { enabled: readonly string[] }) {
   );
 }
 
-/** Below the hero: news for members, what Chottor is for visitors, and what is coming. */
+/**
+ * Below the hero. Members: shortcuts and the latest news. Everyone: a card per section.
+ * Visitors: how to join and what keeps the square safe. Then anything still coming.
+ */
 export function HomeBody() {
   const features = useFeatures();
   const session = useSession();
@@ -56,22 +59,11 @@ export function HomeBody() {
   }
 
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-10">
+      {session.user ? <QuickActions enabled={enabled} /> : null}
       {session.user && enabled.includes('news') ? <LatestNews /> : null}
-      {session.user ? null : (
-        <ul className="grid gap-4 sm:grid-cols-3">
-          {help.values.map((value, index) => {
-            const Icon = VALUE_ICONS[index]!;
-            return (
-              <li key={value.title} className="grid gap-1">
-                <Icon aria-hidden className="size-6 text-primary" />
-                <h2 className="font-medium">{value.title}</h2>
-                <p className="text-sm text-muted-foreground">{value.body}</p>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      <SectionGrid enabled={enabled} />
+      {!session.user && !session.isPending ? <VisitorGuide /> : null}
       <ComingSoon enabled={enabled} />
     </div>
   );
